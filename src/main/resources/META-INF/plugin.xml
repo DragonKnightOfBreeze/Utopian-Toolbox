@@ -1,0 +1,16 @@
+<idea-plugin>
+    <id>icu.windea.ut.toolbox</id>
+    <name>Utopian Toolbox</name>
+    <category>Languages</category>
+    <resource-bundle>messages.UtBundle</resource-bundle>
+
+    <vendor email="dk_breeze@qq.com" url="https://github.com/DragonKnightOfBreeze">DragonKnightOfBreeze</vendor>
+
+    <depends>com.intellij.modules.lang</depends>
+    <depends optional="true" config-file="ut-extension-markdown.xml">org.intellij.plugins.markdown</depends>
+    
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService serviceImplementation="icu.windea.ut.toolbox.core.settings.UtFoldingSettings"/>
+        <codeFoldingOptionsProvider instance="icu.windea.ut.toolbox.core.settings.UtFoldingOptionsProvider"/>
+    </extensions>
+</idea-plugin>
