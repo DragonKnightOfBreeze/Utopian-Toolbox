@@ -8,7 +8,7 @@ import com.intellij.openapi.editor.FoldingGroup
 import com.intellij.openapi.project.DumbAware
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiRecursiveElementWalkingVisitor
-import icu.windea.ut.toolbox.core.settings.UtFoldingSettings
+import icu.windea.ut.toolbox.settings.UtFoldingSettings
 import org.intellij.plugins.markdown.lang.psi.impl.MarkdownImage
 import org.intellij.plugins.markdown.lang.psi.impl.MarkdownInlineLink
 

@@ -8,9 +8,10 @@
 
     <depends>com.intellij.modules.lang</depends>
     <depends optional="true" config-file="ut-extension-markdown.xml">org.intellij.plugins.markdown</depends>
+    <depends optional="true" config-file="ut-extension-yaml.xml">org.jetbrains.plugins.yaml</depends>
     
     <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="icu.windea.ut.toolbox.core.settings.UtFoldingSettings"/>
-        <codeFoldingOptionsProvider instance="icu.windea.ut.toolbox.core.settings.UtFoldingOptionsProvider"/>
+        <applicationService serviceImplementation="icu.windea.ut.toolbox.settings.UtFoldingSettings"/>
+        <codeFoldingOptionsProvider instance="icu.windea.ut.toolbox.settings.UtFoldingOptionsProvider"/>
     </extensions>
 </idea-plugin>

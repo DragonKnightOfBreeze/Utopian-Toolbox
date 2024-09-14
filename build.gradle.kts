@@ -17,6 +17,7 @@ intellij {
     version.set(providers.gradleProperty("intellijVersion"))
 
     //optional
+    plugins.add("yaml")
     plugins.add("markdown")
 }
 

@@ -1,4 +1,4 @@
-package icu.windea.ut.toolbox.core.settings
+package icu.windea.ut.toolbox.settings
 
 import com.intellij.openapi.components.*
 import com.intellij.util.xmlb.XmlSerializerUtil
