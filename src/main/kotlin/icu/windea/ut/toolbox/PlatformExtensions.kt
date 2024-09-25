@@ -19,7 +19,6 @@ import com.intellij.psi.util.CachedValuesManager
 import com.intellij.refactoring.actions.BaseRefactoringAction.getElementAtCaret
 import com.intellij.util.ProcessingContext
 import icu.windea.ut.toolbox.util.KeyWithFactory
-import it.unimi.dsi.fastutil.objects.*
 import java.util.concurrent.ExecutionException
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -33,15 +32,15 @@ fun String.compareToIgnoreCase(other: String): Int {
 inline fun <T> cancelable(block: () -> T): T {
     try {
         return block()
-    } catch(e: ExecutionException) {
+    } catch (e: ExecutionException) {
         val cause = e.cause
-        if(cause is ProcessCanceledException) throw cause
+        if (cause is ProcessCanceledException) throw cause
         throw cause ?: e
-    } catch(e: UncheckedExecutionException) {
+    } catch (e: UncheckedExecutionException) {
         val cause = e.cause
-        if(cause is ProcessCanceledException) throw cause
+        if (cause is ProcessCanceledException) throw cause
         throw cause ?: e
-    } catch(e: ProcessCanceledException) {
+    } catch (e: ProcessCanceledException) {
         throw e
     }
 }
@@ -49,25 +48,25 @@ inline fun <T> cancelable(block: () -> T): T {
 inline fun <T> cancelable(defaultValueOnException: (Throwable) -> T, block: () -> T): T {
     try {
         return block()
-    } catch(e: ExecutionException) {
+    } catch (e: ExecutionException) {
         val cause = e.cause
-        if(cause is ProcessCanceledException) throw cause
+        if (cause is ProcessCanceledException) throw cause
         return defaultValueOnException(cause ?: e)
-    } catch(e: UncheckedExecutionException) {
+    } catch (e: UncheckedExecutionException) {
         val cause = e.cause
-        if(cause is ProcessCanceledException) throw cause
+        if (cause is ProcessCanceledException) throw cause
         return defaultValueOnException(cause ?: e)
-    } catch(e: ProcessCanceledException) {
+    } catch (e: ProcessCanceledException) {
         throw e
     }
 }
 
 inline fun <R> runCatchingCancelable(block: () -> R): Result<R> {
-    return runCatching(block).onFailure { if(it is ProcessCanceledException) throw it }
+    return runCatching(block).onFailure { if (it is ProcessCanceledException) throw it }
 }
 
 inline fun <T, R> T.runCatchingCancelable(block: T.() -> R): Result<R> {
-    return runCatching(block).onFailure { if(it is ProcessCanceledException) throw it }
+    return runCatching(block).onFailure { if (it is ProcessCanceledException) throw it }
 }
 
 inline fun <R> disableLogger(block: () -> R): R {
@@ -84,14 +83,14 @@ inline fun <R> disableLogger(block: () -> R): R {
 //com.intellij.refactoring.actions.BaseRefactoringAction.findRefactoringTargetInEditor
 fun DataContext.findElement(): PsiElement? {
     var element = this.getData(CommonDataKeys.PSI_ELEMENT)
-    if(element == null) {
+    if (element == null) {
         val editor = this.getData(CommonDataKeys.EDITOR)
         val file = this.getData(CommonDataKeys.PSI_FILE)
-        if(editor != null && file != null) {
+        if (editor != null && file != null) {
             element = getElementAtCaret(editor, file)
         }
         val languages = this.getData(LangDataKeys.CONTEXT_LANGUAGES)
-        if(element == null || element is SyntheticElement || languages == null) {
+        if (element == null || element is SyntheticElement || languages == null) {
             return null
         }
     }
@@ -100,14 +99,19 @@ fun DataContext.findElement(): PsiElement? {
 
 fun getDefaultProject() = ProjectManager.getInstance().defaultProject
 
-fun getTheOnlyOpenOrDefaultProject() = ProjectManager.getInstance().let { it.openProjects.singleOrNull() ?: it.defaultProject }
+fun getTheOnlyOpenOrDefaultProject() =
+    ProjectManager.getInstance().let { it.openProjects.singleOrNull() ?: it.defaultProject }
 
-fun <T> createCachedValue(project: Project = getDefaultProject(), trackValue: Boolean = false, provider: CachedValueProvider<T>): CachedValue<T> {
+fun <T> createCachedValue(
+    project: Project = getDefaultProject(),
+    trackValue: Boolean = false,
+    provider: CachedValueProvider<T>
+): CachedValue<T> {
     return CachedValuesManager.getManager(project).createCachedValue(provider, trackValue)
 }
 
 fun <T> T.withDependencyItems(vararg dependencyItems: Any): CachedValueProvider.Result<T> {
-    if(dependencyItems.isEmpty()) return CachedValueProvider.Result.create(this, ModificationTracker.NEVER_CHANGED)
+    if (dependencyItems.isEmpty()) return CachedValueProvider.Result.create(this, ModificationTracker.NEVER_CHANGED)
     return CachedValueProvider.Result.create(this, *dependencyItems)
 }
 //endregion
@@ -119,17 +123,17 @@ inline fun <T> UserDataHolder.tryPutUserData(key: Key<T>, value: T?) {
 
 inline fun <T> UserDataHolder.getOrPutUserData(key: Key<T>, action: () -> T): T {
     val data = this.getUserData(key)
-    if(data != null) return data
+    if (data != null) return data
     val newValue = action()
-    if(newValue != null) putUserData(key, newValue)
+    if (newValue != null) putUserData(key, newValue)
     return newValue
 }
 
 inline fun <T> UserDataHolder.getOrPutUserData(key: Key<T>, nullValue: T, action: () -> T?): T? {
     val data = this.getUserData(key)
-    if(data != null) return data.takeUnless { it == nullValue }
+    if (data != null) return data.takeUnless { it == nullValue }
     val newValue = action()
-    if(newValue != null) putUserData(key, newValue) else putUserData(key, nullValue)
+    if (newValue != null) putUserData(key, newValue) else putUserData(key, nullValue)
     return newValue
 }
 
@@ -142,6 +146,7 @@ fun <T, THIS : UserDataHolder> THIS.getUserDataOrDefault(key: Key<T>): T? {
             val key0 = key.cast<KeyWithFactory<T, THIS>>()
             key0.factory(this).also { putUserData(key0, it) }
         }
+
         else -> null
     }
 }
@@ -155,24 +160,82 @@ fun <T> ProcessingContext.getOrDefault(key: Key<T>): T? {
     }
 }
 
-inline operator fun <T> Key<T>.getValue(thisRef: UserDataHolder, property: KProperty<*>): T? = thisRef.getUserDataOrDefault(this)
+inline operator fun <T> Key<T>.getValue(thisRef: UserDataHolder, property: KProperty<*>): T? =
+    thisRef.getUserDataOrDefault(this)
 
-inline operator fun <T> Key<T>.getValue(thisRef: ProcessingContext, property: KProperty<*>): T? = thisRef.getOrDefault(this)
+inline operator fun <T> Key<T>.getValue(thisRef: ProcessingContext, property: KProperty<*>): T? =
+    thisRef.getOrDefault(this)
 
-inline operator fun <T, THIS : UserDataHolder> KeyWithFactory<T, THIS>.getValue(thisRef: THIS, property: KProperty<*>): T {
+inline operator fun <T, THIS : UserDataHolder> KeyWithFactory<T, THIS>.getValue(
+    thisRef: THIS,
+    property: KProperty<*>
+): T {
     return thisRef.getUserData(this) ?: factory(thisRef).also { thisRef.putUserData(this, it) }
 }
 
-inline operator fun <T> KeyWithFactory<T, ProcessingContext>.getValue(thisRef: ProcessingContext, property: KProperty<*>): T {
+inline operator fun <T> KeyWithFactory<T, ProcessingContext>.getValue(
+    thisRef: ProcessingContext,
+    property: KProperty<*>
+): T {
     return thisRef.get(this) ?: factory(thisRef).also { thisRef.put(this, it) }
 }
 
-inline operator fun <T> Key<T>.setValue(thisRef: UserDataHolder, property: KProperty<*>, value: T?) = thisRef.putUserData(this, value)
+inline operator fun <T> Key<T>.setValue(thisRef: UserDataHolder, property: KProperty<*>, value: T?) =
+    thisRef.putUserData(this, value)
 
-inline operator fun <T> Key<T>.setValue(thisRef: ProcessingContext, property: KProperty<*>, value: T?) = thisRef.put(this, value)
+inline operator fun <T> Key<T>.setValue(thisRef: ProcessingContext, property: KProperty<*>, value: T?) =
+    thisRef.put(this, value)
 
 inline operator fun <T> DataKey<T>.getValue(thisRef: DataContext, property: KProperty<*>): T? = thisRef.getData(this)
 
-inline operator fun <T> DataKey<T>.getValue(thisRef: AnActionEvent, property: KProperty<*>): T? = thisRef.dataContext.getData(this)
+inline operator fun <T> DataKey<T>.getValue(thisRef: AnActionEvent, property: KProperty<*>): T? =
+    thisRef.dataContext.getData(this)
 //endregion
 
+//region Psi Extensions
+inline fun <reified T : PsiElement, R> PsiElement.createChildIterator(
+    crossinline predicate: (T) -> Boolean,
+    crossinline transform: (T) -> R
+): Iterator<R> {
+    return object : PsiElementChildIterator<R>(this) {
+        override fun matches(element: PsiElement): Boolean {
+            return T::class.isInstance(element) && predicate(element as T)
+        }
+
+        override fun toResult(element: PsiElement): R {
+            return transform(element as T)
+        }
+    }
+}
+
+abstract class PsiElementChildIterator<T>(
+    private val element: PsiElement,
+) : Iterator<T> {
+    var current: PsiElement? = null
+    var next: PsiElement? = null
+
+    override fun next(): T {
+        if (!hasNext()) throw NoSuchElementException()
+        current = next
+        val next0 = current?.nextSibling
+        if (next0 != null && matches(next0)) {
+            next = next0
+        }
+        return toResult(current!!)
+    }
+
+    override fun hasNext(): Boolean {
+        if (current == null && next == null) {
+            val next0 = element.firstChild
+            if (next0 != null && matches(next0)) {
+                next = next0
+            }
+        }
+        return next != null
+    }
+
+    abstract fun matches(element: PsiElement): Boolean
+
+    abstract fun toResult(element: PsiElement): T
+}
+//endregion

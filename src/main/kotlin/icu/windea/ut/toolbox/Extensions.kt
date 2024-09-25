@@ -7,15 +7,51 @@ import icu.windea.ut.toolbox.util.buildCache
 import java.io.File
 import java.nio.file.Path
 
-inline fun <T> Array<T>?.orNull() = this?.takeIf { it.isNotEmpty() }
-
-inline fun <T : Collection<*>> T?.orNull() = this?.takeIf { it.isNotEmpty() }
-
-inline fun <T : Map<*, *>> T?.orNull() = this?.takeIf { it.isNotEmpty() }
-
 inline fun <reified T> Any?.cast(): T = this as T
 
 inline fun <reified T> Any?.castOrNull(): T? = this as? T
+
+inline fun <T : CharSequence> T.orNull() = this.takeIf { it.isNotEmpty() }
+
+fun CharSequence.surroundsWith(prefix: Char, suffix: Char, ignoreCase: Boolean = false): Boolean {
+    return startsWith(prefix, ignoreCase) && endsWith(suffix, ignoreCase)
+}
+
+fun CharSequence.surroundsWith(prefix: CharSequence, suffix: CharSequence, ignoreCase: Boolean = false): Boolean {
+    return endsWith(suffix, ignoreCase) && startsWith(prefix, ignoreCase) //先匹配后缀，这样可能会提高性能
+}
+
+fun CharSequence.removeSurrounding(prefix: CharSequence, suffix: CharSequence): CharSequence {
+    return removePrefix(prefix).removeSuffix(suffix)
+}
+
+fun String.removeSurrounding(prefix: CharSequence, suffix: CharSequence): String {
+    return removePrefix(prefix).removeSuffix(suffix)
+}
+
+fun CharSequence.removePrefixOrNull(prefix: CharSequence, ignoreCase: Boolean = false): String? {
+    return if(startsWith(prefix, ignoreCase)) substring(prefix.length) else null
+}
+
+fun String.removePrefixOrNull(prefix: CharSequence, ignoreCase: Boolean = false): String? {
+    return if(startsWith(prefix, ignoreCase)) substring(prefix.length) else null
+}
+
+fun CharSequence.removeSuffixOrNull(suffix: CharSequence, ignoreCase: Boolean = false): String? {
+    return if(endsWith(suffix, ignoreCase)) substring(0, length - suffix.length) else null
+}
+
+fun String.removeSuffixOrNull(suffix: CharSequence, ignoreCase: Boolean = false): String? {
+    return if(endsWith(suffix, ignoreCase)) substring(0, length - suffix.length) else null
+}
+
+fun CharSequence.removeSurroundingOrNull(prefix: CharSequence, suffix: CharSequence, ignoreCase: Boolean = false): String? {
+    return if(surroundsWith(prefix, suffix, ignoreCase)) substring(prefix.length, length - suffix.length) else null
+}
+
+fun String.removeSurroundingOrNull(prefix: CharSequence, suffix: CharSequence): String? {
+    return if(surroundsWith(prefix, suffix)) substring(prefix.length, length - suffix.length) else null
+}
 
 fun String.toFile() = File(this)
 
@@ -129,3 +165,24 @@ fun String.normalizePath(): String {
     return builder.toString().intern()
 }
 
+inline fun <T> Array<T>?.orNull() = this?.takeIf { it.isNotEmpty() }
+
+inline fun <T : Collection<*>> T?.orNull() = this?.takeIf { it.isNotEmpty() }
+
+inline fun <T : Map<*, *>> T?.orNull() = this?.takeIf { it.isNotEmpty() }
+
+fun <T> Iterable<T>.process(processor: (T) -> Boolean): Boolean {
+    for(e in this) {
+        val result = processor(e)
+        if(!result) return false
+    }
+    return true
+}
+
+fun <K, V> Map<K, V>.process(processor: (Map.Entry<K, V>) -> Boolean): Boolean {
+    for(entry in this) {
+        val result = processor(entry)
+        if(!result) return false
+    }
+    return true
+}

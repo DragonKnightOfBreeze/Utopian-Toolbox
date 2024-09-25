@@ -10,13 +10,20 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.search.FilenameIndex
 import com.intellij.psi.search.GlobalSearchScope
 import com.jetbrains.jsonSchema.extension.JsonLikePsiWalker
-import com.jetbrains.jsonSchema.ide.JsonSchemaService
-import com.jetbrains.jsonSchema.impl.JsonSchemaResolver
+import com.jetbrains.jsonSchema.extension.adapters.JsonArrayValueAdapter
+import com.jetbrains.jsonSchema.extension.adapters.JsonObjectValueAdapter
+import com.jetbrains.jsonSchema.extension.adapters.JsonPropertyAdapter
+import com.jetbrains.jsonSchema.extension.adapters.JsonValueAdapter
 import com.jetbrains.jsonSchema.impl.JsonSchemaVariantsTreeBuilder
-import icu.windea.ut.toolbox.matchesAntPattern
-import icu.windea.ut.toolbox.normalizePath
+import icu.windea.ut.toolbox.*
 
 object JsonPointerUrlManager {
+    fun parseJsonPointer(jsonPointer: String): List<String>? {
+        val s = jsonPointer.removePrefixOrNull("#/") ?: return null
+        val r = s.split('/').mapNotNull { it.orNull() }
+        return r
+    }
+    
     fun processElements(jsonPointerUrl: String, currentFile: PsiFile, processor: (PsiElement) -> Boolean): Boolean {
         val splitter = JsonSchemaVariantsTreeBuilder.SchemaUrlSplitter(jsonPointerUrl)
         val fileProcessor = { file: PsiFile ->
@@ -72,8 +79,43 @@ object JsonPointerUrlManager {
     fun processElementsInFile(jsonPointer: String, file: PsiFile, processor: (PsiElement) -> Boolean): Boolean {
         if(!jsonPointer.startsWith("#/")) return true
         val walker = JsonLikePsiWalker.getWalker(file) ?: return true
-        val position = JsonPointerPosition.parsePointer(jsonPointer)
-        //TODO
-        return true
+        val roots = walker.getRoots(file)
+        if(roots.isNullOrEmpty()) return true
+        val position = JsonPointerPosition.parsePointer(jsonPointer) ?: return true
+        if(position.isEmpty) {
+            return roots.process { root -> processor(root) }
+        }
+        return roots.process p@{ root ->
+            val valueAdapter = walker.createValueAdapter(root)?.castOrNull<JsonArrayValueAdapter>() ?: return@p true
+            doProcessElementsInFile(position, walker, valueAdapter, processor)
+        }
+    }
+
+    private fun doProcessElementsInFile(
+        position: JsonPointerPosition,
+        walker: JsonLikePsiWalker,
+        adapter: Any,
+        processor: (PsiElement) -> Boolean
+    ): Boolean {
+        if(position.isEmpty) {
+            return when(adapter) {
+                is JsonPropertyAdapter -> processor(adapter.delegate)
+                is JsonValueAdapter -> processor(adapter.delegate)
+                else -> true
+            }
+        }
+        
+        val children = when(adapter) {
+            is JsonPropertyAdapter -> adapter.values.singleOrNull()?.castOrNull<JsonObjectValueAdapter>()?.propertyList
+            is JsonArrayValueAdapter -> adapter.elements
+            else -> null
+        }
+        if(children.isNullOrEmpty()) return true
+        val p = position.firstName ?: position.firstIndex.toString()
+        position.skip(1)
+        return children.process p@{ child ->
+            //if(p == "-" && child !is )
+            doProcessElementsInFile(position, walker, child, processor)
+        }
     }
 }

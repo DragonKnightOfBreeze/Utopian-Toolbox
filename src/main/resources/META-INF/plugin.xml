@@ -10,6 +10,12 @@
     <depends optional="true" config-file="ut-extension-markdown.xml">org.intellij.plugins.markdown</depends>
     <depends optional="true" config-file="ut-extension-yaml.xml">org.jetbrains.plugins.yaml</depends>
     
+    <extensionPoints>
+        <extensionPoint name="jElementProvider" beanClass="com.intellij.lang.LanguageExtensionPoint" dynamic="true">
+            <with attribute="implementationClass" implements="icu.windea.ut.toolbox.jast.JElementProvider"/>
+        </extensionPoint>
+    </extensionPoints>
+    
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="icu.windea.ut.toolbox.settings.UtFoldingSettings"/>
         <codeFoldingOptionsProvider instance="icu.windea.ut.toolbox.settings.UtFoldingOptionsProvider"/>
