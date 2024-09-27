@@ -20,7 +20,7 @@ object JsonPointerManager {
     }
 
     /**
-     * @see jsonPointer JSON指针。需要以"#/"开头。
+     * @see jsonPointer JSON指针。需要以"#/"开头。"*"用于匹配任意属性，"-"用于匹配数组中的任意值或者属性的值。
      */
     fun parseJsonPointer(jsonPointer: String): List<String>? {
         val s = jsonPointer.removePrefixOrNull("#/") ?: return null
@@ -121,17 +121,24 @@ object JsonPointerManager {
                 if (step == element.keyElement?.value) return true
             }
             element is JValue -> {
-                val containerElement = element.parent?.castOrNull<JArray>() ?: return false
-                if (step == "-") return true
-                val index = containerElement.elementsSequence.indexOfFirst { it == element }
-                if (index == step.toIntOrNull()) return true
+                val containerElement = element.parent ?: return true
+                when {
+                    containerElement is JProperty -> {
+                        if(step == "-") return true
+                    }
+                    containerElement is JArray -> {
+                        if (step == "-") return true
+                        val index = containerElement.elementsSequence.indexOfFirst { it == element }
+                        if (index == step.toIntOrNull()) return true
+                    }
+                }
             }
         }
         return false
     }
 
     /**
-     * @see jsonPointer JSON指针。需要以"#/"开头。
+     * @see jsonPointer JSON指针。需要以"#/"开头。"*"用于匹配任意属性，"-"用于匹配数组中的任意值或者属性的值。
      */
     fun findElementsInFile(jsonPointer: String, file: PsiFile): List<JElement> {
         return buildList {
@@ -147,7 +154,6 @@ object JsonPointerManager {
         if (list.size == 1) return list.single()
         return JsonPointerBasedLanguageSettings(
             references = list.flatMapTo(mutableSetOf()) { it.references },
-            completion = list.flatMapTo(mutableSetOf()) { it.completion },
             modificationTrackers = list.flatMapTo(mutableSetOf()) { it.modificationTrackers } + modificationTrackers,
         )
     }

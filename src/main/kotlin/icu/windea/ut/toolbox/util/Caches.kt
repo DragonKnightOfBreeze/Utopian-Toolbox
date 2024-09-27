@@ -5,7 +5,7 @@ package icu.windea.ut.toolbox.util
 import com.google.common.cache.*
 import com.google.common.collect.*
 import com.intellij.openapi.util.*
-import icu.windea.pls.core.*
+import icu.windea.ut.toolbox.cancelable
 import java.util.concurrent.*
 
 //region Extensions

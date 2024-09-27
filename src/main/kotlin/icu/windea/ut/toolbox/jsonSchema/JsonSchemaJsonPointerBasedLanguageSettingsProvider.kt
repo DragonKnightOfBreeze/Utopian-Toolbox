@@ -22,7 +22,6 @@ class JsonSchemaJsonPointerBasedLanguageSettingsProvider : JsonPointerBasedLangu
         val jsonNode = p.castOrNull<JsonSchemaNodePointer<JsonNode>>()?.rawSchemaNode ?: return null
         return JsonPointerBasedLanguageSettings(
             references = jsonNode.get("references").toStringOrStringSetValue(),
-            completion = jsonNode.get("completion").toStringOrStringSetValue(),
         )
     }
 

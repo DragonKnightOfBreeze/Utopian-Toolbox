@@ -33,6 +33,7 @@
     </inspection_tool>
     <inspection_tool class="ExpressionMayBeFactorized" enabled="false" level="INFORMATION" enabled_by_default="false" />
     <inspection_tool class="ExtractMethodRecommender" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="FoldInitializerAndIfToElvis" enabled="true" level="INFORMATION" enabled_by_default="true" />
     <inspection_tool class="ForLoopReplaceableByWhile" enabled="false" level="WARNING" enabled_by_default="false">
       <option name="m_ignoreLoopsWithoutConditions" value="true" />
     </inspection_tool>
@@ -63,6 +64,8 @@
     </inspection_tool>
     <inspection_tool class="PointlessNullCheck" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="RedundantIf" enabled="true" level="INFORMATION" enabled_by_default="true" />
+    <inspection_tool class="ReplaceGetOrSet" enabled="true" level="INFORMATION" enabled_by_default="true" />
+    <inspection_tool class="ReplacePutWithAssignment" enabled="true" level="INFORMATION" enabled_by_default="true" />
     <inspection_tool class="ReuseOfLocalVariable" enabled="false" level="INFORMATION" enabled_by_default="false" />
     <inspection_tool class="SimplifiableBooleanExpression" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="SimplifiableConditionalExpression" enabled="false" level="WARNING" enabled_by_default="false" />
