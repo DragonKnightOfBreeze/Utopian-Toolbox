@@ -4,11 +4,20 @@ import com.intellij.json.psi.*
 import icu.windea.ut.toolbox.jast.*
 import icu.windea.ut.toolbox.toChildIteratorWith
 
-sealed interface JsonJElement : JElement 
+sealed class JsonJElement : JElement {
+    override fun equals(other: Any?): Boolean {
+        if(this === other) return true
+        return other != null && other.javaClass == this.javaClass && (other as JElement).psi == this.psi
+    }
+
+    override fun hashCode(): Int {
+        return psi.hashCode()
+    }
+}
 
 class JsonJProperty(
     override val psi: JsonProperty
-) : JsonJElement, JProperty {
+) : JsonJElement(), JProperty {
     override val keyElement: JPropertyKey get() = psi.nameElement.toJElementOfType<JPropertyKey>()!!
     override val valueElement: JValue? get() = psi.value?.toJElementOfType<JValue>()
     override val parent: JObject? get() = psi.parent?.toJElementOfType()
@@ -16,14 +25,14 @@ class JsonJProperty(
 
 class JsonJPropertyKey(
     override val psi: JsonValue
-) : JsonJElement, JPropertyKey {
+) : JsonJElement(), JPropertyKey {
     override val value: String? get() = if (psi is JsonStringLiteral) psi.value else null
     override val parent: JProperty? get() = psi.parent?.toJElementOfType<JProperty>()
 }
 
 sealed class JsonJValue(
     override val psi: JsonValue
-) : JsonJElement, JValue {
+) : JsonJElement(), JValue {
     override val parent: JElement? get() = psi.parent?.toJElementOfTypes(JProperty::class.java, JArray::class.java)
 }
 

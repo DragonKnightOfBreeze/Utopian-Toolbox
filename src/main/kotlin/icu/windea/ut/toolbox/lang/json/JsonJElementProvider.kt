@@ -1,8 +1,7 @@
 package icu.windea.ut.toolbox.lang.json
 
 import com.intellij.json.psi.*
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
+import com.intellij.psi.*
 import icu.windea.ut.toolbox.jast.*
 
 class JsonJElementProvider : JElementProvider {
@@ -22,7 +21,7 @@ class JsonJElementProvider : JElementProvider {
                 targetType.isAssignableFrom(JProperty::class.java) -> JsonJProperty(element)
                 else -> null
             }
-            element is JsonValue && element.parent.let { it is JsonProperty && it.nameElement == element } -> when {
+            element is JsonValue && JsonManager.isPropertyKey(element) -> when {
                 targetType.isAssignableFrom(JPropertyKey::class.java) -> JsonJPropertyKey(element)
                 else -> null
             }

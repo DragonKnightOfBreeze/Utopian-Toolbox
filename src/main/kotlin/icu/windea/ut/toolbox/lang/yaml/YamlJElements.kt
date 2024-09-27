@@ -8,11 +8,20 @@ import org.jetbrains.yaml.YAMLTokenTypes
 import org.jetbrains.yaml.psi.*
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl
 
-sealed interface YamlJElement: JElement
+sealed class YamlJElement: JElement{
+    override fun equals(other: Any?): Boolean {
+        if(this === other) return true
+        return other != null && other.javaClass == this.javaClass && (other as JElement).psi == this.psi
+    }
+
+    override fun hashCode(): Int {
+        return psi.hashCode()
+    }
+}
 
 class YamlJProperty(
     override val psi: YAMLKeyValue
-): YamlJElement, JProperty {
+): YamlJElement(), JProperty {
     override val keyElement: JPropertyKey? get() = psi.key?.toJElementOfType()
     override val valueElement: JValue? get() = psi.value?.toJElementOfType()
     override val parent: JObject? get() = psi.parent?.toJElementOfType()
@@ -20,14 +29,14 @@ class YamlJProperty(
 
 class YamlJPropertyKey(
     override val psi: PsiElement
-): YamlJElement, JPropertyKey {
+): YamlJElement(), JPropertyKey {
     override val value: String? get() = if(psi.elementType == YAMLTokenTypes.SCALAR_KEY) psi.text else null
     override val parent: JProperty? get() = psi.parent?.toJElementOfType<JProperty>()
 }
 
 sealed class YamlJValue(
     override val psi: YAMLValue
-): YamlJElement, JValue {
+): YamlJElement(), JValue {
     override val parent: JElement? get() = psi.parent?.toJElementOfTypes(JProperty::class.java, JArray::class.java)
 }
 

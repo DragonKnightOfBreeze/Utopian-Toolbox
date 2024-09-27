@@ -2,4 +2,8 @@
     <extensions defaultExtensionNs="icu.windea.ut.toolbox">
         <jElementProvider language="yaml" implementationClass="icu.windea.ut.toolbox.lang.yaml.YamlJElementProvider"/>
     </extensions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <psi.referenceContributor language="JSON" implementation="icu.windea.ut.toolbox.lang.yaml.YamlJsonPointerBasedReferenceContributor"/>
+    </extensions>
 </idea-plugin>

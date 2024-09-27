@@ -6,10 +6,6 @@ import com.intellij.psi.util.CachedValue
 import icu.windea.ut.toolbox.util.*
 
 object JElementManager {
-    object Keys : KeyRegistry() {
-        val key by createKeyDelegate<CachedValue<JElement>>(Keys)
-    }
-    
     fun getTopLevelValue(file: PsiFile): JValue? {
         val provider = JElementProvider.EP_NAME.forLanguage(file.language)
         return provider.getTopLevelValue(file)
