@@ -3,15 +3,15 @@
 package icu.windea.ut.toolbox.util
 
 import com.google.common.cache.*
-import com.google.common.collect.*
-import com.intellij.openapi.util.*
+import com.google.common.collect.ImmutableMap
+import com.intellij.openapi.util.ModificationTracker
 import icu.windea.ut.toolbox.cancelable
-import java.util.concurrent.*
+import java.util.concurrent.Callable
 
 //region Extensions
 
 inline fun <K : Any, V : Any> CacheBuilder<in K, in V>.buildCache(): Cache<K, V> {
-    return build<K,V>().toCancelable()
+    return build<K, V>().toCancelable()
 }
 
 inline fun <K : Any, V : Any> CacheBuilder<in K, in V>.buildCache(crossinline loader: (K) -> V): LoadingCache<K, V> {
@@ -26,55 +26,55 @@ inline fun <K : Any, V : Any> CacheBuilder<in K, in V>.buildCache(crossinline lo
 
 //region CancelableCache
 
-class CancelableCache<K: Any, V: Any>(
+class CancelableCache<K : Any, V : Any>(
     private val delegate: Cache<K, V>
-): Cache<K,V> by delegate {
+) : Cache<K, V> by delegate {
     override fun get(key: K, loader: Callable<out V>): V {
         return cancelable { delegate.get(key, loader) }
     }
-    
+
     override fun getIfPresent(key: Any): V? {
         return cancelable { delegate.getIfPresent(key) }
     }
-    
+
     override fun getAllPresent(keys: MutableIterable<Any>): ImmutableMap<K, V> {
         return cancelable { delegate.getAllPresent(keys) }
     }
 }
 
-class CancelableLoadingCache<K: Any, V: Any>(
+class CancelableLoadingCache<K : Any, V : Any>(
     private val delegate: LoadingCache<K, V>
-): LoadingCache<K,V> by delegate {
+) : LoadingCache<K, V> by delegate {
     override fun get(key: K, loader: Callable<out V>): V {
         return cancelable { delegate.get(key, loader) }
     }
-    
+
     override fun getIfPresent(key: Any): V? {
         return cancelable { delegate.getIfPresent(key) }
     }
-    
+
     override fun getAllPresent(keys: MutableIterable<Any>): ImmutableMap<K, V> {
         return cancelable { delegate.getAllPresent(keys) }
     }
-    
+
     override fun get(key: K): V {
         return cancelable { delegate.get(key) }
     }
-    
+
     override fun getUnchecked(key: K): V {
         return cancelable { delegate.getUnchecked(key) }
     }
-    
+
     override fun getAll(keys: MutableIterable<K>): ImmutableMap<K, V> {
         return cancelable { delegate.getAll(keys) }
     }
 }
 
-inline fun <K: Any,V: Any> Cache<K, V>.toCancelable(): CancelableCache<K,V> {
+inline fun <K : Any, V : Any> Cache<K, V>.toCancelable(): CancelableCache<K, V> {
     return CancelableCache(this)
 }
 
-inline fun <K: Any,V: Any> LoadingCache<K, V>.toCancelable(): CancelableLoadingCache<K,V> {
+inline fun <K : Any, V : Any> LoadingCache<K, V>.toCancelable(): CancelableLoadingCache<K, V> {
     return CancelableLoadingCache(this)
 }
 
@@ -87,7 +87,7 @@ class TrackingCache<K : Any, V : Any, C : Cache<K, V>>(
     private val modificationTrackerProvider: (V) -> ModificationTracker?
 ) : Cache<K, V> by delegate {
     private val modificationCounts = hashMapOf<K, Long>()
-    
+
     override fun get(key: K, loader: Callable<out V>): V {
         val result = delegate.get(key, loader)
         val newModificationCount = modificationTrackerProvider(result)?.modificationCount
@@ -100,7 +100,7 @@ class TrackingCache<K : Any, V : Any, C : Cache<K, V>>(
         val newResult = delegate.get(key, loader)
         return newResult
     }
-    
+
     override fun getIfPresent(key: Any): V? {
         val result = delegate.getIfPresent(key) ?: return null
         val newModificationCount = modificationTrackerProvider(result)?.modificationCount
@@ -111,17 +111,17 @@ class TrackingCache<K : Any, V : Any, C : Cache<K, V>>(
         delegate.invalidate(key)
         return null
     }
-    
+
     override fun invalidate(key: Any) {
         modificationCounts.remove(key)
         delegate.invalidate(key)
     }
-    
+
     override fun invalidateAll(keys: MutableIterable<Any>) {
         keys.forEach { modificationCounts.remove(it) }
         delegate.invalidateAll(keys)
     }
-    
+
     override fun invalidateAll() {
         modificationCounts.clear()
         delegate.invalidateAll()

@@ -134,6 +134,7 @@ private fun String.antPatternToRegexString(): String {
                         append("\\E[^/]*\\Q")
                     }
                 }
+
                 c == '?' -> append("\\E[^/]\\Q")
                 else -> append(c)
             }

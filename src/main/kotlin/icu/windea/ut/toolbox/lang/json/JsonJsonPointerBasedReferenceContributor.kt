@@ -6,9 +6,9 @@ import com.intellij.psi.PsiReferenceContributor
 import com.intellij.psi.PsiReferenceRegistrar
 import icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceProvider
 
-class JsonJsonPointerBasedReferenceContributor: PsiReferenceContributor() {
+class JsonJsonPointerBasedReferenceContributor : PsiReferenceContributor() {
     private val pattern = PlatformPatterns.psiElement(JsonStringLiteral::class.java)
-    
+
     override fun registerReferenceProviders(registrar: PsiReferenceRegistrar) {
         registrar.registerReferenceProvider(pattern, JsonPointerBasedReferenceProvider())
     }

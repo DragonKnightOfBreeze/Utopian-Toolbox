@@ -26,10 +26,10 @@ class EmptyMarkdownLinkFoldingBuilder : FoldingBuilderEx(), DumbAware {
         val descriptors = mutableListOf<FoldingDescriptor>()
         root.accept(object : PsiRecursiveElementWalkingVisitor() {
             override fun visitElement(element: PsiElement) {
-                if (element is MarkdownInlineLink) {
-                    if (element.parent is MarkdownImage) return //排除Markdown图片链接
+                if(element is MarkdownInlineLink) {
+                    if(element.parent is MarkdownImage) return //排除Markdown图片链接
                     val linkText = element.linkText
-                    if (linkText != null && linkText.contentElements.none()) {
+                    if(linkText != null && linkText.contentElements.none()) {
                         descriptors.add(FoldingDescriptor(element.node, element.textRange, Constants.FOLDING_GROUP))
                     }
                     return

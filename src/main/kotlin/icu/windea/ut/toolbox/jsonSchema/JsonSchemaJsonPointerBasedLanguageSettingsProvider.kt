@@ -22,14 +22,14 @@ class JsonSchemaJsonPointerBasedLanguageSettingsProvider : JsonPointerBasedLangu
         val schemaNode = schemaObject.castOrNull<JsonSchemaNodePointer<ObjectNode>>()?.rawSchemaNode ?: return null
         val node = schemaNode.get("\$languageSettings") ?: return null
         return JsonPointerBasedLanguageSettings(
-            references = node.get("references").toStringOrStringSetValue(),
+            references = node.get("references")?.toStringOrStringSetValue().orEmpty(),
         )
     }
 
-    private fun JsonNode.toStringOrStringSetValue(): Set<String> {
+    private fun JsonNode.toStringOrStringSetValue(): Set<String>? {
         return when {
-            this.isArray -> this.elements()?.asSequence()?.mapNotNullTo(mutableSetOf()) { it.textValue() }.orEmpty()
-            else -> this.textValue()?.let { setOf(it) }.orEmpty()
+            this.isArray -> this.elements()?.asSequence()?.mapNotNullTo(mutableSetOf()) { it.textValue() }
+            else -> this.textValue()?.let { setOf(it) }
         }
     }
 }

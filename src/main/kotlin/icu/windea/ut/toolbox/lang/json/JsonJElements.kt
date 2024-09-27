@@ -2,7 +2,7 @@ package icu.windea.ut.toolbox.lang.json
 
 import com.intellij.json.psi.*
 import icu.windea.ut.toolbox.jast.*
-import icu.windea.ut.toolbox.toChildIteratorWith
+import icu.windea.ut.toolbox.toChildIterator
 
 sealed class JsonJElement : JElement {
     override fun equals(other: Any?): Boolean {
@@ -26,8 +26,16 @@ class JsonJProperty(
 class JsonJPropertyKey(
     override val psi: JsonValue
 ) : JsonJElement(), JPropertyKey {
-    override val value: String? get() = if (psi is JsonStringLiteral) psi.value else null
+    override val value: String? get() = getName(psi)
     override val parent: JProperty? get() = psi.parent?.toJElementOfType<JProperty>()
+
+    private fun getName(psi: JsonValue): String? {
+        return when(psi) {
+            is JsonStringLiteral -> psi.value
+            is JsonReferenceExpression -> psi.text //JSON5 unquoted property key
+            else -> null
+        }
+    }
 }
 
 sealed class JsonJValue(
@@ -38,7 +46,7 @@ sealed class JsonJValue(
 
 sealed class JsonJLiteral(
     override val psi: JsonLiteral
-): JsonJValue(psi), JLiteral
+) : JsonJValue(psi), JLiteral
 
 class JsonJNull(
     override val psi: JsonNullLiteral
@@ -69,13 +77,13 @@ sealed class JsonJContainer(
 class JsonJArray(
     override val psi: JsonArray
 ) : JsonJContainer(psi), JArray {
-    override val elementsSequence: Sequence<JValue> by lazy { psi.toChildIteratorWith { it.toJElementOfType<JValue>() }.asSequence() }
+    override val elementsSequence: Sequence<JValue> by lazy { psi.toChildIterator({ it is JsonValue }, { it.toJElementOfType<JValue>() }).asSequence() }
     override val elements: List<JValue> by lazy { elementsSequence.toList() }
 }
 
 class JsonJObject(
     override val psi: JsonObject
 ) : JsonJContainer(psi), JObject {
-    override val elementsSequence: Sequence<JProperty> by lazy { psi.toChildIteratorWith { it.toJElementOfType<JProperty>() }.asSequence() }
+    override val elementsSequence: Sequence<JProperty> by lazy { psi.toChildIterator({ it is JsonProperty }, { it.toJElementOfType<JProperty>() }).asSequence() }
     override val elements: List<JProperty> by lazy { elementsSequence.toList() }
 }

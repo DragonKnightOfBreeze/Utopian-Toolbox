@@ -9,13 +9,13 @@ import org.jetbrains.yaml.YAMLTokenTypes
 import org.jetbrains.yaml.psi.YAMLQuotedText
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl
 
-class YamlJsonPointerBasedReferenceContributor: PsiReferenceContributor() {
+class YamlJsonPointerBasedReferenceContributor : PsiReferenceContributor() {
     private val pattern = or(
         psiElement(YAMLTokenTypes.SCALAR_KEY),
         psiElement(YAMLPlainTextImpl::class.java),
         psiElement(YAMLQuotedText::class.java),
     )
-    
+
     override fun registerReferenceProviders(registrar: PsiReferenceRegistrar) {
         registrar.registerReferenceProvider(pattern, JsonPointerBasedReferenceProvider())
     }

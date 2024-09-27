@@ -2,12 +2,12 @@
 
 package icu.windea.ut.toolbox
 
-import com.intellij.openapi.diagnostic.*
-import com.intellij.openapi.progress.*
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.progress.ProcessCanceledException
 import java.lang.reflect.*
 import kotlin.reflect.*
 import kotlin.reflect.full.*
-import kotlin.reflect.jvm.*
+import kotlin.reflect.jvm.isAccessible
 
 private val logger = Logger.getInstance("#icu.windea.pls.core.ReflectionAccessorExtensions")
 
@@ -16,7 +16,7 @@ class SmartProperty<T : Any, V>(
     val property: SmartMemberProperty<T, V>
 ) {
     fun get(): V = property.get(target)
-    
+
     fun set(value: V) = property.set(target, value)
 }
 
@@ -28,10 +28,10 @@ class SmartMemberProperty<T : Any, V>(
         fun get(target: T): V
         fun set(target: T, value: V)
     }
-    
+
     private val targetClass by lazy { targetClassProvider?.invoke() ?: unsupported() }
     private val delegateProperty by lazy { doGetDelegateProperty() }
-    
+
     fun get(target: T): V {
         synchronized(this) {
             if(targetClassProvider == null) {
@@ -41,11 +41,11 @@ class SmartMemberProperty<T : Any, V>(
         }
         return delegateProperty?.get(target) ?: unsupported()
     }
-    
+
     fun set(target: T, value: V) {
         delegateProperty?.set(target, value) ?: unsupported()
     }
-    
+
     private fun doGetDelegateProperty(): DelegateProperty<T, V>? {
         try {
             return object : DelegateProperty<T, V> {
@@ -55,7 +55,7 @@ class SmartMemberProperty<T : Any, V>(
                 private val getter by lazy { memberFunctions.find { it.isGetter(propertyName) }?.also { it.isAccessible = true } }
                 private val setter by lazy { memberFunctions.find { it.isSetter(propertyName) }?.also { it.isAccessible = true } }
                 private val javaField by lazy { targetClass.java.getFieldOptimized(propertyName, static = false) }
-                
+
                 override fun get(target: T): V {
                     if(!targetClass.isInstance(target)) cannotCast(target, targetClass)
                     return when {
@@ -65,7 +65,7 @@ class SmartMemberProperty<T : Any, V>(
                         else -> unsupported()
                     }
                 }
-                
+
                 override fun set(target: T, value: V) {
                     if(!targetClass.isInstance(target)) cannotCast(target, targetClass)
                     when {
@@ -92,18 +92,18 @@ class SmartStaticProperty<T : Any, V>(
         fun get(): V
         fun set(value: V)
     }
-    
+
     private val targetClass by lazy { targetClassProvider() }
     private val delegateProperty by lazy { doGetDelegateProperty() }
-    
+
     fun get(): V {
         return delegateProperty?.get() ?: unsupported()
     }
-    
+
     fun set(value: V) {
         delegateProperty?.set(value) ?: unsupported()
     }
-    
+
     private fun doGetDelegateProperty(): DelegateProperty<V>? {
         try {
             return object : DelegateProperty<V> {
@@ -113,7 +113,7 @@ class SmartStaticProperty<T : Any, V>(
                 private val getter by lazy { staticFunctions.find { it.isGetter(propertyName) }?.also { it.isAccessible = true } }
                 private val setter by lazy { staticFunctions.find { it.isSetter(propertyName) }?.also { it.isAccessible = true } }
                 private val javaField by lazy { targetClass.java.getFieldOptimized(propertyName, static = true) }
-                
+
                 override fun get(): V {
                     return when {
                         property != null -> property!!.get() as V
@@ -122,7 +122,7 @@ class SmartStaticProperty<T : Any, V>(
                         else -> unsupported()
                     }
                 }
-                
+
                 override fun set(value: V) {
                     when {
                         property != null && property is KMutableProperty0 -> (property as KMutableProperty0<in Any?>).set(value)
@@ -152,7 +152,7 @@ class SmartMemberFunction<T : Any>(
     private var targetClassProvider: (() -> KClass<T>)?
 ) {
     private val targetClass by lazy { targetClassProvider?.invoke() ?: unsupported() }
-    
+
     operator fun invoke(target: T, vararg args: Any?): Any? {
         synchronized(this) {
             if(targetClassProvider == null) {
@@ -160,10 +160,10 @@ class SmartMemberFunction<T : Any>(
                 targetClassProvider = { targetClass0 }
             }
         }
-        
+
         if(!targetClass.isInstance(target)) cannotCast(target, targetClass)
         val expectedArgsSize = args.size + 1
-        
+
         try {
             val functions = buildSet { addAll(targetClass.declaredFunctions); addAll(targetClass.functions) }
             for(function in functions) {
@@ -181,9 +181,9 @@ class SmartMemberFunction<T : Any>(
             //java.lang.UnsupportedOperationException: Packages and file facades are not yet supported in Kotlin reflection.
             logger.error(e)
         }
-        
+
         //fallback to java reflection
-        
+
         val targetJavaClass = targetClass.java
         val methods = targetJavaClass.getMethodsOptimized(functionName, static = false)
         for(method in methods) {
@@ -195,7 +195,7 @@ class SmartMemberFunction<T : Any>(
                 //ignore
             }
         }
-        
+
         unsupported()
     }
 }
@@ -205,10 +205,10 @@ class SmartStaticFunction<T : Any>(
     private val targetClassProvider: () -> KClass<T>
 ) {
     private val targetClass by lazy { targetClassProvider() }
-    
+
     operator fun invoke(vararg args: Any?): Any? {
         val expectedArgsSize = args.size
-        
+
         try {
             val staticFunctions = targetClass.staticFunctions
             for(function in staticFunctions) {
@@ -226,9 +226,9 @@ class SmartStaticFunction<T : Any>(
             //java.lang.UnsupportedOperationException: Packages and file facades are not yet supported in Kotlin reflection.
             logger.error(e)
         }
-        
+
         //fallback to java reflection
-        
+
         val targetJavaClass = targetClass.java
         val staticMethods = targetJavaClass.getMethodsOptimized(functionName, static = true)
         for(method in staticMethods) {
@@ -240,7 +240,7 @@ class SmartStaticFunction<T : Any>(
                 //ignore
             }
         }
-        
+
         unsupported()
     }
 }
