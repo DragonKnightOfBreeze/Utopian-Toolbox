@@ -1,4 +1,4 @@
-package icu.windea.ut.toolbox.md
+package icu.windea.ut.toolbox.lang.md
 
 import com.intellij.lang.ASTNode
 import com.intellij.lang.folding.FoldingBuilderEx

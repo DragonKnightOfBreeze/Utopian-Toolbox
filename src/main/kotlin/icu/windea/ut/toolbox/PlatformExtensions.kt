@@ -193,18 +193,31 @@ inline operator fun <T> DataKey<T>.getValue(thisRef: AnActionEvent, property: KP
 //endregion
 
 //region Psi Extensions
-inline fun <reified T : PsiElement, R> PsiElement.createChildIterator(
-    crossinline predicate: (T) -> Boolean,
-    crossinline transform: (T) -> R
+inline fun <R> PsiElement.toChildIterator(
+    crossinline predicate: (PsiElement) -> Boolean,
+    crossinline transform: (PsiElement) -> R?
 ): Iterator<R> {
     return object : PsiElementChildIterator<R>(this) {
-        override fun matches(element: PsiElement): Boolean {
-            return T::class.isInstance(element) && predicate(element as T)
-        }
+        override fun matches(element: PsiElement) = predicate(element)
+        override fun toResult(element: PsiElement) = transform(element)
+    }
+}
 
-        override fun toResult(element: PsiElement): R {
-            return transform(element as T)
-        }
+inline fun PsiElement.toChildIteratorBy(
+    crossinline predicate: (PsiElement) -> Boolean,
+): Iterator<PsiElement> {
+    return object : PsiElementChildIterator<PsiElement>(this) {
+        override fun matches(element: PsiElement) = predicate(element)
+        override fun toResult(element: PsiElement) = element
+    }
+}
+
+inline fun <R> PsiElement.toChildIteratorWith(
+    crossinline transform: (PsiElement) -> R?
+): Iterator<R> {
+    return object : PsiElementChildIterator<R>(this) {
+        override fun matches(element: PsiElement) = true
+        override fun toResult(element: PsiElement) = transform(element)
     }
 }
 
@@ -213,29 +226,38 @@ abstract class PsiElementChildIterator<T>(
 ) : Iterator<T> {
     var current: PsiElement? = null
     var next: PsiElement? = null
+    var result: T? = null
 
     override fun next(): T {
         if (!hasNext()) throw NoSuchElementException()
         current = next
-        val next0 = current?.nextSibling
-        if (next0 != null && matches(next0)) {
-            next = next0
-        }
-        return toResult(current!!)
+        advance(current!!, false)
+        return result!!
     }
 
     override fun hasNext(): Boolean {
         if (current == null && next == null) {
-            val next0 = element.firstChild
-            if (next0 != null && matches(next0)) {
-                next = next0
-            }
+            advance(element.firstChild, true)
         }
-        return next != null
+        return result != null
+    }
+
+    private fun advance(element: PsiElement, withSelf: Boolean) {
+        var current = if (withSelf) element else element.nextSibling
+        while (current != null) {
+            if (matches(element)) {
+                val result = toResult(current)
+                if (result != null) {
+                    this.next = current
+                    this.result = result
+                }
+            }
+            current = element.nextSibling
+        }
     }
 
     abstract fun matches(element: PsiElement): Boolean
 
-    abstract fun toResult(element: PsiElement): T
+    abstract fun toResult(element: PsiElement): T?
 }
 //endregion

@@ -1,35 +1,34 @@
-package icu.windea.ut.toolbox.jsonSchema
+package icu.windea.ut.toolbox.jast
 
-import com.intellij.json.pointer.JsonPointerPosition
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.vfs.findPsiFile
-import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.search.FilenameIndex
 import com.intellij.psi.search.GlobalSearchScope
-import com.jetbrains.jsonSchema.extension.JsonLikePsiWalker
-import com.jetbrains.jsonSchema.extension.adapters.JsonArrayValueAdapter
-import com.jetbrains.jsonSchema.extension.adapters.JsonObjectValueAdapter
-import com.jetbrains.jsonSchema.extension.adapters.JsonPropertyAdapter
-import com.jetbrains.jsonSchema.extension.adapters.JsonValueAdapter
 import com.jetbrains.jsonSchema.impl.JsonSchemaVariantsTreeBuilder
 import icu.windea.ut.toolbox.*
 
-object JsonPointerUrlManager {
+object JsonPointerManager {
+    /**
+     * @see jsonPointer JSON指针。需要以"#/"开头。
+     */
     fun parseJsonPointer(jsonPointer: String): List<String>? {
         val s = jsonPointer.removePrefixOrNull("#/") ?: return null
         val r = s.split('/').mapNotNull { it.orNull() }
         return r
     }
     
-    fun processElements(jsonPointerUrl: String, currentFile: PsiFile, processor: (PsiElement) -> Boolean): Boolean {
+    /**
+     * @see jsonPointerUrl JSON指针路径，包含可选的文件路径（ANT路径表达式）与JSON指针两部分。
+     */
+    fun processElements(jsonPointerUrl: String, currentFile: PsiFile, processor: (JElement) -> Boolean): Boolean {
         val splitter = JsonSchemaVariantsTreeBuilder.SchemaUrlSplitter(jsonPointerUrl)
         val fileProcessor = { file: PsiFile ->
             processElementsInFile(splitter.relativePath, file, processor)
         }
-        return if(splitter.isAbsolute) {
+        return if(splitter.schemaId != null) {
             processFiles(splitter.schemaId!!, currentFile, fileProcessor)
         } else {
             fileProcessor(currentFile)
@@ -76,46 +75,21 @@ object JsonPointerUrlManager {
     /**
      * @see jsonPointer JSON指针。需要以"#/"开头。
      */
-    fun processElementsInFile(jsonPointer: String, file: PsiFile, processor: (PsiElement) -> Boolean): Boolean {
-        if(!jsonPointer.startsWith("#/")) return true
-        val walker = JsonLikePsiWalker.getWalker(file) ?: return true
-        val roots = walker.getRoots(file)
-        if(roots.isNullOrEmpty()) return true
-        val position = JsonPointerPosition.parsePointer(jsonPointer) ?: return true
-        if(position.isEmpty) {
-            return roots.process { root -> processor(root) }
-        }
-        return roots.process p@{ root ->
-            val valueAdapter = walker.createValueAdapter(root)?.castOrNull<JsonArrayValueAdapter>() ?: return@p true
-            doProcessElementsInFile(position, walker, valueAdapter, processor)
-        }
+    fun processElementsInFile(jsonPointer: String, file: PsiFile, processor: (JElement) -> Boolean): Boolean {
+        val location = parseJsonPointer(jsonPointer) ?: return true
+        val topLevelValues = JElementManager.getTopLevelValues(file)
+        if(topLevelValues.isEmpty()) return true
+        return doProcessElementsInFile(location, -1, topLevelValues, processor)
     }
-
-    private fun doProcessElementsInFile(
-        position: JsonPointerPosition,
-        walker: JsonLikePsiWalker,
-        adapter: Any,
-        processor: (PsiElement) -> Boolean
-    ): Boolean {
-        if(position.isEmpty) {
-            return when(adapter) {
-                is JsonPropertyAdapter -> processor(adapter.delegate)
-                is JsonValueAdapter -> processor(adapter.delegate)
-                else -> true
-            }
-        }
+    
+    private fun doProcessElementsInFile(location: List<String>, index: Int, elements: List<JElement>, processor: (JElement) -> Boolean): Boolean {
+        if(index == -1) return elements.process(processor)
         
-        val children = when(adapter) {
-            is JsonPropertyAdapter -> adapter.values.singleOrNull()?.castOrNull<JsonObjectValueAdapter>()?.propertyList
-            is JsonArrayValueAdapter -> adapter.elements
-            else -> null
-        }
-        if(children.isNullOrEmpty()) return true
-        val p = position.firstName ?: position.firstIndex.toString()
-        position.skip(1)
-        return children.process p@{ child ->
-            //if(p == "-" && child !is )
-            doProcessElementsInFile(position, walker, child, processor)
+        //TODO
+        val step = location.getOrNull(index) ?: return true
+        return elements.process p@{
+            processor(it)
+            doProcessElementsInFile(location, index+1, elements, processor)
         }
     }
 }

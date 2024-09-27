@@ -1,0 +1,5 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="icu.windea.ut.toolbox">
+        <jElementProvider language="yaml" implementationClass="icu.windea.ut.toolbox.lang.yaml.YamlJElementProvider"/>
+    </extensions>
+</idea-plugin>

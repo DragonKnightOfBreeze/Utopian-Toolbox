@@ -1,25 +1,37 @@
 package icu.windea.ut.toolbox.jast
 
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
 import com.intellij.psi.util.CachedValue
-import com.intellij.psi.util.CachedValueProvider
-import com.intellij.psi.util.CachedValuesManager
-import icu.windea.ut.toolbox.castOrNull
 import icu.windea.ut.toolbox.util.*
 
 object JElementManager {
-    object Keys: KeyRegistry() {
+    object Keys : KeyRegistry() {
         val key by createKeyDelegate<CachedValue<JElement>>(Keys)
     }
     
-    fun getJElement(element: PsiElement): JElement? {
-        return CachedValuesManager.getCachedValue(element, Keys.key) {
-            val value = JElementProvider.EP_NAME.forLanguage(element.language).getJElement(element)
-            CachedValueProvider.Result.create(value, element)
-        }
+    fun getTopLevelValue(file: PsiFile): JValue? {
+        val provider = JElementProvider.EP_NAME.forLanguage(file.language)
+        return provider.getTopLevelValue(file)
+    }
+
+    fun getTopLevelValues(file: PsiFile): List<JValue> {
+        val provider = JElementProvider.EP_NAME.forLanguage(file.language)
+        return provider.getTopLevelValues(file)
     }
     
-    inline fun <reified T: JElement> getJElement(element: PsiElement): T? {
-        return getJElement(element)?.castOrNull<T>()
+    fun getJElement(element: PsiElement): JElement? {
+        val provider = JElementProvider.EP_NAME.forLanguage(element.language)
+        return provider.getJElement(element, JElement::class.java)
+    }
+
+    fun <T : JElement> getJElement(element: PsiElement, targetType: Class<out T>): T? {
+        val result = getJElement(element, targetType) ?: return null
+        return result
+    }
+    
+    fun <T : JElement> getJElement(element: PsiElement, vararg targetTypes: Class<out T>): JElement? {
+        if(targetTypes.isEmpty()) return getJElement(element)
+        return targetTypes.firstNotNullOfOrNull { targetType -> getJElement(element, targetType)  }
     }
 }

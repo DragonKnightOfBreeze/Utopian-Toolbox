@@ -1,0 +1,28 @@
+#file: noinspection YAMLIncompatibleTypes
+k1:  v1
+k2:
+  - null
+  - yes
+  - true
+  - 1
+  - 1.1
+  - v1_vvv
+k3: v3
+k4: "v4"
+k5:
+  v5
+k6:
+  "v6"
+k7: |
+  aaa
+  bbb
+k8: >
+  aaa
+  bbb
+k9: |-
+  aaa
+  bbb
+  
+k10: foo bar
+
+  

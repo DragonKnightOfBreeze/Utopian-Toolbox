@@ -1,0 +1,5 @@
+<idea-plugin>
+  <extensions defaultExtensionNs="com.intellij">
+    <lang.foldingBuilder language="Markdown" implementationClass="icu.windea.ut.toolbox.lang.md.EmptyMarkdownLinkFoldingBuilder"/>
+  </extensions>
+</idea-plugin>

@@ -7,17 +7,18 @@
     <vendor email="dk_breeze@qq.com" url="https://github.com/DragonKnightOfBreeze">DragonKnightOfBreeze</vendor>
 
     <depends>com.intellij.modules.lang</depends>
-    <depends optional="true" config-file="ut-extension-markdown.xml">org.intellij.plugins.markdown</depends>
-    <depends optional="true" config-file="ut-extension-yaml.xml">org.jetbrains.plugins.yaml</depends>
-    
-    <extensionPoints>
-        <extensionPoint name="jElementProvider" beanClass="com.intellij.lang.LanguageExtensionPoint" dynamic="true">
-            <with attribute="implementationClass" implements="icu.windea.ut.toolbox.jast.JElementProvider"/>
-        </extensionPoint>
-    </extensionPoints>
+    <depends optional="true" config-file="ut-markdown.xml">org.intellij.plugins.markdown</depends>
+    <depends optional="true" config-file="ut-json.xml">com.intellij.modules.json</depends>
+    <depends optional="true" config-file="ut-yaml.xml">org.jetbrains.plugins.yaml</depends>
     
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="icu.windea.ut.toolbox.settings.UtFoldingSettings"/>
         <codeFoldingOptionsProvider instance="icu.windea.ut.toolbox.settings.UtFoldingOptionsProvider"/>
     </extensions>
+
+    <extensionPoints>
+        <extensionPoint name="jElementProvider" beanClass="com.intellij.lang.LanguageExtensionPoint" dynamic="true">
+            <with attribute="implementationClass" implements="icu.windea.ut.toolbox.jast.JElementProvider"/>
+        </extensionPoint>
+    </extensionPoints>
 </idea-plugin>

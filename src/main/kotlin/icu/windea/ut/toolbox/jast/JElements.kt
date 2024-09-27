@@ -10,46 +10,44 @@ interface JElement {
 }
 
 interface JProperty : JElement {
-    val keyElement: JPropertyKey
+    val keyElement: JPropertyKey?
     val valueElement: JValue?
-    val text: String
-    val key: String
-    val value: String?
 }
 
 interface JPropertyKey : JElement {
-    val text: String
-    val value: String
+    val value: String?
 }
 
-interface JValue : JElement {
-    val text: String
-}
+interface JValue : JElement
 
-interface JNull: JValue
+interface JLiteral : JValue
 
-interface JBoolean : JValue {
+interface JNull : JLiteral
+
+interface JBoolean : JLiteral {
     val value: Boolean
 }
 
-interface JNumber : JValue {
+interface JNumber : JLiteral {
     val value: Double
 }
 
-interface JString : JValue {
+interface JString : JLiteral {
     val value: String
 }
 
-interface JObject : JValue {
-    val elementsIterator: Iterator<JProperty>
-    val elements: List<JProperty> get() = Iterable { elementsIterator }.toList()
-    val isEmpty: Boolean get() = !elementsIterator.hasNext()
-    val isNotEmpty: Boolean get() = elementsIterator.hasNext()
+interface JContainer : JValue
+
+interface JArray : JContainer {
+    val elementsSequence: Sequence<JValue>
+    val elements: List<JValue>
+    val isEmpty: Boolean get() = elementsSequence.none()
+    val isNotEmpty: Boolean get() = elementsSequence.any()
 }
 
-interface JArray : JValue {
-    val elementsIterator: Iterator<JValue>
-    val elements: List<JValue> get() = Iterable { elementsIterator }.toList()
-    val isEmpty: Boolean get() = !elementsIterator.hasNext()
-    val isNotEmpty: Boolean get() = elementsIterator.hasNext()
+interface JObject : JContainer {
+    val elementsSequence: Sequence<JProperty>
+    val elements: List<JProperty>
+    val isEmpty: Boolean get() = elementsSequence.none()
+    val isNotEmpty: Boolean get() = elementsSequence.any()
 }
