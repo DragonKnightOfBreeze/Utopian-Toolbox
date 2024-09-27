@@ -1,6 +1,7 @@
 package icu.windea.ut.toolbox.jsonSchema
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.ObjectNode
 import com.intellij.psi.PsiElement
 import com.jetbrains.jsonSchema.JsonDependencyModificationTracker
 import com.jetbrains.jsonSchema.impl.JsonSchemaObject
@@ -18,10 +19,10 @@ class JsonSchemaJsonPointerBasedLanguageSettingsProvider : JsonPointerBasedLangu
     }
 
     fun getLanguageSettings(schemaObject: JsonSchemaObject): JsonPointerBasedLanguageSettings? {
-        val p = schemaObject.getPropertyByName("\$languageSettings") ?: return null
-        val jsonNode = p.castOrNull<JsonSchemaNodePointer<JsonNode>>()?.rawSchemaNode ?: return null
+        val schemaNode = schemaObject.castOrNull<JsonSchemaNodePointer<ObjectNode>>()?.rawSchemaNode ?: return null
+        val node = schemaNode.get("\$languageSettings")
         return JsonPointerBasedLanguageSettings(
-            references = jsonNode.get("references").toStringOrStringSetValue(),
+            references = node.get("references").toStringOrStringSetValue(),
         )
     }
 

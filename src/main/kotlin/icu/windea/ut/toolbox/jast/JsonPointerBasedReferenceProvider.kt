@@ -10,6 +10,9 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
         val jElement = element.toJElement()
         if (jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return PsiReference.EMPTY_ARRAY
 
+        val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return PsiReference.EMPTY_ARRAY
+        if (languageSettings.references.isEmpty()) return PsiReference.EMPTY_ARRAY
+        
         val range = when {
             jElement is JProperty -> jElement.keyElement?.psi?.let { TextRange.from(it.startOffsetInParent, it.textLength) }
             jElement is JPropertyKey -> jElement.psi.let { TextRange.from(0, it.textLength) }
@@ -20,8 +23,6 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
         val currentFile = element.containingFile ?: return PsiReference.EMPTY_ARRAY
         val name = JsonPointerManager.getNameForLanguageSettings(jElement)
         if (name.isNullOrEmpty()) return PsiReference.EMPTY_ARRAY
-        val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return PsiReference.EMPTY_ARRAY
-        if (languageSettings.references.isEmpty()) return PsiReference.EMPTY_ARRAY
 
         return arrayOf(Reference(element, range, currentFile, jElement, name, languageSettings))
     }
