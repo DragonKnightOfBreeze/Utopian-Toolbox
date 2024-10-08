@@ -53,6 +53,10 @@ fun String.removeSurroundingOrNull(prefix: CharSequence, suffix: CharSequence): 
     return if(surroundsWith(prefix, suffix)) substring(prefix.length, length - suffix.length) else null
 }
 
+fun String.truncate(limit: Int, ellipsis: String = "..."): String {
+    return if(this.length <= limit) this else this.take(limit) + ellipsis
+}
+
 fun String.toFile() = File(this)
 
 fun String.toFileOrNull() = runCatchingCancelable { File(this) }.getOrNull()
@@ -186,4 +190,8 @@ fun <K, V> Map<K, V>.process(processor: (Map.Entry<K, V>) -> Boolean): Boolean {
         if(!result) return false
     }
     return true
+}
+
+fun Collection<String>.truncate(limit: Int, ellipsis: String = "..."): List<String> {
+    return take(limit).let { if(size > limit) it + ellipsis else it }
 }

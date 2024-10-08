@@ -16,6 +16,7 @@ interface JProperty : JElement {
 
 interface JPropertyKey : JElement {
     val value: String?
+    val textOffset: Int
 }
 
 interface JValue : JElement
@@ -34,6 +35,7 @@ interface JNumber : JLiteral {
 
 interface JString : JLiteral {
     val value: String
+    val textOffset: Int
 }
 
 interface JContainer : JValue

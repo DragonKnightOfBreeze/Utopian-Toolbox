@@ -170,6 +170,9 @@ object JsonPointerManager {
         if(list.size == 1) return list.single()
         return JsonPointerBasedLanguageSettings(
             references = list.flatMapTo(mutableSetOf()) { it.references },
+            hintForReferences = list.any { it.hintForReferences },
+            inspectionForReferences = list.any { it.inspectionForReferences },
+            completionForReferences = list.any { it.completionForReferences },
             modificationTrackers = list.flatMapTo(mutableSetOf()) { it.modificationTrackers } + modificationTrackers,
         )
     }
@@ -183,15 +186,6 @@ object JsonPointerManager {
                 if(value != null) addAll(value.modificationTrackers)
             }.toTypedArray()
             CachedValueProvider.Result.create(value, *trackers)
-        }
-    }
-
-    fun getNameForLanguageSettings(element: JElement): String? {
-        return when {
-            element is JProperty -> element.keyElement?.value
-            element is JPropertyKey -> element.value
-            element is JString -> element.value
-            else -> null
         }
     }
 }

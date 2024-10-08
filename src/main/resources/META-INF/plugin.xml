@@ -22,4 +22,14 @@
         </extensionPoint>
         <extensionPoint name="jsonPointerBasedLanguageSettingsProvider" interface="icu.windea.ut.toolbox.jast.JsonPointerBasedLanguageSettingsProvider" dynamic="true"/>
     </extensionPoints>
+    
+    <extensions defaultExtensionNs="com.intellij">
+        <annotator language="" implementationClass="icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceAnnotator"/>
+        
+        <localInspection language="" shortName="UtUnresolvedJsonPointerBasedReference"
+                         enabledByDefault="true" level="ERROR"
+                         bundle="messages.UtBundle" key="inspection.unresolvedJsonPointerBasedReference"
+                         groupBundle="messages.UtBundle" groupKey="inspection.group"
+                         implementationClass="icu.windea.ut.toolbox.jast.UnresolvedJsonPointerBasedReferenceInspection"/>
+    </extensions>
 </idea-plugin>

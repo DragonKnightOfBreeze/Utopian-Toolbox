@@ -2,6 +2,7 @@ package icu.windea.ut.toolbox.lang.yaml
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.elementType
+import icu.windea.ut.toolbox.castOrNull
 import icu.windea.ut.toolbox.jast.*
 import icu.windea.ut.toolbox.toChildIterator
 import org.jetbrains.yaml.YAMLTokenTypes
@@ -30,11 +31,16 @@ class YamlJProperty(
 class YamlJPropertyKey(
     override val psi: PsiElement
 ) : YamlJElement(), JPropertyKey {
-    override val value: String? get() = getName()
+    override val value: String? get() = doGetValue()
+    override val textOffset: Int get() = doGetTextOffset()
     override val parent: JProperty? get() = psi.parent?.toJElementOfType<JProperty>()
 
-    private fun getName(): String? {
+    private fun doGetValue(): String? {
         return if(psi.elementType == YAMLTokenTypes.SCALAR_KEY) psi.text else null
+    }
+
+    private fun doGetTextOffset(): Int {
+        return 0
     }
 }
 
@@ -79,7 +85,16 @@ class YamlJNumber(
 class YamlJString(
     override val psi: YAMLScalar
 ) : YamlJLiteral(psi), JString {
-    override val value: String get() = psi.textValue
+    override val value: String get() = doGetValue()
+    override val textOffset: Int get() = doGetTextOffset()
+
+    private fun doGetValue(): String {
+        return psi.textValue
+    }
+
+    private fun doGetTextOffset(): Int {
+        return if(psi is YAMLQuotedText) 1 else 0 //simple implementation
+    }
 }
 
 sealed class YamlJContainer(
@@ -89,13 +104,13 @@ sealed class YamlJContainer(
 class YamlJArray(
     override val psi: YAMLSequence
 ) : YamlJContainer(psi), JArray {
-    override val elementsSequence: Sequence<JValue> by lazy { psi.toChildIterator({ it is YAMLValue }, { it.toJElementOfType<JValue>() }).asSequence() }
+    override val elementsSequence: Sequence<JValue> by lazy { psi.toChildIterator { it.castOrNull<YAMLSequenceItem>()?.value?.toJElementOfType<JValue>() }.asSequence() }
     override val elements: List<JValue> by lazy { elementsSequence.toList() }
 }
 
 class YamlJObject(
     override val psi: YAMLMapping
 ) : YamlJContainer(psi), JObject {
-    override val elementsSequence: Sequence<JProperty> by lazy { psi.toChildIterator({ it is YAMLKeyValue }, { it.toJElementOfType<JProperty>() }).asSequence() }
+    override val elementsSequence: Sequence<JProperty> by lazy { psi.toChildIterator { it.castOrNull<YAMLKeyValue>()?.toJElementOfType<JProperty>() }.asSequence() }
     override val elements: List<JProperty> by lazy { elementsSequence.toList() }
 }

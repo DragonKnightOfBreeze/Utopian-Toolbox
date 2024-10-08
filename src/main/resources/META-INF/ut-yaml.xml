@@ -4,6 +4,6 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
-        <psi.referenceContributor language="JSON" implementation="icu.windea.ut.toolbox.lang.yaml.YamlJsonPointerBasedReferenceContributor"/>
+        <psi.referenceContributor language="yaml" implementation="icu.windea.ut.toolbox.lang.yaml.YamlJsonPointerBasedReferenceContributor"/>
     </extensions>
 </idea-plugin>

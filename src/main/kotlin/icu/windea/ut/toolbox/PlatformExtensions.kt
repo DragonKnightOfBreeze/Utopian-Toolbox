@@ -189,29 +189,9 @@ inline operator fun <T> DataKey<T>.getValue(thisRef: AnActionEvent, property: KP
 
 //region Psi Extensions
 inline fun <R> PsiElement.toChildIterator(
-    crossinline predicate: (PsiElement) -> Boolean,
     crossinline transform: (PsiElement) -> R?
 ): Iterator<R> {
     return object : PsiElementChildIterator<R>(this) {
-        override fun matches(element: PsiElement) = predicate(element)
-        override fun toResult(element: PsiElement) = transform(element)
-    }
-}
-
-inline fun PsiElement.toChildIteratorBy(
-    crossinline predicate: (PsiElement) -> Boolean,
-): Iterator<PsiElement> {
-    return object : PsiElementChildIterator<PsiElement>(this) {
-        override fun matches(element: PsiElement) = predicate(element)
-        override fun toResult(element: PsiElement) = element
-    }
-}
-
-inline fun <R> PsiElement.toChildIteratorWith(
-    crossinline transform: (PsiElement) -> R?
-): Iterator<R> {
-    return object : PsiElementChildIterator<R>(this) {
-        override fun matches(element: PsiElement) = true
         override fun toResult(element: PsiElement) = transform(element)
     }
 }
@@ -241,21 +221,17 @@ abstract class PsiElementChildIterator<T>(
     private fun advance(element: PsiElement, withSelf: Boolean) {
         var current = if(withSelf) element else element.nextSibling
         while(current != null) {
-            if(matches(current)) {
-                val result = toResult(current)
-                if(result != null) {
-                    this.next = current
-                    this.nextResult = result
-                    return
-                }
+            val result = toResult(current)
+            if(result != null) {
+                this.next = current
+                this.nextResult = result
+                return
             }
             current = current.nextSibling
         }
         this.next = null
         this.nextResult = null
     }
-
-    abstract fun matches(element: PsiElement): Boolean
 
     abstract fun toResult(element: PsiElement): T?
 }
