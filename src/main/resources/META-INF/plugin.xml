@@ -24,6 +24,7 @@
     </extensionPoints>
     
     <extensions defaultExtensionNs="com.intellij">
+        <referencesSearch implementation="icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceUsagesSearcher"/>
         <annotator language="" implementationClass="icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceAnnotator"/>
         
         <localInspection language="" shortName="UtUnresolvedJsonPointerBasedReference"

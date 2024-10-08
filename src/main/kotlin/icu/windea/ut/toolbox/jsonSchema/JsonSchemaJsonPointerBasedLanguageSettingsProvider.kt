@@ -22,6 +22,7 @@ class JsonSchemaJsonPointerBasedLanguageSettingsProvider : JsonPointerBasedLangu
         val schemaNode = schemaObject.castOrNull<JsonSchemaNodePointer<ObjectNode>>()?.rawSchemaNode ?: return null
         val node = schemaNode.get("\$languageSettings") ?: return null
         return JsonPointerBasedLanguageSettings(
+            isDeclaration = node.get("isDeclaration")?.booleanValue() ?: false,
             references = node.get("references")?.toStringOrStringSetValue().orEmpty(),
             hintForReferences = node.get("hintForReferences")?.booleanValue() ?: true,
             inspectionForReferences = node.get("inspectionForReferences")?.booleanValue() ?: true,

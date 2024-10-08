@@ -169,6 +169,7 @@ object JsonPointerManager {
         if(list.isEmpty()) return null
         if(list.size == 1) return list.single()
         return JsonPointerBasedLanguageSettings(
+            isDeclaration = list.any { it.isDeclaration },
             references = list.flatMapTo(mutableSetOf()) { it.references },
             hintForReferences = list.any { it.hintForReferences },
             inspectionForReferences = list.any { it.inspectionForReferences },

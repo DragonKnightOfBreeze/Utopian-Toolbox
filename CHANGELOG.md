@@ -12,5 +12,6 @@
   * 参见：`icu.windea.ut.toolbox.jsonSchema.JsonSchemaJsonPointerBasedLanguageSettingsProvider`
 * [X] 提供基于（基于JSON指针的）语言设置的引用解析，以及适用于这些引用的语言高亮与代码检查
   * 参见：`icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceProvider`
+  * 参见：`icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceUsagesSearcher`
   * 参见：`icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceAnnotator`
   * 参见：`icu.windea.ut.toolbox.jast.UnresolvedJsonPointerBasedReferenceInspection`

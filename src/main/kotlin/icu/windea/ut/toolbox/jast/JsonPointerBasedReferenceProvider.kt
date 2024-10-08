@@ -3,8 +3,7 @@ package icu.windea.ut.toolbox.jast
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.*
 import com.intellij.psi.impl.source.resolve.ResolveCache
-import com.intellij.util.IncorrectOperationException
-import com.intellij.util.ProcessingContext
+import com.intellij.util.*
 
 /**
  * @see JsonPointerBasedLanguageSettings.references
@@ -16,18 +15,14 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
 
         val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return PsiReference.EMPTY_ARRAY
         if(languageSettings.references.isEmpty()) return PsiReference.EMPTY_ARRAY
+        
+        val (name, textOffset) = jElement.getNameAndTextOffset()
+        if(name.isNullOrEmpty()) return PsiReference.EMPTY_ARRAY
 
         val startOffset = when {
             jElement is JProperty -> jElement.keyElement?.psi?.startOffsetInParent ?: 0
             else -> 0
         }
-        val text = when {
-            jElement is JProperty -> jElement.keyElement?.psi?.text
-            else -> jElement.psi.text
-        }
-        if(text.isNullOrEmpty()) return PsiReference.EMPTY_ARRAY
-        val (name, textOffset) = jElement.getNameAndTextOffset()
-        if(name.isNullOrEmpty()) return PsiReference.EMPTY_ARRAY
         val range = TextRange.from(startOffset + textOffset, name.length)
         val currentFile = element.containingFile ?: return PsiReference.EMPTY_ARRAY
 
@@ -43,11 +38,11 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
         val languageSettings: JsonPointerBasedLanguageSettings
     ) : PsiPolyVariantReferenceBase<PsiElement>(element, range) {
         val project by lazy { element.project }
-        
+
         override fun handleElementRename(newElementName: String): PsiElement {
             throw IncorrectOperationException()
         }
-        
+
         //cached
 
         private object MultiResolver : ResolveCache.PolyVariantResolver<Reference> {
