@@ -6,5 +6,6 @@
     
     <extensions defaultExtensionNs="com.intellij">
         <psi.referenceContributor language="JSON" implementation="icu.windea.ut.toolbox.lang.json.JsonJsonPointerBasedReferenceContributor"/>
+        <completion.contributor language="JSON" implementationClass="icu.windea.ut.toolbox.lang.json.JsonJsonPointerBasedReferenceCompletionContributor"/>
     </extensions>
 </idea-plugin>

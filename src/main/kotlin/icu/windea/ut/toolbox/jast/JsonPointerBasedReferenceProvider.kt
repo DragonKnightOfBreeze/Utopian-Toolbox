@@ -57,8 +57,8 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
 
         private fun doMultiResolve(): Array<out ResolveResult> {
             val result = mutableSetOf<ResolveResult>()
-            languageSettings.references.forEach {
-                JsonPointerManager.processElements(it, currentFile) { resolved ->
+            languageSettings.references.forEach { ref ->
+                JsonPointerManager.processElements(ref, currentFile) { resolved ->
                     val (resolvedName) = resolved.getNameAndTextOffset()
                     if(name == resolvedName) {
                         result += PsiElementResolveResult(resolved.psi)

@@ -1,5 +1,6 @@
 package icu.windea.ut.toolbox.lang.yaml
 
+import com.intellij.openapi.application.runReadAction
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.elementType
 import icu.windea.ut.toolbox.core.*
@@ -88,7 +89,7 @@ class YamlJString(
     override val textOffset: Int get() = doGetTextOffset()
 
     private fun doGetValue(): String {
-        return psi.textValue
+        return runReadAction { psi.textValue }
     }
 
     private fun doGetTextOffset(): Int {

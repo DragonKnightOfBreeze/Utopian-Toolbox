@@ -19,13 +19,14 @@ class UnresolvedJsonPointerBasedReferenceInspection: LocalInspectionTool() {
                 super.visitElement(element)
 
                 val jElement = element.toJElement()
-                if(jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return
+                //if(jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return
+                if(jElement !is JString) return
 
                 val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return
                 if(languageSettings.references.isEmpty()) return
                 if(!languageSettings.inspectionForReferences) return
 
-                val references = PsiReferenceService.getService().getContributedReferences(element)
+                val references = PsiReferenceService.getService().getContributedReferences(element) //TODO
                 for(reference in references) {
                     if(reference !is JsonPointerBasedReferenceProvider.Reference) continue
                     if(reference.multiResolve(false).isNotEmpty()) continue
