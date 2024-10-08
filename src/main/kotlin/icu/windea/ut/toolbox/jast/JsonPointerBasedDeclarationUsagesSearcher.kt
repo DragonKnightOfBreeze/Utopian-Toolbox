@@ -14,6 +14,7 @@ class JsonPointerBasedDeclarationUsagesSearcher : QueryExecutorBase<PsiReference
         if(jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return
         
         val languageSettings = JsonPointerManager.getLanguageSettings(elementToSearch) ?: return
+        if(!languageSettings.checkDeclarationForKey(jElement)) return
         val type = languageSettings.declarationType
         if(type.isEmpty()) return
         val (name) = jElement.getNameAndTextOffset()
