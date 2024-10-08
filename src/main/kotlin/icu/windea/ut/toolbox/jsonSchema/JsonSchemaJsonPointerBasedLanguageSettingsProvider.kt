@@ -11,20 +11,24 @@ import icu.windea.ut.toolbox.jast.*
 
 class JsonSchemaJsonPointerBasedLanguageSettingsProvider : JsonPointerBasedLanguageSettingsProvider {
     override fun getLanguageSettings(element: PsiElement): JsonPointerBasedLanguageSettings? {
+        val jElement = element.toJElement() ?: return null
+        val forKey = jElement is JProperty || jElement is JPropertyKey
+        
         val schemas = JsonSchemaManager.getSchemas(element) ?: return null
-        val list = schemas.mapNotNull { schema -> getLanguageSettings(schema) }
+        val list = schemas.mapNotNull { schema -> getLanguageSettings(schema, forKey) }
         val modificationTrackers = setOf(JsonDependencyModificationTracker.forProject(element.project))
         val languageSettings = JsonPointerManager.mergeLanguageSettings(list, modificationTrackers)
         return languageSettings
     }
 
-    fun getLanguageSettings(schemaObject: JsonSchemaObject): JsonPointerBasedLanguageSettings? {
-        val schemaNode = schemaObject.castOrNull<JsonSchemaNodePointer<ObjectNode>>()?.rawSchemaNode ?: return null
+    fun getLanguageSettings(schemaObject: JsonSchemaObject, forKey: Boolean): JsonPointerBasedLanguageSettings? {
+        var schema = schemaObject
+        if(forKey) schema = schema.propertyNamesSchema ?: return null
+        val schemaNode = schema.castOrNull<JsonSchemaNodePointer<ObjectNode>>()?.rawSchemaNode ?: return null
         val node = schemaNode.get("\$languageSettings") ?: return null
         return JsonPointerBasedLanguageSettings(
             declarationType = node.get("declarationType")?.textValue().orEmpty(),
             hintForDeclarations = node.get("hintForDeclarations")?.booleanValue() ?: true,
-            declarationForKey = node.get("declarationForKey")?.booleanValue() ?: false,
             references = node.get("references")?.toStringOrStringSetValue().orEmpty(),
             hintForReferences = node.get("hintForReferences")?.booleanValue() ?: true,
             inspectionForReferences = node.get("inspectionForReferences")?.booleanValue() ?: true,

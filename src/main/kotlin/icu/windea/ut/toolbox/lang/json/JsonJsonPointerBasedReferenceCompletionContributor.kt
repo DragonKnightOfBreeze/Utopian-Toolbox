@@ -10,6 +10,8 @@ import com.intellij.util.ProcessingContext
 import icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceCompletionProvider
 
 class JsonJsonPointerBasedReferenceCompletionContributor : CompletionContributor() {
+    //TODO complete when typing a non-quoted string 
+    
     private val pattern = or(
         psiElement(JsonElementTypes.DOUBLE_QUOTED_STRING),
         psiElement(JsonElementTypes.IDENTIFIER), //JSON5 unquoted property key

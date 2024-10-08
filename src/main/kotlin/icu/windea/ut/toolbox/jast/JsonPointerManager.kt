@@ -171,7 +171,6 @@ object JsonPointerManager {
         return JsonPointerBasedLanguageSettings(
             declarationType = list.firstNotNullOfOrNull { it.declarationType.orNull() }.orEmpty(),
             hintForDeclarations = list.firstNotNullOfOrNull { it.hintForDeclarations } ?: false,
-            declarationForKey = list.firstNotNullOfOrNull { it.declarationForKey } ?: false,
             references = list.flatMapTo(mutableSetOf()) { it.references },
             hintForReferences = list.any { it.hintForReferences },
             inspectionForReferences = list.any { it.inspectionForReferences },
