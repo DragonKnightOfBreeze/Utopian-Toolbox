@@ -1,9 +1,9 @@
 @file:Suppress("NOTHING_TO_INLINE")
 
-package icu.windea.ut.toolbox
+package icu.windea.ut.toolbox.core
 
 import com.google.common.cache.CacheBuilder
-import icu.windea.ut.toolbox.util.buildCache
+import icu.windea.ut.toolbox.core.util.buildCache
 import java.io.File
 import java.nio.file.Path
 

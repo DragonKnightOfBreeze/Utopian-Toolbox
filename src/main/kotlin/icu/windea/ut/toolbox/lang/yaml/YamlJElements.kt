@@ -2,9 +2,8 @@ package icu.windea.ut.toolbox.lang.yaml
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.elementType
-import icu.windea.ut.toolbox.castOrNull
+import icu.windea.ut.toolbox.core.*
 import icu.windea.ut.toolbox.jast.*
-import icu.windea.ut.toolbox.toChildIterator
 import org.jetbrains.yaml.YAMLTokenTypes
 import org.jetbrains.yaml.psi.*
 import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl

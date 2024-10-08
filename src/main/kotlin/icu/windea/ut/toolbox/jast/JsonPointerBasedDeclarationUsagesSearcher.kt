@@ -7,15 +7,15 @@ import com.intellij.psi.search.UsageSearchContext
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.util.Processor
 
-class JsonPointerBasedReferenceUsagesSearcher : QueryExecutorBase<PsiReference, ReferencesSearch.SearchParameters>(true) {
+class JsonPointerBasedDeclarationUsagesSearcher : QueryExecutorBase<PsiReference, ReferencesSearch.SearchParameters>(true) {
     override fun processQuery(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor<in PsiReference>) {
         val elementToSearch = queryParameters.elementToSearch
         val jElement = elementToSearch.toJElement()
         if(jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return
         
-        val languageSettings = JsonPointerManager.getLanguageSettings(elementToSearch) ?: return 
-        if(!languageSettings.isDeclaration) return
-
+        val languageSettings = JsonPointerManager.getLanguageSettings(elementToSearch) ?: return
+        val type = languageSettings.declarationType
+        if(type.isEmpty()) return
         val (name) = jElement.getNameAndTextOffset()
         if(name.isNullOrEmpty()) return
 

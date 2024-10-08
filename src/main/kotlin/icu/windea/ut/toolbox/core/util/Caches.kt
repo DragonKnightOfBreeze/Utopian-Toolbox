@@ -1,11 +1,11 @@
 @file:Suppress("NOTHING_TO_INLINE")
 
-package icu.windea.ut.toolbox.util
+package icu.windea.ut.toolbox.core.util
 
 import com.google.common.cache.*
 import com.google.common.collect.ImmutableMap
 import com.intellij.openapi.util.ModificationTracker
-import icu.windea.ut.toolbox.cancelable
+import icu.windea.ut.toolbox.core.cancelable
 import java.util.concurrent.Callable
 
 //region Extensions

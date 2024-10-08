@@ -12,8 +12,8 @@ import com.intellij.psi.search.FilenameIndex
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.*
 import com.jetbrains.jsonSchema.impl.JsonSchemaVariantsTreeBuilder
-import icu.windea.ut.toolbox.*
-import icu.windea.ut.toolbox.util.*
+import icu.windea.ut.toolbox.core.*
+import icu.windea.ut.toolbox.core.util.*
 
 object JsonPointerManager {
     object Keys : KeyRegistry() {
@@ -169,7 +169,7 @@ object JsonPointerManager {
         if(list.isEmpty()) return null
         if(list.size == 1) return list.single()
         return JsonPointerBasedLanguageSettings(
-            isDeclaration = list.any { it.isDeclaration },
+            declarationType = list.firstNotNullOfOrNull { it.declarationType.orNull() }.orEmpty(),
             references = list.flatMapTo(mutableSetOf()) { it.references },
             hintForReferences = list.any { it.hintForReferences },
             inspectionForReferences = list.any { it.inspectionForReferences },

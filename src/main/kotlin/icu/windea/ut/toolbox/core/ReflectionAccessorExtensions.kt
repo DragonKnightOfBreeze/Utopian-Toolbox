@@ -1,6 +1,6 @@
 @file:Suppress("UNCHECKED_CAST", "NOTHING_TO_INLINE")
 
-package icu.windea.ut.toolbox
+package icu.windea.ut.toolbox.core
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProcessCanceledException
@@ -9,7 +9,7 @@ import kotlin.reflect.*
 import kotlin.reflect.full.*
 import kotlin.reflect.jvm.isAccessible
 
-private val logger = Logger.getInstance("#icu.windea.pls.core.ReflectionAccessorExtensions")
+private val logger = Logger.getInstance("#icu.windea.ut.toolbox.core.ReflectionAccessorExtensions")
 
 class SmartProperty<T : Any, V>(
     val target: T,

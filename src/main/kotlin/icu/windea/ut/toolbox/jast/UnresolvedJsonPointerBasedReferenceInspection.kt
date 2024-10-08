@@ -3,7 +3,7 @@ package icu.windea.ut.toolbox.jast
 import com.intellij.codeInspection.*
 import com.intellij.psi.*
 import icu.windea.ut.toolbox.UtBundle
-import icu.windea.ut.toolbox.truncate
+import icu.windea.ut.toolbox.core.truncate
 
 /**
  * @see JsonPointerBasedLanguageSettings.inspectionForReferences

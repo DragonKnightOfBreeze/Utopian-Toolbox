@@ -1,4 +1,4 @@
-package icu.windea.ut.toolbox.util
+package icu.windea.ut.toolbox.core.util
 
 typealias Tuple2<A, B> = Pair<A, B>
 

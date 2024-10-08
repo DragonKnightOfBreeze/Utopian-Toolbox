@@ -1,9 +1,9 @@
 @file:Suppress("NOTHING_TO_INLINE")
 
-package icu.windea.ut.toolbox.util
+package icu.windea.ut.toolbox.core.util
 
 import com.intellij.openapi.util.Key
-import icu.windea.ut.toolbox.cast
+import icu.windea.ut.toolbox.core.cast
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KProperty
 

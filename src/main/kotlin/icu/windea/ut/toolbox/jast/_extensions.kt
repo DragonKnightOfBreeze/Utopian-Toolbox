@@ -3,7 +3,7 @@
 package icu.windea.ut.toolbox.jast
 
 import com.intellij.psi.PsiElement
-import icu.windea.ut.toolbox.util.Tuple2
+import icu.windea.ut.toolbox.core.util.Tuple2
 
 inline fun PsiElement.toJElement(): JElement? = JElementManager.getJElement(this)
 

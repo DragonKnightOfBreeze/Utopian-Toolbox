@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement
 import com.jetbrains.jsonSchema.JsonDependencyModificationTracker
 import com.jetbrains.jsonSchema.impl.JsonSchemaObject
 import com.jetbrains.jsonSchema.impl.light.JsonSchemaNodePointer
-import icu.windea.ut.toolbox.castOrNull
+import icu.windea.ut.toolbox.core.*
 import icu.windea.ut.toolbox.jast.*
 
 class JsonSchemaJsonPointerBasedLanguageSettingsProvider : JsonPointerBasedLanguageSettingsProvider {
@@ -22,7 +22,7 @@ class JsonSchemaJsonPointerBasedLanguageSettingsProvider : JsonPointerBasedLangu
         val schemaNode = schemaObject.castOrNull<JsonSchemaNodePointer<ObjectNode>>()?.rawSchemaNode ?: return null
         val node = schemaNode.get("\$languageSettings") ?: return null
         return JsonPointerBasedLanguageSettings(
-            isDeclaration = node.get("isDeclaration")?.booleanValue() ?: false,
+            declarationType = node.get("declarationType")?.textValue().orEmpty(),
             references = node.get("references")?.toStringOrStringSetValue().orEmpty(),
             hintForReferences = node.get("hintForReferences")?.booleanValue() ?: true,
             inspectionForReferences = node.get("inspectionForReferences")?.booleanValue() ?: true,

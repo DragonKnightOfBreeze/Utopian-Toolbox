@@ -1,6 +1,6 @@
 @file:Suppress("UNCHECKED_CAST")
 
-package icu.windea.ut.toolbox
+package icu.windea.ut.toolbox.core
 
 import java.lang.reflect.*
 

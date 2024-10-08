@@ -1,6 +1,6 @@
 @file:Suppress("unused", "NOTHING_TO_INLINE")
 
-package icu.windea.ut.toolbox
+package icu.windea.ut.toolbox.core
 
 import com.google.common.util.concurrent.UncheckedExecutionException
 import com.intellij.openapi.actionSystem.*
@@ -13,7 +13,7 @@ import com.intellij.psi.SyntheticElement
 import com.intellij.psi.util.*
 import com.intellij.refactoring.actions.BaseRefactoringAction.getElementAtCaret
 import com.intellij.util.ProcessingContext
-import icu.windea.ut.toolbox.util.KeyWithFactory
+import icu.windea.ut.toolbox.core.util.KeyWithFactory
 import java.util.concurrent.ExecutionException
 import java.util.logging.Level
 import java.util.logging.Logger

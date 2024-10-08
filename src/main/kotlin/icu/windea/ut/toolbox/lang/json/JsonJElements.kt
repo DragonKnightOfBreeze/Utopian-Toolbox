@@ -1,9 +1,8 @@
 package icu.windea.ut.toolbox.lang.json
 
 import com.intellij.json.psi.*
-import icu.windea.ut.toolbox.castOrNull
+import icu.windea.ut.toolbox.core.*
 import icu.windea.ut.toolbox.jast.*
-import icu.windea.ut.toolbox.toChildIterator
 
 sealed class JsonJElement : JElement {
     override fun equals(other: Any?): Boolean {

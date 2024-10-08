@@ -10,7 +10,7 @@
 * [X] 扩展jsonSchema，提供（基于JSON指针的）语言设置，方面后续对类似JSON的文件格式统一提供扩展
   * 参见：`icu.windea.ut.toolbox.jast.JsonPointerBasedLanguageSettingsProvider` 
   * 参见：`icu.windea.ut.toolbox.jsonSchema.JsonSchemaJsonPointerBasedLanguageSettingsProvider`
-* [X] 提供基于（基于JSON指针的）语言设置的引用解析，以及适用于这些引用的语言高亮与代码检查
+* [X] 提供基于（基于JSON指针的）语言设置的引用解析，以及相关的代码高亮、代码检查、代码补全、快速文档等语言功能
   * 参见：`icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceProvider`
   * 参见：`icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceUsagesSearcher`
   * 参见：`icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceAnnotator`
