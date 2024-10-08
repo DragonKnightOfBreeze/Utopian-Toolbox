@@ -1,4 +1,4 @@
-@file:Suppress("UnstableApiUsage", "UNUSED_PARAMETER")
+@file:Suppress("UnstableApiUsage")
 
 package icu.windea.ut.toolbox.jast
 
@@ -12,15 +12,13 @@ import com.intellij.refactoring.suggested.createSmartPointer
 import icu.windea.ut.toolbox.core.documentation.*
 
 class JsonPointerBasedDeclarationDocumentationTarget(
-    val element: PsiElement,
-    val originalElement: PsiElement?
+    val element: PsiElement
 ) : DocumentationTarget {
     override fun createPointer(): Pointer<out DocumentationTarget> {
         val elementPtr = element.createSmartPointer()
-        val originalElementPtr = originalElement?.createSmartPointer()
         return Pointer {
             val element = elementPtr.dereference() ?: return@Pointer null
-            JsonPointerBasedDeclarationDocumentationTarget(element, originalElementPtr?.dereference())
+            JsonPointerBasedDeclarationDocumentationTarget(element)
         }
     }
 
@@ -32,12 +30,12 @@ class JsonPointerBasedDeclarationDocumentationTarget(
     }
 
     override fun computeDocumentationHint(): String? {
-        return computeLocalDocumentation(element, originalElement, true)
+        return computeLocalDocumentation(element, true)
     }
 
     override fun computeDocumentation(): DocumentationResult {
         return DocumentationResult.asyncDocumentation {
-            val html = computeLocalDocumentation(element, originalElement, false) ?: return@asyncDocumentation null
+            val html = computeLocalDocumentation(element, false) ?: return@asyncDocumentation null
             DocumentationResult.documentation(html)
         }
     }
@@ -59,7 +57,7 @@ private fun computeLocalPresentation(element: PsiElement): TargetPresentation? {
 
 private const val SECTIONS_INFO = 0
 
-private fun computeLocalDocumentation(element: PsiElement, originalElement: PsiElement?, quickNavigation: Boolean): String? {
+private fun computeLocalDocumentation(element: PsiElement, quickNavigation: Boolean): String? {
     val jElement = element.toJElement()
     if(jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return null
 
