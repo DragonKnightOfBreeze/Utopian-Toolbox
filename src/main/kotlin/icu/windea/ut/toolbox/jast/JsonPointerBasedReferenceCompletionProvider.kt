@@ -8,6 +8,7 @@ import com.intellij.psi.util.parents
 import com.intellij.refactoring.suggested.startOffset
 import com.intellij.util.ProcessingContext
 import icu.windea.ut.toolbox.core.util.*
+import java.util.function.UnaryOperator
 
 open class JsonPointerBasedReferenceCompletionProvider : CompletionProvider<CompletionParameters>() {
     object Keys : KeyRegistry() {
@@ -19,6 +20,8 @@ open class JsonPointerBasedReferenceCompletionProvider : CompletionProvider<Comp
     }
 
     override fun addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
+        //TODO parameters.position may be incomplete
+        
         val positionElement = parameters.position
         val jElement = positionElement.parents(true).firstNotNullOfOrNull { it.toJElement() } ?: return
         if(jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return
@@ -35,9 +38,13 @@ open class JsonPointerBasedReferenceCompletionProvider : CompletionProvider<Comp
         context.put(Keys.jElement, jElement)
         context.put(Keys.languageSettings, languageSettings)
 
+        val resultHandler = getResultHandler(context)
+        val lookupStringHandler = getLookupStringHandler(context)
+        val lookupElementHandler = getLookupElementHandler(context)
+
         ProgressManager.checkCanceled()
         val currentFile = parameters.originalFile
-        val resultToUse = handleResult(context, result)
+        val resultToUse = result.applyHandler(resultHandler)
         languageSettings.references.forEach { ref ->
             JsonPointerManager.processElements(ref, currentFile) p@{ resolved ->
                 val (resolvedName) = resolved.getNameAndTextOffset()
@@ -48,20 +55,30 @@ open class JsonPointerBasedReferenceCompletionProvider : CompletionProvider<Comp
                 val resolvedLanguageSettings = JsonPointerManager.getLanguageSettings(resolvedElement)
                 val resolvedType = resolvedLanguageSettings?.declarationType
 
-                val lookupElement = LookupElementBuilder.create(resolvedElement, resolvedName)
+                val lookupString = resolvedName.applyHandler(lookupStringHandler)
+                val lookupElement = LookupElementBuilder.create(resolvedElement, lookupString)
+                    .withPresentableText(resolvedName)
                     .withTypeText(resolvedType, true)
-                val lookupElementToUse = handleLookupElement(context, lookupElement)
+                val lookupElementToUse = lookupElement.applyHandler(lookupElementHandler)
                 resultToUse.addElement(lookupElementToUse)
                 true
             }
         }
     }
-    
-    protected open fun handleResult(context: ProcessingContext, result: CompletionResultSet): CompletionResultSet {
-        return result
+
+    protected open fun getResultHandler(context: ProcessingContext): UnaryOperator<CompletionResultSet>? {
+        return null
     }
 
-    protected open fun handleLookupElement(context: ProcessingContext, lookupElement: LookupElementBuilder): LookupElementBuilder {
-        return lookupElement
+    protected open fun getLookupStringHandler(context: ProcessingContext): UnaryOperator<String>? {
+        return null
+    }
+
+    protected open fun getLookupElementHandler(context: ProcessingContext): UnaryOperator<LookupElementBuilder>? {
+        return null
+    }
+
+    private fun <T> T.applyHandler(handler: UnaryOperator<T>?): T {
+        return handler?.apply(this) ?: this
     }
 }

@@ -2,23 +2,30 @@ package icu.windea.ut.toolbox.lang.json
 
 import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.lookup.LookupElementBuilder
-import com.intellij.json.JsonElementTypes
+import com.intellij.json.json5.Json5Language
+import com.intellij.json.psi.JsonArray
+import com.intellij.json.psi.JsonProperty
 import com.intellij.openapi.editor.EditorModificationUtil
 import com.intellij.patterns.PlatformPatterns.or
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.util.ProcessingContext
-import icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceCompletionProvider
+import icu.windea.ut.toolbox.core.isLeftQuoted
+import icu.windea.ut.toolbox.core.quote
+import icu.windea.ut.toolbox.jast.*
+import java.util.function.UnaryOperator
 
 class JsonJsonPointerBasedReferenceCompletionContributor : CompletionContributor() {
-    //TODO complete when typing a non-quoted string 
-    
-    private val pattern = or(
-        psiElement(JsonElementTypes.DOUBLE_QUOTED_STRING),
-        psiElement(JsonElementTypes.IDENTIFIER), //JSON5 unquoted property key
+    private val keyPattern = or(
+        psiElement().afterLeaf("{", ",").withSuperParent(2, JsonProperty::class.java), //after comma or brace in property
+    )
+    private val stringPattern = or(
+        psiElement().afterLeaf(":").withSuperParent(2, JsonProperty::class.java), //after colon in property
+        psiElement().afterLeaf("[", ",").withSuperParent(2, JsonArray::class.java), //after comma or bracket in array
     )
 
     init {
-        extend(CompletionType.BASIC, pattern, Provider())
+        extend(CompletionType.BASIC, keyPattern, Provider(true))
+        extend(CompletionType.BASIC, stringPattern, Provider(false))
     }
 
     @Suppress("RedundantOverride")
@@ -26,36 +33,67 @@ class JsonJsonPointerBasedReferenceCompletionContributor : CompletionContributor
         super.fillCompletionVariants(parameters, result)
     }
 
-    class Provider : JsonPointerBasedReferenceCompletionProvider() {
-        override fun handleResult(context: ProcessingContext, result: CompletionResultSet): CompletionResultSet {
-            val keyword = context.get(Keys.keyword) ?: return result
-            if(keyword.startsWith('"')) {
-                return result.withPrefixMatcher(keyword.drop(1))
-            }
-            return result
+    class Provider(
+        private val isKey: Boolean
+    ) : JsonPointerBasedReferenceCompletionProvider() {
+        override fun getResultHandler(context: ProcessingContext): UnaryOperator<CompletionResultSet>? {
+            val jElement = context.get(Keys.jElement) ?: return null
+            if(jElement is JValue && jElement !is JString) return null
+            
+            val keyword = context.get(Keys.keyword) ?: return null
+            val shouldQuoted = shouldQuoted(context)
+            if(!shouldQuoted) return null
+            val quoted = keyword.isLeftQuoted('"') || keyword.isLeftQuoted('"')
+            if(!quoted) return null
+            
+            return UnaryOperator { it.withPrefixMatcher(keyword.drop(1)) }
+        }
+        
+        override fun getLookupStringHandler(context: ProcessingContext): UnaryOperator<String>? {
+            val jElement = context.get(Keys.jElement) ?: return null
+            if(jElement is JValue && jElement !is JString) return null
+            
+            val keyword = context.get(Keys.keyword) ?: return null
+            val shouldQuoted = shouldQuoted(context)
+            if(!shouldQuoted) return null
+            val quoted = keyword.isLeftQuoted('"') || keyword.isLeftQuoted('"')
+            if(quoted) return null
+
+            val quoteChar = keyword.first()
+            return UnaryOperator { it.quote(quoteChar) }
         }
 
-        override fun handleLookupElement(context: ProcessingContext, lookupElement: LookupElementBuilder): LookupElementBuilder {
-            val keyword = context.get(Keys.keyword) ?: return lookupElement
-            if(keyword.startsWith('"')) {
-                val quoteChar = keyword.first()
-                return lookupElement.withInsertHandler { c, _ -> applyQuotedKeyOrValueInsertHandler(c, quoteChar) }
+        override fun getLookupElementHandler(context: ProcessingContext): UnaryOperator<LookupElementBuilder>? {
+            val jElement = context.get(Keys.jElement) ?: return null
+            if(jElement is JValue && jElement !is JString) return null
+            
+            val keyword = context.get(Keys.keyword) ?: return null
+            val shouldQuoted = shouldQuoted(context)
+            if(!shouldQuoted) return null
+            val quoted = keyword.isLeftQuoted('"') || keyword.isLeftQuoted('"')
+            if(!quoted) return null
+
+            val quoteChar = keyword.first()
+            return UnaryOperator {
+                it.withInsertHandler { c, _ ->
+                    val editor = c.editor
+                    val caretOffset = editor.caretModel.offset
+                    val charsSequence = editor.document.charsSequence
+                    val rightQuoted = charsSequence.get(caretOffset) == quoteChar && charsSequence.get(caretOffset - 1) != '\\'
+                    if(rightQuoted) {
+                        //将光标移到右引号之后
+                        editor.caretModel.moveToOffset(caretOffset + 1)
+                    } else {
+                        //插入缺失的右引号，然后将光标移到右引号之后
+                        EditorModificationUtil.insertStringAtCaret(editor, quoteChar.toString(), false)
+                    }
+                }
             }
-            return lookupElement
         }
 
-        private fun applyQuotedKeyOrValueInsertHandler(c: InsertionContext, quoteChar: Char) {
-            val editor = c.editor
-            val caretOffset = editor.caretModel.offset
-            val charsSequence = editor.document.charsSequence
-            val rightQuoted = charsSequence.get(caretOffset) == quoteChar && charsSequence.get(caretOffset - 1) != '\\'
-            if(rightQuoted) {
-                //将光标移到右引号之后
-                editor.caretModel.moveToOffset(caretOffset + 1)
-            } else {
-                //插入缺失的右引号，然后将光标移到右引号之后
-                EditorModificationUtil.insertStringAtCaret(editor, quoteChar.toString(), false)
-            }
+        private fun shouldQuoted(context: ProcessingContext): Boolean {
+            val parameters = context.get(Keys.parameters) ?: return true
+            return !isKey || parameters.originalFile.language != Json5Language.INSTANCE
         }
     }
 }

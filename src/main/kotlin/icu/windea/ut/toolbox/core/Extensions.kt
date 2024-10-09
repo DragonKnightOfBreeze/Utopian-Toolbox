@@ -53,6 +53,69 @@ fun String.removeSurroundingOrNull(prefix: CharSequence, suffix: CharSequence): 
     return if(surroundsWith(prefix, suffix)) substring(prefix.length, length - suffix.length) else null
 }
 
+fun String.isLeftQuoted(quoteChar: Char = '"'): Boolean {
+    return startsWith(quoteChar)
+}
+
+fun String.isRightQuoted(quoteChar: Char = '"'): Boolean {
+    return length > 1 && endsWith(quoteChar) && run {
+        var n = 0
+        for(i in (lastIndex - 1) downTo 0) {
+            if(this[i] == '\\') n++ else break
+        }
+        n % 2 == 0
+    }
+}
+
+fun String.isQuoted(quoteChar: Char = '"'): Boolean {
+    return isLeftQuoted(quoteChar) || isRightQuoted(quoteChar)
+}
+
+fun String.quote(quoteChar: Char = '"'): String {
+    val s = this
+    if(s.isEmpty() || s == quoteChar.toString()) return "$quoteChar$quoteChar"
+    val start = isLeftQuoted(quoteChar)
+    val end = isRightQuoted(quoteChar)
+    if(start && end) return s
+    return buildString {
+        append(quoteChar)
+        s.forEach { c ->
+            when(c) {
+                quoteChar -> append("\\$quoteChar")
+                '\\' -> append("\\\\")
+                else -> append(c)
+            }
+        }
+        append(quoteChar)
+    }
+}
+
+fun String.unquote(quoteChar: Char = '"'): String {
+    val s = this
+    if(s.isEmpty() || s == quoteChar.toString()) return ""
+    val start = isLeftQuoted(quoteChar)
+    val end = isRightQuoted(quoteChar)
+    return buildString {
+        var escape = false
+        s.forEachIndexed f@{ i, c ->
+            if(start && i == 0) return@f
+            if(end && i == s.lastIndex) return@f
+            if(escape) {
+                escape = false
+                when(c) {
+                    quoteChar -> append(c)
+                    '\\' -> append(c)
+                    else -> append('\\').append(c)
+                }
+            } else if(c == '\\') {
+                escape = true
+            } else {
+                append(c)
+            }
+        }
+    }
+}
+
 fun String.truncate(limit: Int, ellipsis: String = "..."): String {
     return if(this.length <= limit) this else this.take(limit) + ellipsis
 }

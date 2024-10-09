@@ -7,6 +7,8 @@ import com.intellij.psi.PsiReferenceService
 import com.intellij.psi.util.parents
 
 class JsonPointerBasedDeclarationDocumentationTargetProvider : DocumentationTargetProvider {
+    //TODO compatible with quick documentation during code completion
+    
     override fun documentationTargets(file: PsiFile, offset: Int): List<DocumentationTarget> {
         return documentationTarget(file, offset)?.let { listOf(it) } ?: emptyList()
     }
