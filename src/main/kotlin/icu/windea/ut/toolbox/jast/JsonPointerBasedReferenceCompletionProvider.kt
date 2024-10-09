@@ -2,7 +2,6 @@ package icu.windea.ut.toolbox.jast
 
 import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.lookup.LookupElementBuilder
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.refactoring.suggested.startOffset
 import com.intellij.util.ProcessingContext
 import icu.windea.ut.toolbox.core.util.*
