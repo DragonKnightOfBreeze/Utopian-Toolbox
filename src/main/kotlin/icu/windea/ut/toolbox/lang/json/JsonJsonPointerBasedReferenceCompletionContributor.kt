@@ -37,9 +37,6 @@ class JsonJsonPointerBasedReferenceCompletionContributor : CompletionContributor
         private val isKey: Boolean
     ) : JsonPointerBasedReferenceCompletionProvider() {
         override fun getResultHandler(context: ProcessingContext): UnaryOperator<CompletionResultSet>? {
-            val jElement = context.get(Keys.jElement) ?: return null
-            if(jElement is JValue && jElement !is JString) return null
-            
             val keyword = context.get(Keys.keyword) ?: return null
             val shouldQuoted = shouldQuoted(context)
             if(!shouldQuoted) return null
@@ -50,30 +47,24 @@ class JsonJsonPointerBasedReferenceCompletionContributor : CompletionContributor
         }
         
         override fun getLookupStringHandler(context: ProcessingContext): UnaryOperator<String>? {
-            val jElement = context.get(Keys.jElement) ?: return null
-            if(jElement is JValue && jElement !is JString) return null
-            
             val keyword = context.get(Keys.keyword) ?: return null
             val shouldQuoted = shouldQuoted(context)
             if(!shouldQuoted) return null
             val quoted = keyword.isLeftQuoted('"') || keyword.isLeftQuoted('"')
             if(quoted) return null
 
-            val quoteChar = keyword.first()
+            val quoteChar = '"'
             return UnaryOperator { it.quote(quoteChar) }
         }
 
         override fun getLookupElementHandler(context: ProcessingContext): UnaryOperator<LookupElementBuilder>? {
-            val jElement = context.get(Keys.jElement) ?: return null
-            if(jElement is JValue && jElement !is JString) return null
-            
             val keyword = context.get(Keys.keyword) ?: return null
             val shouldQuoted = shouldQuoted(context)
             if(!shouldQuoted) return null
             val quoted = keyword.isLeftQuoted('"') || keyword.isLeftQuoted('"')
             if(!quoted) return null
 
-            val quoteChar = keyword.first()
+            val quoteChar = keyword.firstOrNull() ?: '"'
             return UnaryOperator {
                 it.withInsertHandler { c, _ ->
                     val editor = c.editor

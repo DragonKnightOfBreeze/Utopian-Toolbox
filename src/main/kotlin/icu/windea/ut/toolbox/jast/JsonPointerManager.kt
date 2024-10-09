@@ -14,6 +14,7 @@ import com.intellij.psi.util.*
 import com.jetbrains.jsonSchema.impl.JsonSchemaVariantsTreeBuilder
 import icu.windea.ut.toolbox.core.*
 import icu.windea.ut.toolbox.core.util.*
+import icu.windea.ut.toolbox.lang.UtPsiManager
 
 object JsonPointerManager {
     object Keys : KeyRegistry() {
@@ -180,14 +181,24 @@ object JsonPointerManager {
     }
 
     fun getLanguageSettings(element: PsiElement): JsonPointerBasedLanguageSettings? {
+        if(UtPsiManager.isIncompletePsi()) return doGetLanguageSettings(element)
+        return doGetLanguageSettingsFromCache(element)
+    }
+
+    private fun doGetLanguageSettingsFromCache(element: PsiElement): JsonPointerBasedLanguageSettings? {
         return CachedValuesManager.getCachedValue(element, Keys.languageSettings) {
-            val list = JsonPointerBasedLanguageSettingsProvider.EP_NAME.extensionList.mapNotNull { it.getLanguageSettings(element) }
-            val value = mergeLanguageSettings(list)
+            val value = doGetLanguageSettings(element)
             val trackers = buildList {
                 add(element.containingFile ?: element)
                 if(value != null) addAll(value.modificationTrackers)
             }.toTypedArray()
             CachedValueProvider.Result.create(value, *trackers)
         }
+    }
+
+    private fun doGetLanguageSettings(element: PsiElement): JsonPointerBasedLanguageSettings? {
+        val list = JsonPointerBasedLanguageSettingsProvider.EP_NAME.extensionList.mapNotNull { it.getLanguageSettings(element) }
+        val value = mergeLanguageSettings(list)
+        return value
     }
 }

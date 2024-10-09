@@ -43,7 +43,7 @@ class YamlJsonPointerBasedReferenceCompletionContributor : CompletionContributor
             val quoted = keyword.isLeftQuoted('"') || keyword.isLeftQuoted('"')
             if(!quoted) return null
 
-            val quoteChar = keyword.first()
+            val quoteChar = keyword.firstOrNull() ?: '"'
             return UnaryOperator {
                 it.withInsertHandler { c, _ ->
                     val editor = c.editor
