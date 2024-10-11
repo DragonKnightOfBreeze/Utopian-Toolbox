@@ -23,7 +23,7 @@ class JsonPointerBasedDeclarationDocumentationTarget(
     }
 
     override val navigatable: Navigatable?
-        get() = element as? Navigatable
+        get() = (element.navigationElement ?: element) as? Navigatable
 
     override fun computePresentation(): TargetPresentation {
         return computeLocalPresentation(element) ?: TargetPresentation.builder("").presentation()
