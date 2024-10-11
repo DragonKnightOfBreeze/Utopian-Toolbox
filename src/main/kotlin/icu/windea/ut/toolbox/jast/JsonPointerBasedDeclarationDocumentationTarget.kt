@@ -46,7 +46,6 @@ private fun computeLocalPresentation(element: PsiElement): TargetPresentation? {
     if(jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return null
 
     val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return null
-    if(!languageSettings.checkDeclarationForKey(jElement)) return null
     val type = languageSettings.declarationType
     if(type.isEmpty()) return null
     val (name) = jElement.getNameAndTextOffset()
@@ -62,7 +61,6 @@ private fun computeLocalDocumentation(element: PsiElement, quickNavigation: Bool
     if(jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return null
 
     val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return null
-    if(!languageSettings.checkDeclarationForKey(jElement)) return null
     val type = languageSettings.declarationType
     if(type.isEmpty()) return null
     val (name) = jElement.getNameAndTextOffset()

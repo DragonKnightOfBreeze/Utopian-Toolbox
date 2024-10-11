@@ -18,7 +18,6 @@ class JsonPointerBasedDeclarationDocumentationTargetProvider : PsiDocumentationT
         val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return null
         if(languageSettings.declarationType.isNotEmpty()) {
             //declaration
-            if(!languageSettings.checkDeclarationForKey(jElement)) return null
             val (name) = jElement.getNameAndTextOffset()
             if(name.isNullOrEmpty()) return null
             return JsonPointerBasedDeclarationDocumentationTarget(element)

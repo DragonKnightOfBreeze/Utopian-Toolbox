@@ -24,6 +24,7 @@
     </extensionPoints>
     
     <extensions defaultExtensionNs="com.intellij">
+        <readWriteAccessDetector implementation="icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceReadWriteAccessDetector"/>
         <referencesSearch implementation="icu.windea.ut.toolbox.jast.JsonPointerBasedDeclarationUsagesSearcher"/>
         <annotator language="" implementationClass="icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceAnnotator"/>
         <!--suppress PluginXmlValidity -->
