@@ -2,6 +2,7 @@
 
 package icu.windea.ut.toolbox.jast
 
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import icu.windea.ut.toolbox.core.util.Tuple2
 
@@ -20,6 +21,15 @@ fun JElement.getNameAndTextOffset(): Tuple2<String?, Int> {
         this is JString -> this.let { it.value to it.textOffset }
         else -> null to 0
     }
+}
+
+fun JElement.getRangeInElement(name: String, textOffset: Int): TextRange {
+    val startOffset = when {
+        this is JProperty -> keyElement?.psi?.startOffsetInParent ?: 0
+        else -> 0
+    }
+    val range = TextRange.from(startOffset + textOffset, name.length)
+    return range
 }
 
 //JAST Search Extensions

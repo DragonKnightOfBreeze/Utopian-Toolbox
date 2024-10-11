@@ -19,21 +19,13 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
         if(name.isNullOrEmpty()) return PsiReference.EMPTY_ARRAY
 
         if(languageSettings.references.isNotEmpty()) {
-            val range = getRange(jElement, name, textOffset)
-            return arrayOf(Reference(element, range, jElement, name, languageSettings))
+            val range = jElement.getRangeInElement(name, textOffset)
+            val reference = Reference(element, range, jElement, name, languageSettings)
+            return arrayOf(reference)
         }
         return PsiReference.EMPTY_ARRAY
     }
 
-    private fun getRange(jElement: JElement?, name: String, textOffset: Int): TextRange {
-        val startOffset = when {
-            jElement is JProperty -> jElement.keyElement?.psi?.startOffsetInParent ?: 0
-            else -> 0
-        }
-        val range = TextRange.from(startOffset + textOffset, name.length)
-        return range
-    }
-    
     class Reference(
         element: PsiElement,
         range: TextRange,
