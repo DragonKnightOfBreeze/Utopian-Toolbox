@@ -23,6 +23,11 @@ class JsonPointerBasedReferenceReadWriteAccessDetector : ReadWriteAccessDetector
     }
 
     override fun getExpressionAccess(expression: PsiElement): Access {
-        return Access.Read
+        val reference = expression.references.firstOrNull()
+        return when(reference) {
+            is JsonPointerBasedReferenceProvider.SelfReference -> Access.Write
+            is JsonPointerBasedReferenceProvider.Reference -> Access.Read
+            else -> Access.ReadWrite
+        }
     }
 }

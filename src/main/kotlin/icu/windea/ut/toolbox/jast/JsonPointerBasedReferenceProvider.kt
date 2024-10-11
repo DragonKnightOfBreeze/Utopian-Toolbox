@@ -9,6 +9,7 @@ import com.intellij.psi.impl.RenameableFakePsiElement
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import com.intellij.util.ProcessingContext
 import icu.windea.ut.toolbox.core.castOrNull
+import icu.windea.ut.toolbox.core.property
 import java.util.*
 import javax.swing.Icon
 
@@ -77,11 +78,11 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
         override fun equals(other: Any?): Boolean {
             if(other == null) return false
             if(this === other) return true
-            return other is Element && name == other.name && type == other.type
+            return other is Element && name == other.name && type == other.type && project == other.project
         }
 
         override fun hashCode(): Int {
-            return Objects.hash(name, type)
+            return Objects.hash(name, type, project)
         }
     }
 

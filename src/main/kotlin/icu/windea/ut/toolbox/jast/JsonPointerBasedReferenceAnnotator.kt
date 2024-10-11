@@ -15,7 +15,7 @@ class JsonPointerBasedReferenceAnnotator : Annotator {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         val jElement = element.toJElement()
         if(jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return
-
+        
         val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return
         if(languageSettings.declarationType.isNotEmpty()) {
             if(!languageSettings.hintForDeclarations) return

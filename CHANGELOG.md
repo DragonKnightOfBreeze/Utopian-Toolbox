@@ -14,7 +14,7 @@
   * 参见：`icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceProvider`
   * 参见：`icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceUsagesSearcher`
   * 参见：`icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceAnnotator`
+  * 参见：`icu.windea.ut.toolbox.jast.JsonPointerBasedTargetElementEvaluator`
   * 参见：`icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceCompletionProvider`
-  * 参见：`icu.windea.ut.toolbox.jast.JsonPointerBasedDeclarationProvider`
   * 参见：`icu.windea.ut.toolbox.jast.JsonPointerBasedDeclarationDocumentationTargetProvider`
   * 参见：`icu.windea.ut.toolbox.jast.UnresolvedJsonPointerBasedReferenceInspection`
