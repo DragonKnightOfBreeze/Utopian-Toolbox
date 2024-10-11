@@ -26,10 +26,9 @@ class JsonPointerBasedDeclarationDocumentationTargetProvider : PsiDocumentationT
             val references = PsiReferenceService.getService().getContributedReferences(element)
             for(reference in references) {
                 if(reference !is JsonPointerBasedReferenceProvider.Reference) continue
-                val resolveResults = reference.multiResolve(false)
-                for(resolveResult in resolveResults) {
-                    val resolved = resolveResult.element ?: continue
-                    val resolvedJElement = resolved.toJElement() ?: continue
+                val resolveElements = reference.getResolvedElements()
+                for(resolveElement in resolveElements) {
+                    val resolvedJElement = resolveElement.toJElement() ?: continue
                     val documentationTarget = documentationTarget(resolvedJElement)
                     if(documentationTarget != null) return documentationTarget
                 }

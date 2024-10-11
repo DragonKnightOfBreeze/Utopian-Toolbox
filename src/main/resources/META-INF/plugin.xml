@@ -24,11 +24,11 @@
     </extensionPoints>
     
     <extensions defaultExtensionNs="com.intellij">
-        <psi.declarationProvider implementation="icu.windea.ut.toolbox.jast.JsonPointerBasedSymbolDeclarationProvider"/>
-        <psi.symbolReferenceProvider hostElementClass="com.intellij.model.psi.PsiExternalReferenceHost"
-                                     hostLanguage=""
-                                     implementationClass="icu.windea.ut.toolbox.jast.JsonPointerBasedSymbolReferenceProvider"
-                                     targetClass="com.intellij.model.Symbol"/>
+<!--        <psi.declarationProvider implementation="icu.windea.ut.toolbox.jast.JsonPointerBasedSymbolDeclarationProvider"/>-->
+<!--        <psi.symbolReferenceProvider hostElementClass="com.intellij.model.psi.PsiExternalReferenceHost"-->
+<!--                                     hostLanguage=""-->
+<!--                                     implementationClass="icu.windea.ut.toolbox.jast.JsonPointerBasedSymbolReferenceProvider"-->
+<!--                                     targetClass="com.intellij.model.Symbol"/>-->
         <readWriteAccessDetector implementation="icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceReadWriteAccessDetector"/>
         <referencesSearch implementation="icu.windea.ut.toolbox.jast.JsonPointerBasedDeclarationUsagesSearcher"/>
         <annotator language="" implementationClass="icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceAnnotator"/>
