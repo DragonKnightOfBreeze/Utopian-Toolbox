@@ -26,6 +26,11 @@ repositories {
     maven("https://www.jetbrains.com/intellij-repository/releases")
 }
 
+dependencies {
+    //Javassist
+    implementation("org.javassist:javassist:3.30.2-GA")
+}
+
 kotlin {
     jvmToolchain(17)
 }

@@ -8,7 +8,6 @@ import com.intellij.util.ProcessingContext
 /**
  * @see JsonPointerBasedLanguageSettings.references
  */
-@Suppress("RedundantOverride")
 class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
     override fun getReferencesByElement(element: PsiElement, context: ProcessingContext): Array<PsiReference> {
         val jElement = element.toJElement()
@@ -19,10 +18,7 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
         val (name, textOffset) = jElement.getNameAndTextOffset()
         if(name.isNullOrEmpty()) return PsiReference.EMPTY_ARRAY
 
-        if(languageSettings.declarationType.isNotEmpty()) {
-            val range = getRange(jElement, name, textOffset)
-            return arrayOf(SelfReference(element, range, jElement, name, languageSettings))
-        } else if(languageSettings.references.isNotEmpty()) {
+        if(languageSettings.references.isNotEmpty()) {
             val range = getRange(jElement, name, textOffset)
             return arrayOf(Reference(element, range, jElement, name, languageSettings))
         }
@@ -37,23 +33,7 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
         val range = TextRange.from(startOffset + textOffset, name.length)
         return range
     }
-
-    class SelfReference(
-        element: PsiElement,
-        range: TextRange,
-        val jElement: JElement,
-        val name: String,
-        val languageSettings: JsonPointerBasedLanguageSettings
-    ) : PsiReferenceBase<PsiElement>(element, range) {
-        override fun handleElementRename(newElementName: String): PsiElement {
-            return super.handleElementRename(newElementName) //delegate to ElementManipulators
-        }
-
-        override fun resolve(): PsiElement {
-            return element
-        }
-    }
-
+    
     class Reference(
         element: PsiElement,
         range: TextRange,

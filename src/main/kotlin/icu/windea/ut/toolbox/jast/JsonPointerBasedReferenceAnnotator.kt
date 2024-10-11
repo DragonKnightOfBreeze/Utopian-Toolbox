@@ -1,6 +1,7 @@
 package icu.windea.ut.toolbox.jast
 
 import com.intellij.lang.annotation.*
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiReferenceService
 import com.intellij.refactoring.suggested.startOffset
@@ -19,12 +20,10 @@ class JsonPointerBasedReferenceAnnotator : Annotator {
         if(languageSettings.declarationType.isNotEmpty()) {
             if(!languageSettings.hintForDeclarations) return
 
-            val references = PsiReferenceService.getService().getContributedReferences(element)
-            for(reference in references) {
-                if(reference !is JsonPointerBasedReferenceProvider.SelfReference) continue
-                val range = reference.rangeInElement.shiftRight(element.startOffset)
-                holder.newSilentAnnotation(HighlightSeverity.INFORMATION).range(range).textAttributes(UtAttributesKeys.JSON_POINTER_BASED_DECLARATION).create()
-            }
+            val (name, textOffset) = jElement.getNameAndTextOffset()
+            if(name.isNullOrEmpty()) return
+            val range = TextRange.from(textOffset, name.length).shiftRight(element.startOffset)
+            holder.newSilentAnnotation(HighlightSeverity.INFORMATION).range(range).textAttributes(UtAttributesKeys.JSON_POINTER_BASED_DECLARATION).create()
         } else if(languageSettings.references.isNotEmpty()) {
             if(!languageSettings.hintForReferences) return
 
