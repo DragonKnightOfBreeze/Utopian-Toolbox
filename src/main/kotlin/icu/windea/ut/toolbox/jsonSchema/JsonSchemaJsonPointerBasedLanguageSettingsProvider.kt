@@ -55,7 +55,7 @@ class JsonSchemaJsonPointerBasedLanguageSettingsProvider : JsonPointerBasedLangu
     }
 
     fun getLanguageSettings(schema: JsonSchemaObject): JsonPointerBasedLanguageSettings? {
-        val schemaNode = schema.castOrNull<JsonSchemaNodePointer<ObjectNode>>()?.rawSchemaNode ?: return null
+        val schemaNode = schema.castOrNull<JsonSchemaNodePointer<Any>>()?.rawSchemaNode?.castOrNull<ObjectNode>() ?: return null
         val node = schemaNode.get("\$languageSettings") ?: return null
         return JsonPointerBasedLanguageSettings(
             declarationType = node.get("declarationType")?.textValue().orEmpty(),
