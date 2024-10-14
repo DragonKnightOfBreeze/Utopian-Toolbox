@@ -28,7 +28,7 @@ repositories {
 
 dependencies {
     //Javassist
-    implementation("org.javassist:javassist:3.30.2-GA")
+    //implementation("org.javassist:javassist:3.30.2-GA")
 }
 
 kotlin {

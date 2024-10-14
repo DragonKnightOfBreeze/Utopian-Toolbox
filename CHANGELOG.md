@@ -7,8 +7,9 @@
 * [X] 实现JAST，方面后续对类似JSON的文件格式统一提供扩展
   * 参见：`icu.windea.ut.toolbox.jast.JElementProvider`
   * 默认支持的文件格式：JSON、YAML
-* [X] 扩展jsonSchema，提供（基于JSON指针的）语言设置，方面后续对类似JSON的文件格式统一提供扩展
-  * 参见：`icu.windea.ut.toolbox.jast.JsonPointerBasedLanguageSettingsProvider` 
+* [X] 实现（基于JSON指针的）语言设置，方面后续对类似JSON的文件格式统一提供扩展
+  * 参见：`icu.windea.ut.toolbox.jast.JsonPointerBasedLanguageSettingsProvider`
+* [X] 提供基于jsonSchema的（基于JSON指针的）语言设置，用于通过jsonSchema配置语言设置
   * 参见：`icu.windea.ut.toolbox.jsonSchema.JsonSchemaJsonPointerBasedLanguageSettingsProvider`
 * [X] 提供基于（基于JSON指针的）语言设置的引用解析，以及相关的代码高亮、代码补全、快速文档、代码检查等语言功能
   * 参见：`icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceProvider`
