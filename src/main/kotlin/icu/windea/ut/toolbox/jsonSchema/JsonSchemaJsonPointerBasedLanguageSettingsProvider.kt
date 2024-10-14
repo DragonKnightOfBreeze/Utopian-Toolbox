@@ -1,30 +1,29 @@
 package icu.windea.ut.toolbox.jsonSchema
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.node.ObjectNode
-import com.intellij.psi.PsiElement
-import com.intellij.psi.util.parents
-import com.intellij.refactoring.suggested.endOffset
-import com.intellij.refactoring.suggested.startOffset
-import com.jetbrains.jsonSchema.JsonDependencyModificationTracker
-import com.jetbrains.jsonSchema.impl.JsonSchemaObject
-import com.jetbrains.jsonSchema.impl.light.JsonSchemaNodePointer
+import com.fasterxml.jackson.databind.*
+import com.fasterxml.jackson.databind.node.*
+import com.intellij.psi.*
+import com.intellij.psi.util.*
+import com.intellij.refactoring.suggested.*
+import com.jetbrains.jsonSchema.*
+import com.jetbrains.jsonSchema.impl.*
+import com.jetbrains.jsonSchema.impl.light.*
 import icu.windea.ut.toolbox.core.*
 import icu.windea.ut.toolbox.jast.*
-import icu.windea.ut.toolbox.lang.UtPsiManager
+import icu.windea.ut.toolbox.lang.*
 
 class JsonSchemaJsonPointerBasedLanguageSettingsProvider : JsonPointerBasedLanguageSettingsProvider {
     override fun getLanguageSettings(element: PsiElement): JsonPointerBasedLanguageSettings? {
         val schemas = getSchemas(element) ?: return null
         val list = schemas.mapNotNull { schema -> getLanguageSettings(schema) }
-        if(list.isEmpty()) return null
+        if (list.isEmpty()) return null
         val modificationTrackers = setOf(JsonDependencyModificationTracker.forProject(element.project))
         val languageSettings = JsonPointerManager.mergeLanguageSettings(list, modificationTrackers)
         return languageSettings
     }
 
     private fun getSchemas(element: PsiElement): Collection<JsonSchemaObject>? {
-        if(UtPsiManager.isIncompletePsi()) {
+        if (UtPsiManager.isIncompletePsi()) {
             val parentJElement = element.parents(false).firstNotNullOfOrNull { it.toJElement().takeIf { e -> e is JArray || e is JProperty || e is JObject } } ?: return null
             val parentSchemas = JsonSchemaManager.getSchemas(parentJElement.psi) ?: return null
             val schemas = when {
@@ -37,7 +36,7 @@ class JsonSchemaJsonPointerBasedLanguageSettingsProvider : JsonPointerBasedLangu
                     val keyEndOffset = parentJElement.keyElement?.psi?.endOffset
                     val endOffset = element.endOffset
                     val isKey = keyEndOffset == null || endOffset <= keyEndOffset
-                    if(isKey) parentSchemas.mapNotNull { it.propertyNamesSchema } else parentSchemas
+                    if (isKey) parentSchemas.mapNotNull { it.propertyNamesSchema } else parentSchemas
                 }
                 //property key in property (typing text -> object) 
                 parentJElement is JObject -> {
@@ -50,7 +49,7 @@ class JsonSchemaJsonPointerBasedLanguageSettingsProvider : JsonPointerBasedLangu
         val jElement = element.toJElement() ?: return null
         val originalSchemas = JsonSchemaManager.getSchemas(element) ?: return null
         val isKey = jElement is JProperty || jElement is JPropertyKey
-        val schemas = if(isKey) originalSchemas.mapNotNull { it.propertyNamesSchema } else originalSchemas
+        val schemas = if (isKey) originalSchemas.mapNotNull { it.propertyNamesSchema } else originalSchemas
         return schemas
     }
 

@@ -1,16 +1,12 @@
 package icu.windea.ut.toolbox.lang.md
 
-import com.intellij.lang.ASTNode
-import com.intellij.lang.folding.FoldingBuilderEx
-import com.intellij.lang.folding.FoldingDescriptor
-import com.intellij.openapi.editor.Document
-import com.intellij.openapi.editor.FoldingGroup
-import com.intellij.openapi.project.DumbAware
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiRecursiveElementWalkingVisitor
-import icu.windea.ut.toolbox.settings.UtFoldingSettings
-import org.intellij.plugins.markdown.lang.psi.impl.MarkdownImage
-import org.intellij.plugins.markdown.lang.psi.impl.MarkdownInlineLink
+import com.intellij.lang.*
+import com.intellij.lang.folding.*
+import com.intellij.openapi.editor.*
+import com.intellij.openapi.project.*
+import com.intellij.psi.*
+import icu.windea.ut.toolbox.settings.*
+import org.intellij.plugins.markdown.lang.psi.impl.*
 
 /**
  * 用于折叠标签文本为空的Markdown内联链接。（`[](...)`）
@@ -26,10 +22,10 @@ class EmptyMarkdownLinkFoldingBuilder : FoldingBuilderEx(), DumbAware {
         val descriptors = mutableListOf<FoldingDescriptor>()
         root.accept(object : PsiRecursiveElementWalkingVisitor() {
             override fun visitElement(element: PsiElement) {
-                if(element is MarkdownInlineLink) {
-                    if(element.parent is MarkdownImage) return //排除Markdown图片链接
+                if (element is MarkdownInlineLink) {
+                    if (element.parent is MarkdownImage) return //排除Markdown图片链接
                     val linkText = element.linkText
-                    if(linkText != null && linkText.contentElements.none()) {
+                    if (linkText != null && linkText.contentElements.none()) {
                         descriptors.add(FoldingDescriptor(element.node, element.textRange, Constants.FOLDING_GROUP))
                     }
                     return

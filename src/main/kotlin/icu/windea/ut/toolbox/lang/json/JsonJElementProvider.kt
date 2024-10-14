@@ -1,18 +1,17 @@
 package icu.windea.ut.toolbox.lang.json
 
 import com.intellij.json.psi.*
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
+import com.intellij.psi.*
 import icu.windea.ut.toolbox.jast.*
 
 class JsonJElementProvider : JElementProvider {
     override fun getTopLevelValue(file: PsiFile): JValue? {
-        if(file !is JsonFile) return null
+        if (file !is JsonFile) return null
         return file.topLevelValue?.toJElementOfType()
     }
 
     override fun getTopLevelValues(file: PsiFile): List<JValue> {
-        if(file !is JsonFile) return emptyList()
+        if (file !is JsonFile) return emptyList()
         return file.allTopLevelValues.mapNotNull { it.toJElementOfType<JValue>() }
     }
 

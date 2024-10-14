@@ -1,20 +1,17 @@
 package icu.windea.ut.toolbox.jast
 
-import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.project.guessProjectDir
-import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.util.ModificationTracker
-import com.intellij.openapi.vfs.VfsUtil
-import com.intellij.openapi.vfs.findPsiFile
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
-import com.intellij.psi.search.FilenameIndex
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.openapi.progress.*
+import com.intellij.openapi.project.*
+import com.intellij.openapi.roots.*
+import com.intellij.openapi.util.*
+import com.intellij.openapi.vfs.*
+import com.intellij.psi.*
+import com.intellij.psi.search.*
 import com.intellij.psi.util.*
-import com.jetbrains.jsonSchema.impl.JsonSchemaVariantsTreeBuilder
+import com.jetbrains.jsonSchema.impl.*
 import icu.windea.ut.toolbox.core.*
 import icu.windea.ut.toolbox.core.util.*
-import icu.windea.ut.toolbox.lang.UtPsiManager
+import icu.windea.ut.toolbox.lang.*
 
 object JsonPointerManager {
     object Keys : KeyRegistry() {
@@ -39,7 +36,7 @@ object JsonPointerManager {
         val fileProcessor = { file: PsiFile ->
             processElementsInFile(splitter.relativePath, file, processor)
         }
-        return if(splitter.schemaId != null) {
+        return if (splitter.schemaId != null) {
             processFiles(splitter.schemaId!!, currentFile, fileProcessor)
         } else {
             fileProcessor(currentFile)
@@ -55,32 +52,32 @@ object JsonPointerManager {
         val fileName = path.substringAfterLast('/')
         val isWildcardFileName = fileName.contains('*') || fileName.contains('?')
         val isRelative = path.startsWith("./")
-        val relPath = if(isRelative) path.removePrefix("./").trim('/') else path.trim('/')
+        val relPath = if (isRelative) path.removePrefix("./").trim('/') else path.trim('/')
 
         val project = currentFile.project
-        val rootFile = if(isRelative) currentFile.parent?.virtualFile else project.guessProjectDir()
-        if(rootFile == null) return true
+        val rootFile = if (isRelative) currentFile.parent?.virtualFile else project.guessProjectDir()
+        if (rootFile == null) return true
         val absPath = "${rootFile.path}/$relPath".normalizePath()
 
-        if(!isWildcard) {
+        if (!isWildcard) {
             val vFile = VfsUtil.findRelativeFile(absPath, null) ?: return true
-            if(vFile.isDirectory) return true
+            if (vFile.isDirectory) return true
             val file = vFile.findPsiFile(project) ?: return true
             return processor(file)
         }
-        if(!isWildcardFileName) {
+        if (!isWildcardFileName) {
             return FilenameIndex.processFilesByName(fileName, true, GlobalSearchScope.projectScope(project)) p@{ vFile ->
                 ProgressManager.checkCanceled()
-                if(vFile.isDirectory) return@p true
-                if(!vFile.path.matchesAntPattern(absPath)) return@p true
+                if (vFile.isDirectory) return@p true
+                if (!vFile.path.matchesAntPattern(absPath)) return@p true
                 val file = vFile.findPsiFile(project) ?: return@p true
                 processor(file)
             }
         }
         return ProjectRootManager.getInstance(project).fileIndex.iterateContentUnderDirectory(rootFile) p@{ vFile ->
             ProgressManager.checkCanceled()
-            if(vFile.isDirectory) return@p true
-            if(!vFile.path.matchesAntPattern(absPath)) return@p true
+            if (vFile.isDirectory) return@p true
+            if (!vFile.path.matchesAntPattern(absPath)) return@p true
             val file = vFile.findPsiFile(project) ?: return@p true
             processor(file)
         }
@@ -93,8 +90,8 @@ object JsonPointerManager {
         ProgressManager.checkCanceled()
         val location = parseJsonPointer(jsonPointer) ?: return true
         val topLevelValues = JElementManager.getTopLevelValues(file)
-        if(topLevelValues.isEmpty()) return true
-        if(location.isEmpty()) return topLevelValues.process(processor)
+        if (topLevelValues.isEmpty()) return true
+        if (location.isEmpty()) return topLevelValues.process(processor)
         return topLevelValues.process { element ->
             doProcessElementsInFile(location, 0, element, processor)
         }
@@ -104,29 +101,29 @@ object JsonPointerManager {
         ProgressManager.checkCanceled()
         val step = location.getOrNull(index) ?: return true
         val isLast = index == location.lastIndex
-        if(isLast && step == "-" && element is JProperty) {
+        if (isLast && step == "-" && element is JProperty) {
             val nextElement = element.valueElement ?: return true
             return processor(nextElement)
         }
-        val nextContainerElement = when(element) {
+        val nextContainerElement = when (element) {
             is JContainer -> element
             is JProperty -> element.valueElement as? JContainer
             else -> return true
         }
-        val nextElements = when(nextContainerElement) {
+        val nextElements = when (nextContainerElement) {
             is JArray -> nextContainerElement.elementsSequence
             is JObject -> nextContainerElement.elementsSequence
             else -> return true
         }
         nextElements.forEach f@{ nextElement ->
             ProgressManager.checkCanceled()
-            if(!matchesElement(step, nextElement)) return@f
-            val r= if(isLast) {
-                 processor(nextElement)
+            if (!matchesElement(step, nextElement)) return@f
+            val r = if (isLast) {
+                processor(nextElement)
             } else {
                 doProcessElementsInFile(location, index + 1, nextElement, processor)
             }
-            if(!r) return false
+            if (!r) return false
         }
         return true
     }
@@ -134,19 +131,19 @@ object JsonPointerManager {
     private fun matchesElement(step: String, element: JElement): Boolean {
         when {
             element is JProperty -> {
-                if(step == "*") return true
-                if(step == element.keyElement?.value) return true
+                if (step == "*") return true
+                if (step == element.keyElement?.value) return true
             }
             element is JValue -> {
                 val containerElement = element.parent ?: return true
                 when {
                     containerElement is JProperty -> {
-                        if(step == "-") return true
+                        if (step == "-") return true
                     }
                     containerElement is JArray -> {
-                        if(step == "-") return true
+                        if (step == "-") return true
                         val index = containerElement.elementsSequence.indexOfFirst { it == element }
-                        if(index == step.toIntOrNull()) return true
+                        if (index == step.toIntOrNull()) return true
                     }
                 }
             }
@@ -167,8 +164,8 @@ object JsonPointerManager {
     }
 
     fun mergeLanguageSettings(list: Collection<JsonPointerBasedLanguageSettings>, modificationTrackers: Set<ModificationTracker> = emptySet()): JsonPointerBasedLanguageSettings? {
-        if(list.isEmpty()) return null
-        if(list.size == 1) return list.single()
+        if (list.isEmpty()) return null
+        if (list.size == 1) return list.single()
         return JsonPointerBasedLanguageSettings(
             declarationType = list.firstNotNullOfOrNull { it.declarationType.orNull() }.orEmpty(),
             hintForDeclarations = list.firstNotNullOfOrNull { it.hintForDeclarations } ?: false,
@@ -181,7 +178,7 @@ object JsonPointerManager {
     }
 
     fun getLanguageSettings(element: PsiElement): JsonPointerBasedLanguageSettings? {
-        if(UtPsiManager.isIncompletePsi()) return doGetLanguageSettings(element)
+        if (UtPsiManager.isIncompletePsi()) return doGetLanguageSettings(element)
         return doGetLanguageSettingsFromCache(element)
     }
 
@@ -190,7 +187,7 @@ object JsonPointerManager {
             val value = doGetLanguageSettings(element)
             val trackers = buildList {
                 add(element.containingFile ?: element)
-                if(value != null) addAll(value.modificationTrackers)
+                if (value != null) addAll(value.modificationTrackers)
             }.toTypedArray()
             CachedValueProvider.Result.create(value, *trackers)
         }

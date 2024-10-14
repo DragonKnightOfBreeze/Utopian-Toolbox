@@ -1,13 +1,11 @@
 package icu.windea.ut.toolbox.lang.yaml
 
-import com.intellij.patterns.PlatformPatterns.or
-import com.intellij.patterns.PlatformPatterns.psiElement
-import com.intellij.psi.PsiReferenceContributor
-import com.intellij.psi.PsiReferenceRegistrar
-import icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceProvider
-import org.jetbrains.yaml.YAMLTokenTypes
-import org.jetbrains.yaml.psi.YAMLQuotedText
-import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl
+import com.intellij.patterns.PlatformPatterns.*
+import com.intellij.psi.*
+import icu.windea.ut.toolbox.jast.*
+import org.jetbrains.yaml.*
+import org.jetbrains.yaml.psi.*
+import org.jetbrains.yaml.psi.impl.*
 
 class YamlJsonPointerBasedReferenceContributor : PsiReferenceContributor() {
     private val pattern = or(

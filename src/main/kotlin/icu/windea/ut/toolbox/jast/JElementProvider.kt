@@ -1,8 +1,7 @@
 package icu.windea.ut.toolbox.jast
 
-import com.intellij.lang.LanguageExtension
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
+import com.intellij.lang.*
+import com.intellij.psi.*
 
 interface JElementProvider {
     fun getTopLevelValue(file: PsiFile): JValue?

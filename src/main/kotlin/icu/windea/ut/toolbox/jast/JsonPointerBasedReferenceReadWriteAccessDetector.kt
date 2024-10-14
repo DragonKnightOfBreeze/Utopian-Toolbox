@@ -1,8 +1,7 @@
 package icu.windea.ut.toolbox.jast
 
-import com.intellij.codeInsight.highlighting.ReadWriteAccessDetector
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiReference
+import com.intellij.codeInsight.highlighting.*
+import com.intellij.psi.*
 
 class JsonPointerBasedReferenceReadWriteAccessDetector : ReadWriteAccessDetector() {
     override fun isReadWriteAccessible(element: PsiElement): Boolean {
@@ -10,12 +9,12 @@ class JsonPointerBasedReferenceReadWriteAccessDetector : ReadWriteAccessDetector
     }
 
     override fun isDeclarationWriteAccess(element: PsiElement): Boolean {
-        if(element is JsonPointerBasedReferenceProvider.Element) return element.readWriteAccess == Access.Write
+        if (element is JsonPointerBasedReferenceProvider.Element) return element.readWriteAccess == Access.Write
         return true
     }
 
     override fun getReferenceAccess(referencedElement: PsiElement, reference: PsiReference): Access {
-        return when(reference) {
+        return when (reference) {
             is JsonPointerBasedReferenceProvider.SelfReference -> Access.Write
             is JsonPointerBasedReferenceProvider.Reference -> Access.Read
             else -> Access.ReadWrite
@@ -24,7 +23,7 @@ class JsonPointerBasedReferenceReadWriteAccessDetector : ReadWriteAccessDetector
 
     override fun getExpressionAccess(expression: PsiElement): Access {
         val reference = expression.references.firstOrNull()
-        return when(reference) {
+        return when (reference) {
             is JsonPointerBasedReferenceProvider.SelfReference -> Access.Write
             is JsonPointerBasedReferenceProvider.Reference -> Access.Read
             else -> Access.ReadWrite

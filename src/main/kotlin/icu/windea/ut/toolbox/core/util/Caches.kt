@@ -3,10 +3,10 @@
 package icu.windea.ut.toolbox.core.util
 
 import com.google.common.cache.*
-import com.google.common.collect.ImmutableMap
-import com.intellij.openapi.util.ModificationTracker
-import icu.windea.ut.toolbox.core.cancelable
-import java.util.concurrent.Callable
+import com.google.common.collect.*
+import com.intellij.openapi.util.*
+import icu.windea.ut.toolbox.core.*
+import java.util.concurrent.*
 
 //region Extensions
 
@@ -91,11 +91,11 @@ class TrackingCache<K : Any, V : Any, C : Cache<K, V>>(
     override fun get(key: K, loader: Callable<out V>): V {
         val result = delegate.get(key, loader)
         val newModificationCount = modificationTrackerProvider(result)?.modificationCount
-        if(newModificationCount == null) return result
+        if (newModificationCount == null) return result
         val oldModificationCount = modificationCounts.get(key)
-        if(oldModificationCount == newModificationCount) return result
+        if (oldModificationCount == newModificationCount) return result
         modificationCounts.put(key, newModificationCount)
-        if(oldModificationCount == null) return result
+        if (oldModificationCount == null) return result
         delegate.invalidate(key)
         val newResult = delegate.get(key, loader)
         return newResult
@@ -104,10 +104,10 @@ class TrackingCache<K : Any, V : Any, C : Cache<K, V>>(
     override fun getIfPresent(key: Any): V? {
         val result = delegate.getIfPresent(key) ?: return null
         val newModificationCount = modificationTrackerProvider(result)?.modificationCount
-        if(newModificationCount == null) return result
+        if (newModificationCount == null) return result
         val oldModificationCount = modificationCounts.get(key)
-        if(oldModificationCount == newModificationCount) return result
-        if(oldModificationCount == null) return result
+        if (oldModificationCount == newModificationCount) return result
+        if (oldModificationCount == null) return result
         delegate.invalidate(key)
         return null
     }

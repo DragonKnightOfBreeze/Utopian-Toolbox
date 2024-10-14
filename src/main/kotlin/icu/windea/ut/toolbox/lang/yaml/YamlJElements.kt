@@ -1,17 +1,17 @@
 package icu.windea.ut.toolbox.lang.yaml
 
-import com.intellij.openapi.application.runReadAction
-import com.intellij.psi.PsiElement
-import com.intellij.psi.util.elementType
+import com.intellij.openapi.application.*
+import com.intellij.psi.*
+import com.intellij.psi.util.*
 import icu.windea.ut.toolbox.core.*
 import icu.windea.ut.toolbox.jast.*
-import org.jetbrains.yaml.YAMLTokenTypes
+import org.jetbrains.yaml.*
 import org.jetbrains.yaml.psi.*
-import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl
+import org.jetbrains.yaml.psi.impl.*
 
 sealed class YamlJElement : JElement {
     override fun equals(other: Any?): Boolean {
-        if(this === other) return true
+        if (this === other) return true
         return other != null && other.javaClass == this.javaClass && (other as JElement).psi == this.psi
     }
 
@@ -36,7 +36,7 @@ class YamlJPropertyKey(
     override val parent: JProperty? get() = psi.parent?.toJElementOfType<JProperty>()
 
     private fun doGetValue(): String? {
-        return if(psi.elementType == YAMLTokenTypes.SCALAR_KEY) psi.text else null
+        return if (psi.elementType == YAMLTokenTypes.SCALAR_KEY) psi.text else null
     }
 
     private fun doGetTextOffset(): Int {
@@ -64,7 +64,7 @@ class YamlJBoolean(
     override val value: Boolean get() = psi.text.toBooleanByYaml()
 
     private fun String.toBooleanByYaml(): Boolean {
-        return when(this.lowercase()) {
+        return when (this.lowercase()) {
             "true", "yes", "on" -> true
             "false", "no", "off" -> false
             else -> false //fallback
@@ -93,7 +93,7 @@ class YamlJString(
     }
 
     private fun doGetTextOffset(): Int {
-        return if(psi is YAMLQuotedText) 1 else 0 //simple implementation
+        return if (psi is YAMLQuotedText) 1 else 0 //simple implementation
     }
 }
 

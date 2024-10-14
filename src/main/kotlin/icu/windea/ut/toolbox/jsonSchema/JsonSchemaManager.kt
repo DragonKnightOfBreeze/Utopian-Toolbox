@@ -1,10 +1,9 @@
 package icu.windea.ut.toolbox.jsonSchema
 
-import com.intellij.psi.PsiElement
-import com.jetbrains.jsonSchema.extension.JsonLikePsiWalker
-import com.jetbrains.jsonSchema.ide.JsonSchemaService
-import com.jetbrains.jsonSchema.impl.JsonSchemaObject
-import com.jetbrains.jsonSchema.impl.JsonSchemaResolver
+import com.intellij.psi.*
+import com.jetbrains.jsonSchema.extension.*
+import com.jetbrains.jsonSchema.ide.*
+import com.jetbrains.jsonSchema.impl.*
 
 object JsonSchemaManager {
     fun getRootSchema(element: PsiElement): JsonSchemaObject? {

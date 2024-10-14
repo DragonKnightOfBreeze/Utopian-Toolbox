@@ -1,8 +1,8 @@
 package icu.windea.ut.toolbox.settings
 
-import com.intellij.application.options.editor.CodeFoldingOptionsProvider
-import com.intellij.openapi.options.BeanConfigurable
-import icu.windea.ut.toolbox.UtBundle
+import com.intellij.application.options.editor.*
+import com.intellij.openapi.options.*
+import icu.windea.ut.toolbox.*
 
 class UtFoldingOptionsProvider : BeanConfigurable<UtFoldingSettings>(
     UtFoldingSettings.getInstance(),

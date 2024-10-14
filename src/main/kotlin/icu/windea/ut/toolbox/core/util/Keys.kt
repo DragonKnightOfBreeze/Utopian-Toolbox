@@ -2,10 +2,10 @@
 
 package icu.windea.ut.toolbox.core.util
 
-import com.intellij.openapi.util.Key
-import icu.windea.ut.toolbox.core.cast
-import java.util.concurrent.ConcurrentHashMap
-import kotlin.reflect.KProperty
+import com.intellij.openapi.util.*
+import icu.windea.ut.toolbox.core.*
+import java.util.concurrent.*
+import kotlin.reflect.*
 
 class KeyWithFactory<T, in THIS>(name: String, val factory: THIS.() -> T) : Key<T>(name)
 

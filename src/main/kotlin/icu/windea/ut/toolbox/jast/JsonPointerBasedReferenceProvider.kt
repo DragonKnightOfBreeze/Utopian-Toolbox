@@ -1,17 +1,15 @@
 package icu.windea.ut.toolbox.jast
 
-import com.intellij.codeInsight.highlighting.ReadWriteAccessDetector
 import com.intellij.codeInsight.highlighting.ReadWriteAccessDetector.*
-import com.intellij.openapi.util.TextRange
-import com.intellij.platform.backend.navigation.NavigationRequest
+import com.intellij.openapi.util.*
+import com.intellij.platform.backend.navigation.*
 import com.intellij.psi.*
-import com.intellij.psi.impl.RenameableFakePsiElement
-import com.intellij.psi.impl.source.resolve.ResolveCache
-import com.intellij.util.ProcessingContext
-import icu.windea.ut.toolbox.core.castOrNull
-import icu.windea.ut.toolbox.core.property
+import com.intellij.psi.impl.*
+import com.intellij.psi.impl.source.resolve.*
+import com.intellij.util.*
+import icu.windea.ut.toolbox.core.*
 import java.util.*
-import javax.swing.Icon
+import javax.swing.*
 
 /**
  * @see JsonPointerBasedLanguageSettings.references
@@ -19,16 +17,16 @@ import javax.swing.Icon
 class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
     override fun getReferencesByElement(element: PsiElement, context: ProcessingContext): Array<PsiReference> {
         val jElement = element.toJElement()
-        if(jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return PsiReference.EMPTY_ARRAY
+        if (jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return PsiReference.EMPTY_ARRAY
 
         val (name, textOffset) = jElement.getNameAndTextOffset()
-        if(name.isNullOrEmpty()) return PsiReference.EMPTY_ARRAY
+        if (name.isNullOrEmpty()) return PsiReference.EMPTY_ARRAY
 
         val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return PsiReference.EMPTY_ARRAY
-        if(languageSettings.declarationType.isNotEmpty()) {
+        if (languageSettings.declarationType.isNotEmpty()) {
             val range = jElement.getRangeInElement(name, textOffset)
             return arrayOf(SelfReference(element, range, jElement, name, languageSettings))
-        } else if(languageSettings.references.isNotEmpty()) {
+        } else if (languageSettings.references.isNotEmpty()) {
             val range = jElement.getRangeInElement(name, textOffset)
             val reference = Reference(element, range, jElement, name, languageSettings)
             return arrayOf(reference)
@@ -76,8 +74,8 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
         }
 
         override fun equals(other: Any?): Boolean {
-            if(other == null) return false
-            if(this === other) return true
+            if (other == null) return false
+            if (this === other) return true
             return other is Element && name == other.name && type == other.type && project == other.project
         }
 
@@ -134,9 +132,9 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
             languageSettings.references.forEach { ref ->
                 JsonPointerManager.processElements(ref, currentFile) p@{ resolved ->
                     val (resolvedName) = resolved.getNameAndTextOffset()
-                    if(resolvedName.isNullOrEmpty()) return@p true
+                    if (resolvedName.isNullOrEmpty()) return@p true
                     val resolvedLanguageSettings = JsonPointerManager.getLanguageSettings(resolved.psi) ?: return@p true
-                    if(name != resolvedName) return@p true
+                    if (name != resolvedName) return@p true
                     val resolvedElement = Element(resolved.psi, resolvedName, resolvedLanguageSettings.declarationType, Access.Read)
                     result += PsiElementResolveResult(resolvedElement)
                     true
@@ -144,9 +142,9 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
             }
             return result.toTypedArray()
         }
-        
+
         fun getResolvedElements(): Collection<PsiElement> {
             return multiResolve(false).mapNotNull { it.element?.castOrNull<Element>()?.parent }
-        } 
+        }
     }
 }

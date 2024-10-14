@@ -1,12 +1,12 @@
 package icu.windea.ut.toolbox.jast
 
 import com.intellij.codeInsight.completion.*
-import com.intellij.codeInsight.lookup.LookupElementBuilder
-import com.intellij.refactoring.suggested.startOffset
-import com.intellij.util.ProcessingContext
+import com.intellij.codeInsight.lookup.*
+import com.intellij.refactoring.suggested.*
+import com.intellij.util.*
 import icu.windea.ut.toolbox.core.util.*
-import icu.windea.ut.toolbox.lang.UtPsiManager
-import java.util.function.UnaryOperator
+import icu.windea.ut.toolbox.lang.*
+import java.util.function.*
 
 open class JsonPointerBasedReferenceCompletionProvider : CompletionProvider<CompletionParameters>() {
     object Keys : KeyRegistry() {
@@ -22,8 +22,8 @@ open class JsonPointerBasedReferenceCompletionProvider : CompletionProvider<Comp
         val positionElement = parameters.position
         val keyword = positionElement.text.take(parameters.offset - positionElement.startOffset)
         val languageSettings = UtPsiManager.markIncompletePsi { JsonPointerManager.getLanguageSettings(positionElement) } ?: return
-        if(languageSettings.references.isEmpty()) return
-        
+        if (languageSettings.references.isEmpty()) return
+
         context.put(Keys.parameters, parameters)
         context.put(Keys.keyword, keyword)
         context.put(Keys.languageSettings, languageSettings)
@@ -37,7 +37,7 @@ open class JsonPointerBasedReferenceCompletionProvider : CompletionProvider<Comp
         languageSettings.references.forEach { ref ->
             JsonPointerManager.processElements(ref, currentFile) p@{ resolved ->
                 val (resolvedName) = resolved.getNameAndTextOffset()
-                if(resolvedName.isNullOrEmpty()) return@p true
+                if (resolvedName.isNullOrEmpty()) return@p true
 
                 val resolvedElement = resolved.psi
 

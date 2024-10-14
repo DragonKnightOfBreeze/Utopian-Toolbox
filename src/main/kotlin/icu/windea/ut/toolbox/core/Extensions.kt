@@ -2,10 +2,10 @@
 
 package icu.windea.ut.toolbox.core
 
-import com.google.common.cache.CacheBuilder
-import icu.windea.ut.toolbox.core.util.buildCache
-import java.io.File
-import java.nio.file.Path
+import com.google.common.cache.*
+import icu.windea.ut.toolbox.core.util.*
+import java.io.*
+import java.nio.file.*
 
 inline fun <reified T> Any?.cast(): T = this as T
 
@@ -30,27 +30,27 @@ fun String.removeSurrounding(prefix: CharSequence, suffix: CharSequence): String
 }
 
 fun CharSequence.removePrefixOrNull(prefix: CharSequence, ignoreCase: Boolean = false): String? {
-    return if(startsWith(prefix, ignoreCase)) substring(prefix.length) else null
+    return if (startsWith(prefix, ignoreCase)) substring(prefix.length) else null
 }
 
 fun String.removePrefixOrNull(prefix: CharSequence, ignoreCase: Boolean = false): String? {
-    return if(startsWith(prefix, ignoreCase)) substring(prefix.length) else null
+    return if (startsWith(prefix, ignoreCase)) substring(prefix.length) else null
 }
 
 fun CharSequence.removeSuffixOrNull(suffix: CharSequence, ignoreCase: Boolean = false): String? {
-    return if(endsWith(suffix, ignoreCase)) substring(0, length - suffix.length) else null
+    return if (endsWith(suffix, ignoreCase)) substring(0, length - suffix.length) else null
 }
 
 fun String.removeSuffixOrNull(suffix: CharSequence, ignoreCase: Boolean = false): String? {
-    return if(endsWith(suffix, ignoreCase)) substring(0, length - suffix.length) else null
+    return if (endsWith(suffix, ignoreCase)) substring(0, length - suffix.length) else null
 }
 
 fun CharSequence.removeSurroundingOrNull(prefix: CharSequence, suffix: CharSequence, ignoreCase: Boolean = false): String? {
-    return if(surroundsWith(prefix, suffix, ignoreCase)) substring(prefix.length, length - suffix.length) else null
+    return if (surroundsWith(prefix, suffix, ignoreCase)) substring(prefix.length, length - suffix.length) else null
 }
 
 fun String.removeSurroundingOrNull(prefix: CharSequence, suffix: CharSequence): String? {
-    return if(surroundsWith(prefix, suffix)) substring(prefix.length, length - suffix.length) else null
+    return if (surroundsWith(prefix, suffix)) substring(prefix.length, length - suffix.length) else null
 }
 
 fun String.isLeftQuoted(quoteChar: Char = '"'): Boolean {
@@ -60,8 +60,8 @@ fun String.isLeftQuoted(quoteChar: Char = '"'): Boolean {
 fun String.isRightQuoted(quoteChar: Char = '"'): Boolean {
     return length > 1 && endsWith(quoteChar) && run {
         var n = 0
-        for(i in (lastIndex - 1) downTo 0) {
-            if(this[i] == '\\') n++ else break
+        for (i in (lastIndex - 1) downTo 0) {
+            if (this[i] == '\\') n++ else break
         }
         n % 2 == 0
     }
@@ -73,14 +73,14 @@ fun String.isQuoted(quoteChar: Char = '"'): Boolean {
 
 fun String.quote(quoteChar: Char = '"'): String {
     val s = this
-    if(s.isEmpty() || s == quoteChar.toString()) return "$quoteChar$quoteChar"
+    if (s.isEmpty() || s == quoteChar.toString()) return "$quoteChar$quoteChar"
     val start = isLeftQuoted(quoteChar)
     val end = isRightQuoted(quoteChar)
-    if(start && end) return s
+    if (start && end) return s
     return buildString {
         append(quoteChar)
         s.forEach { c ->
-            when(c) {
+            when (c) {
                 quoteChar -> append("\\$quoteChar")
                 '\\' -> append("\\\\")
                 else -> append(c)
@@ -92,22 +92,22 @@ fun String.quote(quoteChar: Char = '"'): String {
 
 fun String.unquote(quoteChar: Char = '"'): String {
     val s = this
-    if(s.isEmpty() || s == quoteChar.toString()) return ""
+    if (s.isEmpty() || s == quoteChar.toString()) return ""
     val start = isLeftQuoted(quoteChar)
     val end = isRightQuoted(quoteChar)
     return buildString {
         var escape = false
         s.forEachIndexed f@{ i, c ->
-            if(start && i == 0) return@f
-            if(end && i == s.lastIndex) return@f
-            if(escape) {
+            if (start && i == 0) return@f
+            if (end && i == s.lastIndex) return@f
+            if (escape) {
                 escape = false
-                when(c) {
+                when (c) {
                     quoteChar -> append(c)
                     '\\' -> append(c)
                     else -> append('\\').append(c)
                 }
-            } else if(c == '\\') {
+            } else if (c == '\\') {
                 escape = true
             } else {
                 append(c)
@@ -117,7 +117,7 @@ fun String.unquote(quoteChar: Char = '"'): String {
 }
 
 fun String.truncate(limit: Int, ellipsis: String = "..."): String {
-    return if(this.length <= limit) this else this.take(limit) + ellipsis
+    return if (this.length <= limit) this else this.take(limit) + ellipsis
 }
 
 fun String.toFile() = File(this)
@@ -136,9 +136,9 @@ fun String.toKClass() = Class.forName(this).kotlin
  * 判断当前输入是否匹配指定的通配符表达式。使用"?"匹配单个字符，使用"*"匹配任意个字符。
  */
 fun String.matchesPattern(pattern: String, ignoreCase: Boolean = false): Boolean {
-    if(pattern.isEmpty() && this.isNotEmpty()) return false
-    if(pattern == "*") return true
-    val cache = if(ignoreCase) patternToRegexCache2 else patternToRegexCache1
+    if (pattern.isEmpty() && this.isNotEmpty()) return false
+    if (pattern == "*") return true
+    val cache = if (ignoreCase) patternToRegexCache2 else patternToRegexCache1
     val path0 = this
     val pattern0 = pattern
     return cache.get(pattern0).matches(path0)
@@ -154,7 +154,7 @@ private fun String.patternToRegexString(): String {
     return buildString {
         append("\\Q")
         var i = 0
-        while(i < s.length) {
+        while (i < s.length) {
             val c = s[i]
             when {
                 c == '*' -> append("\\E.*\\Q")
@@ -171,11 +171,11 @@ private fun String.patternToRegexString(): String {
  * 判断当前输入是否匹配指定的ANT表达式。使用"?"匹配单个子路径中的单个字符，使用"*"匹配单个子路径中的任意个字符，使用"**"匹配任意个字符。
  */
 fun String.matchesAntPattern(pattern: String, ignoreCase: Boolean = false, trimSeparator: Boolean = true): Boolean {
-    if(pattern.isEmpty() && this.isNotEmpty()) return false
-    if(pattern == "**") return true
-    val cache = if(ignoreCase) antPatternToRegexCache2 else antPatternToRegexCache1
-    val path0 = this.let { if(trimSeparator) it.trim('/') else it }
-    val pattern0 = pattern.let { if(trimSeparator) it.trim('/') else it }
+    if (pattern.isEmpty() && this.isNotEmpty()) return false
+    if (pattern == "**") return true
+    val cache = if (ignoreCase) antPatternToRegexCache2 else antPatternToRegexCache1
+    val path0 = this.let { if (trimSeparator) it.trim('/') else it }
+    val pattern0 = pattern.let { if (trimSeparator) it.trim('/') else it }
     return cache.get(pattern0).matches(path0)
 }
 
@@ -189,12 +189,12 @@ private fun String.antPatternToRegexString(): String {
     var r = buildString {
         append("\\Q")
         var i = 0
-        while(i < s.length) {
+        while (i < s.length) {
             val c = s[i]
             when {
                 c == '*' -> {
                     val nc = s.getOrNull(i + 1)
-                    if(nc == '*') {
+                    if (nc == '*') {
                         i++
                         append("\\E.*\\Q")
                     } else {
@@ -221,9 +221,9 @@ fun String.normalizePath(): String {
     val builder = StringBuilder()
     var separatorFlag = false
     this.trim('/', '\\').forEach { c ->
-        if(c == '/' || c == '\\') {
+        if (c == '/' || c == '\\') {
             separatorFlag = true
-        } else if(separatorFlag) {
+        } else if (separatorFlag) {
             separatorFlag = false
             builder.append('/').append(c)
         } else {
@@ -240,21 +240,21 @@ inline fun <T : Collection<*>> T?.orNull() = this?.takeIf { it.isNotEmpty() }
 inline fun <T : Map<*, *>> T?.orNull() = this?.takeIf { it.isNotEmpty() }
 
 fun <T> Iterable<T>.process(processor: (T) -> Boolean): Boolean {
-    for(e in this) {
+    for (e in this) {
         val result = processor(e)
-        if(!result) return false
+        if (!result) return false
     }
     return true
 }
 
 fun <K, V> Map<K, V>.process(processor: (Map.Entry<K, V>) -> Boolean): Boolean {
-    for(entry in this) {
+    for (entry in this) {
         val result = processor(entry)
-        if(!result) return false
+        if (!result) return false
     }
     return true
 }
 
 fun Collection<String>.truncate(limit: Int, ellipsis: String = "..."): List<String> {
-    return take(limit).let { if(size > limit) it + ellipsis else it }
+    return take(limit).let { if (size > limit) it + ellipsis else it }
 }

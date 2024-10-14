@@ -1,18 +1,15 @@
 package icu.windea.ut.toolbox.lang.json
 
 import com.intellij.codeInsight.completion.*
-import com.intellij.codeInsight.lookup.LookupElementBuilder
-import com.intellij.json.json5.Json5Language
-import com.intellij.json.psi.JsonArray
-import com.intellij.json.psi.JsonProperty
-import com.intellij.openapi.editor.EditorModificationUtil
-import com.intellij.patterns.PlatformPatterns.or
-import com.intellij.patterns.PlatformPatterns.psiElement
-import com.intellij.util.ProcessingContext
-import icu.windea.ut.toolbox.core.isLeftQuoted
-import icu.windea.ut.toolbox.core.quote
+import com.intellij.codeInsight.lookup.*
+import com.intellij.json.json5.*
+import com.intellij.json.psi.*
+import com.intellij.openapi.editor.*
+import com.intellij.patterns.PlatformPatterns.*
+import com.intellij.util.*
+import icu.windea.ut.toolbox.core.*
 import icu.windea.ut.toolbox.jast.*
-import java.util.function.UnaryOperator
+import java.util.function.*
 
 class JsonJsonPointerBasedReferenceCompletionContributor : CompletionContributor() {
     private val keyPattern = or(
@@ -39,19 +36,19 @@ class JsonJsonPointerBasedReferenceCompletionContributor : CompletionContributor
         override fun getResultHandler(context: ProcessingContext): UnaryOperator<CompletionResultSet>? {
             val keyword = context.get(Keys.keyword) ?: return null
             val shouldQuoted = shouldQuoted(context)
-            if(!shouldQuoted) return null
+            if (!shouldQuoted) return null
             val quoted = keyword.isLeftQuoted('"') || keyword.isLeftQuoted('"')
-            if(!quoted) return null
-            
+            if (!quoted) return null
+
             return UnaryOperator { it.withPrefixMatcher(keyword.drop(1)) }
         }
-        
+
         override fun getLookupStringHandler(context: ProcessingContext): UnaryOperator<String>? {
             val keyword = context.get(Keys.keyword) ?: return null
             val shouldQuoted = shouldQuoted(context)
-            if(!shouldQuoted) return null
+            if (!shouldQuoted) return null
             val quoted = keyword.isLeftQuoted('"') || keyword.isLeftQuoted('"')
-            if(quoted) return null
+            if (quoted) return null
 
             val quoteChar = '"'
             return UnaryOperator { it.quote(quoteChar) }
@@ -60,9 +57,9 @@ class JsonJsonPointerBasedReferenceCompletionContributor : CompletionContributor
         override fun getLookupElementHandler(context: ProcessingContext): UnaryOperator<LookupElementBuilder>? {
             val keyword = context.get(Keys.keyword) ?: return null
             val shouldQuoted = shouldQuoted(context)
-            if(!shouldQuoted) return null
+            if (!shouldQuoted) return null
             val quoted = keyword.isLeftQuoted('"') || keyword.isLeftQuoted('"')
-            if(!quoted) return null
+            if (!quoted) return null
 
             val quoteChar = keyword.firstOrNull() ?: '"'
             return UnaryOperator {
@@ -71,7 +68,7 @@ class JsonJsonPointerBasedReferenceCompletionContributor : CompletionContributor
                     val caretOffset = editor.caretModel.offset
                     val charsSequence = editor.document.charsSequence
                     val rightQuoted = charsSequence.get(caretOffset) == quoteChar && charsSequence.get(caretOffset - 1) != '\\'
-                    if(rightQuoted) {
+                    if (rightQuoted) {
                         //将光标移到右引号之后
                         editor.caretModel.moveToOffset(caretOffset + 1)
                     } else {

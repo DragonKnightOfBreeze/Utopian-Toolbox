@@ -2,9 +2,9 @@
 
 package icu.windea.ut.toolbox.jast
 
-import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiElement
-import icu.windea.ut.toolbox.core.util.Tuple2
+import com.intellij.openapi.util.*
+import com.intellij.psi.*
+import icu.windea.ut.toolbox.core.util.*
 
 inline fun PsiElement.toJElement(): JElement? = JElementManager.getJElement(this)
 

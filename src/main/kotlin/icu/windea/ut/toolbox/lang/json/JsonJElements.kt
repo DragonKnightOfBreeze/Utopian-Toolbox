@@ -6,7 +6,7 @@ import icu.windea.ut.toolbox.jast.*
 
 sealed class JsonJElement : JElement {
     override fun equals(other: Any?): Boolean {
-        if(this === other) return true
+        if (this === other) return true
         return other != null && other.javaClass == this.javaClass && (other as JElement).psi == this.psi
     }
 
@@ -31,15 +31,15 @@ class JsonJPropertyKey(
     override val parent: JProperty? get() = psi.parent?.toJElementOfType<JProperty>()
 
     private fun doGetValue(): String? {
-        return when(psi) {
+        return when (psi) {
             is JsonStringLiteral -> psi.value
             is JsonReferenceExpression -> psi.text //JSON5 unquoted property key
             else -> null
         }
     }
-    
+
     private fun doGetTextOffset(): Int {
-        return when(psi) {
+        return when (psi) {
             is JsonReferenceExpression -> 0 //JSON5 unquoted property key
             else -> 1
         }

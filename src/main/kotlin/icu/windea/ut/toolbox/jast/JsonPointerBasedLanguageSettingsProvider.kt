@@ -1,7 +1,7 @@
 package icu.windea.ut.toolbox.jast
 
-import com.intellij.openapi.extensions.ExtensionPointName
-import com.intellij.psi.PsiElement
+import com.intellij.openapi.extensions.*
+import com.intellij.psi.*
 
 interface JsonPointerBasedLanguageSettingsProvider {
     fun getLanguageSettings(element: PsiElement): JsonPointerBasedLanguageSettings?

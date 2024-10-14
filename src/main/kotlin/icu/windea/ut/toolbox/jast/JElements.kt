@@ -1,7 +1,7 @@
 package icu.windea.ut.toolbox.jast
 
-import com.intellij.lang.Language
-import com.intellij.psi.PsiElement
+import com.intellij.lang.*
+import com.intellij.psi.*
 
 interface JElement {
     val psi: PsiElement

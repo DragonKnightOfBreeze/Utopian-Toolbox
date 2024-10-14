@@ -6,7 +6,7 @@ object YamlManager {
     }
 
     fun toBoolean(text: String): Boolean? {
-        return when(text.lowercase()) {
+        return when (text.lowercase()) {
             "true", "yes", "on" -> true
             "false", "no", "off" -> false
             else -> null

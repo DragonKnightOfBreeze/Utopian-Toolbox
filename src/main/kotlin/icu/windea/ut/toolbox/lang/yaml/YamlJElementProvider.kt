@@ -1,22 +1,20 @@
 package icu.windea.ut.toolbox.lang.yaml
 
-import com.intellij.psi.PsiElement
-import com.intellij.psi.PsiFile
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.util.elementType
+import com.intellij.psi.*
+import com.intellij.psi.util.*
 import icu.windea.ut.toolbox.jast.*
-import org.jetbrains.yaml.YAMLTokenTypes
+import org.jetbrains.yaml.*
 import org.jetbrains.yaml.psi.*
-import org.jetbrains.yaml.psi.impl.YAMLPlainTextImpl
+import org.jetbrains.yaml.psi.impl.*
 
 class YamlJElementProvider : JElementProvider {
     override fun getTopLevelValue(file: PsiFile): JValue? {
-        if(file !is YAMLFile) return null
+        if (file !is YAMLFile) return null
         return PsiTreeUtil.getChildOfType(file, YAMLDocument::class.java)?.topLevelValue?.toJElementOfType<JValue>()
     }
 
     override fun getTopLevelValues(file: PsiFile): List<JValue> {
-        if(file !is YAMLFile) return emptyList()
+        if (file !is YAMLFile) return emptyList()
         return PsiTreeUtil.getChildrenOfType(file, YAMLDocument::class.java)?.mapNotNull { it.topLevelValue?.toJElementOfType<JValue>() }.orEmpty()
     }
 

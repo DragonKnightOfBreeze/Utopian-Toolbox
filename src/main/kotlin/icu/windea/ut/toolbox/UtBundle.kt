@@ -1,6 +1,6 @@
 package icu.windea.ut.toolbox
 
-import com.intellij.DynamicBundle
+import com.intellij.*
 import org.jetbrains.annotations.*
 
 @NonNls

@@ -1,6 +1,6 @@
 package icu.windea.ut.toolbox.jast
 
-import com.intellij.openapi.util.ModificationTracker
+import com.intellij.openapi.util.*
 
 /**
  * 基于JSON指针的扩展语言设置。

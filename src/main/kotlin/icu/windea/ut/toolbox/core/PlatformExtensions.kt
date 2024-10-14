@@ -2,22 +2,19 @@
 
 package icu.windea.ut.toolbox.core
 
-import com.google.common.util.concurrent.UncheckedExecutionException
+import com.google.common.util.concurrent.*
 import com.intellij.openapi.actionSystem.*
-import com.intellij.openapi.progress.ProcessCanceledException
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.progress.*
+import com.intellij.openapi.project.*
 import com.intellij.openapi.util.*
-import com.intellij.psi.PsiElement
-import com.intellij.psi.SyntheticElement
+import com.intellij.psi.*
 import com.intellij.psi.util.*
-import com.intellij.refactoring.actions.BaseRefactoringAction.getElementAtCaret
-import com.intellij.util.ProcessingContext
-import icu.windea.ut.toolbox.core.util.KeyWithFactory
-import java.util.concurrent.ExecutionException
-import java.util.logging.Level
-import java.util.logging.Logger
-import kotlin.reflect.KProperty
+import com.intellij.refactoring.actions.BaseRefactoringAction.*
+import com.intellij.util.*
+import icu.windea.ut.toolbox.core.util.*
+import java.util.concurrent.*
+import java.util.logging.*
+import kotlin.reflect.*
 
 //region Common Extensions
 fun String.compareToIgnoreCase(other: String): Int {
@@ -27,15 +24,15 @@ fun String.compareToIgnoreCase(other: String): Int {
 inline fun <T> cancelable(block: () -> T): T {
     try {
         return block()
-    } catch(e: ExecutionException) {
+    } catch (e: ExecutionException) {
         val cause = e.cause
-        if(cause is ProcessCanceledException) throw cause
+        if (cause is ProcessCanceledException) throw cause
         throw cause ?: e
-    } catch(e: UncheckedExecutionException) {
+    } catch (e: UncheckedExecutionException) {
         val cause = e.cause
-        if(cause is ProcessCanceledException) throw cause
+        if (cause is ProcessCanceledException) throw cause
         throw cause ?: e
-    } catch(e: ProcessCanceledException) {
+    } catch (e: ProcessCanceledException) {
         throw e
     }
 }
@@ -43,25 +40,25 @@ inline fun <T> cancelable(block: () -> T): T {
 inline fun <T> cancelable(defaultValueOnException: (Throwable) -> T, block: () -> T): T {
     try {
         return block()
-    } catch(e: ExecutionException) {
+    } catch (e: ExecutionException) {
         val cause = e.cause
-        if(cause is ProcessCanceledException) throw cause
+        if (cause is ProcessCanceledException) throw cause
         return defaultValueOnException(cause ?: e)
-    } catch(e: UncheckedExecutionException) {
+    } catch (e: UncheckedExecutionException) {
         val cause = e.cause
-        if(cause is ProcessCanceledException) throw cause
+        if (cause is ProcessCanceledException) throw cause
         return defaultValueOnException(cause ?: e)
-    } catch(e: ProcessCanceledException) {
+    } catch (e: ProcessCanceledException) {
         throw e
     }
 }
 
 inline fun <R> runCatchingCancelable(block: () -> R): Result<R> {
-    return runCatching(block).onFailure { if(it is ProcessCanceledException) throw it }
+    return runCatching(block).onFailure { if (it is ProcessCanceledException) throw it }
 }
 
 inline fun <T, R> T.runCatchingCancelable(block: T.() -> R): Result<R> {
-    return runCatching(block).onFailure { if(it is ProcessCanceledException) throw it }
+    return runCatching(block).onFailure { if (it is ProcessCanceledException) throw it }
 }
 
 inline fun <R> disableLogger(block: () -> R): R {
@@ -78,14 +75,14 @@ inline fun <R> disableLogger(block: () -> R): R {
 //com.intellij.refactoring.actions.BaseRefactoringAction.findRefactoringTargetInEditor
 fun DataContext.findElement(): PsiElement? {
     var element = this.getData(CommonDataKeys.PSI_ELEMENT)
-    if(element == null) {
+    if (element == null) {
         val editor = this.getData(CommonDataKeys.EDITOR)
         val file = this.getData(CommonDataKeys.PSI_FILE)
-        if(editor != null && file != null) {
+        if (editor != null && file != null) {
             element = getElementAtCaret(editor, file)
         }
         val languages = this.getData(LangDataKeys.CONTEXT_LANGUAGES)
-        if(element == null || element is SyntheticElement || languages == null) {
+        if (element == null || element is SyntheticElement || languages == null) {
             return null
         }
     }
@@ -106,7 +103,7 @@ fun <T> createCachedValue(
 }
 
 fun <T> T.withDependencyItems(vararg dependencyItems: Any): CachedValueProvider.Result<T> {
-    if(dependencyItems.isEmpty()) return CachedValueProvider.Result.create(this, ModificationTracker.NEVER_CHANGED)
+    if (dependencyItems.isEmpty()) return CachedValueProvider.Result.create(this, ModificationTracker.NEVER_CHANGED)
     return CachedValueProvider.Result.create(this, *dependencyItems)
 }
 //endregion
@@ -118,17 +115,17 @@ inline fun <T> UserDataHolder.tryPutUserData(key: Key<T>, value: T?) {
 
 inline fun <T> UserDataHolder.getOrPutUserData(key: Key<T>, action: () -> T): T {
     val data = this.getUserData(key)
-    if(data != null) return data
+    if (data != null) return data
     val newValue = action()
-    if(newValue != null) putUserData(key, newValue)
+    if (newValue != null) putUserData(key, newValue)
     return newValue
 }
 
 inline fun <T> UserDataHolder.getOrPutUserData(key: Key<T>, nullValue: T, action: () -> T?): T? {
     val data = this.getUserData(key)
-    if(data != null) return data.takeUnless { it == nullValue }
+    if (data != null) return data.takeUnless { it == nullValue }
     val newValue = action()
-    if(newValue != null) putUserData(key, newValue) else putUserData(key, nullValue)
+    if (newValue != null) putUserData(key, newValue) else putUserData(key, nullValue)
     return newValue
 }
 
@@ -204,7 +201,7 @@ abstract class PsiElementChildIterator<T>(
     var nextResult: T? = null
 
     override fun next(): T {
-        if(!hasNext()) throw NoSuchElementException()
+        if (!hasNext()) throw NoSuchElementException()
         current = next
         val result = nextResult!!
         advance(current!!, false)
@@ -212,17 +209,17 @@ abstract class PsiElementChildIterator<T>(
     }
 
     override fun hasNext(): Boolean {
-        if(current == null && next == null) {
+        if (current == null && next == null) {
             advance(element.firstChild, true)
         }
         return nextResult != null
     }
 
     private fun advance(element: PsiElement, withSelf: Boolean) {
-        var current = if(withSelf) element else element.nextSibling
-        while(current != null) {
+        var current = if (withSelf) element else element.nextSibling
+        while (current != null) {
             val result = toResult(current)
-            if(result != null) {
+            if (result != null) {
                 this.next = current
                 this.nextResult = result
                 return
