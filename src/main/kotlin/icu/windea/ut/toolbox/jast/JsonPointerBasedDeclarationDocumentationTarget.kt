@@ -45,10 +45,10 @@ private fun computeLocalPresentation(element: PsiElement): TargetPresentation? {
     if (jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return null
 
     val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return null
-    val type = languageSettings.declarationType
-    if (type.isEmpty()) return null
-    val (name) = jElement.getNameAndTextOffset()
+    if (languageSettings.declarationType.isEmpty()) return null
+    val name = jElement.getName()
     if (name.isNullOrEmpty()) return null
+    val type = languageSettings.resolveDeclarationType(jElement)
 
     return TargetPresentation.builder(name).containerText(type).presentation()
 }
@@ -60,19 +60,33 @@ private fun computeLocalDocumentation(element: PsiElement, quickNavigation: Bool
     if (jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return null
 
     val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return null
-    val type = languageSettings.declarationType
-    if (type.isEmpty()) return null
-    val (name) = jElement.getNameAndTextOffset()
+    if (languageSettings.declarationType.isEmpty()) return null
+    val name = jElement.getName()
     if (name.isNullOrEmpty()) return null
+    val type = languageSettings.resolveDeclarationType(jElement)
+    val description = languageSettings.resolveDeclarationDescription(jElement)
+    val properties = languageSettings.resolveDeclarationProperties(jElement)
 
     return buildDocumentation {
         definition {
             append(name)
         }
+        if (description.isNotEmpty()) {
+            content {
+                append(description)
+            }
+        }
         if (!quickNavigation) {
             initSections(1)
             getSections(SECTIONS_INFO)?.let { infoSections ->
                 infoSections["Type"] = type
+                if (properties.isNotEmpty()) {
+                    properties.forEach { (k, v) ->
+                        if (k.isNotEmpty()) {
+                            infoSections[k] = v
+                        }
+                    }
+                }
             }
             buildSections()
         }

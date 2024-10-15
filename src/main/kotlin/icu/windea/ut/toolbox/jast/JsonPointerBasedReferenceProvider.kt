@@ -25,7 +25,9 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
         val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return PsiReference.EMPTY_ARRAY
         if (languageSettings.declarationType.isNotEmpty()) {
             val range = jElement.getRangeInElement(name, textOffset)
-            return arrayOf(SelfReference(element, range, jElement, name, languageSettings))
+            val type = languageSettings.resolveDeclarationType(jElement)
+            val resolvedElement = Element(element, name, type, Access.Write)
+            return arrayOf(SelfReference(element, range, resolvedElement))
         } else if (languageSettings.references.isNotEmpty()) {
             val range = jElement.getRangeInElement(name, textOffset)
             val reference = Reference(element, range, jElement, name, languageSettings)
@@ -87,9 +89,7 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
     class SelfReference(
         element: PsiElement,
         range: TextRange,
-        val jElement: JElement,
-        val name: String,
-        val languageSettings: JsonPointerBasedLanguageSettings
+        val resolvedElement: Element
     ) : PsiReferenceBase<PsiElement>(element, range) {
         @Suppress("RedundantOverride")
         override fun handleElementRename(newElementName: String): PsiElement {
@@ -97,7 +97,7 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
         }
 
         override fun resolve(): PsiElement {
-            return Element(element, name, languageSettings.declarationType, Access.Write)
+            return resolvedElement
         }
     }
 
@@ -129,16 +129,13 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
         private fun doMultiResolve(): Array<out ResolveResult> {
             val currentFile = element.containingFile ?: return ResolveResult.EMPTY_ARRAY
             val result = mutableSetOf<ResolveResult>()
-            languageSettings.references.forEach { ref ->
-                JsonPointerManager.processElements(ref, currentFile) p@{ resolved ->
-                    val (resolvedName) = resolved.getNameAndTextOffset()
-                    if (resolvedName.isNullOrEmpty()) return@p true
-                    val resolvedLanguageSettings = JsonPointerManager.getLanguageSettings(resolved.psi) ?: return@p true
-                    if (name != resolvedName) return@p true
-                    val resolvedElement = Element(resolved.psi, resolvedName, resolvedLanguageSettings.declarationType, Access.Read)
-                    result += PsiElementResolveResult(resolvedElement)
-                    true
-                }
+            languageSettings.processReferences(currentFile) p@{ resolved ->
+                val resolvedName = resolved.getName()?.orNull() ?: return@p true
+                val resolvedLanguageSettings = JsonPointerManager.getLanguageSettings(resolved.psi) ?: return@p true
+                if (name != resolvedName) return@p true
+                val resolvedElement = Element(resolved.psi, resolvedName, resolvedLanguageSettings.declarationType, Access.Read)
+                result += PsiElementResolveResult(resolvedElement)
+                true
             }
             return result.toTypedArray()
         }

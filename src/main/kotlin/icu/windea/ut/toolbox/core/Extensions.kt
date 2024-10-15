@@ -3,6 +3,7 @@
 package icu.windea.ut.toolbox.core
 
 import com.google.common.cache.*
+import com.intellij.util.*
 import icu.windea.ut.toolbox.core.util.*
 import java.io.*
 import java.nio.file.*
@@ -239,7 +240,7 @@ inline fun <T : Collection<*>> T?.orNull() = this?.takeIf { it.isNotEmpty() }
 
 inline fun <T : Map<*, *>> T?.orNull() = this?.takeIf { it.isNotEmpty() }
 
-fun <T> Iterable<T>.process(processor: (T) -> Boolean): Boolean {
+inline fun <T> Iterable<T>.process(processor: (T) -> Boolean): Boolean {
     for (e in this) {
         val result = processor(e)
         if (!result) return false
@@ -247,12 +248,20 @@ fun <T> Iterable<T>.process(processor: (T) -> Boolean): Boolean {
     return true
 }
 
-fun <K, V> Map<K, V>.process(processor: (Map.Entry<K, V>) -> Boolean): Boolean {
+inline fun <K, V> Map<K, V>.process(processor: (Map.Entry<K, V>) -> Boolean): Boolean {
     for (entry in this) {
         val result = processor(entry)
         if (!result) return false
     }
     return true
+}
+
+inline fun <T> Iterable<T>.process(processor: Processor<T>): Boolean {
+    return process { processor.process(it) }
+}
+
+inline fun <K, V> Map<K, V>.process(processor: Processor<Map.Entry<K, V>>): Boolean {
+    return process { processor.process(it) }
 }
 
 fun Collection<String>.truncate(limit: Int, ellipsis: String = "..."): List<String> {

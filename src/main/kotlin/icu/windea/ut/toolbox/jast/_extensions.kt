@@ -14,6 +14,15 @@ inline fun <T : JElement> PsiElement.toJElementOfTypes(vararg targetTypes: Class
 
 //JAST Extensions
 
+fun JElement.getName(): String? {
+    return when {
+        this is JProperty -> this.keyElement?.value
+        this is JPropertyKey -> this.value
+        this is JString -> this.value
+        else -> null
+    }
+}
+
 fun JElement.getNameAndTextOffset(): Tuple2<String?, Int> {
     return when {
         this is JProperty -> this.keyElement?.let { it.value to it.textOffset } ?: (null to 0)

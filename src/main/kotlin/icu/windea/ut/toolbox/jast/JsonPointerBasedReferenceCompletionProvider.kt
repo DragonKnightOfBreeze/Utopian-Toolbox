@@ -4,6 +4,7 @@ import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.lookup.*
 import com.intellij.refactoring.suggested.*
 import com.intellij.util.*
+import icu.windea.ut.toolbox.core.*
 import icu.windea.ut.toolbox.core.util.*
 import icu.windea.ut.toolbox.lang.*
 import java.util.function.*
@@ -34,24 +35,20 @@ open class JsonPointerBasedReferenceCompletionProvider : CompletionProvider<Comp
 
         val currentFile = parameters.originalFile
         val resultToUse = result.applyHandler(resultHandler)
-        languageSettings.references.forEach { ref ->
-            JsonPointerManager.processElements(ref, currentFile) p@{ resolved ->
-                val (resolvedName) = resolved.getNameAndTextOffset()
-                if (resolvedName.isNullOrEmpty()) return@p true
+        languageSettings.processReferences(currentFile) p@{ resolved ->
+            val resolvedName = resolved.getName()?.orNull() ?: return@p true
+            val resolvedElement = resolved.psi
 
-                val resolvedElement = resolved.psi
+            val resolvedLanguageSettings = JsonPointerManager.getLanguageSettings(resolvedElement)
+            val resolvedType = resolvedLanguageSettings?.resolveDeclarationType(resolved)
 
-                val resolvedLanguageSettings = JsonPointerManager.getLanguageSettings(resolvedElement)
-                val resolvedType = resolvedLanguageSettings?.declarationType
-
-                val lookupString = resolvedName.applyHandler(lookupStringHandler)
-                val lookupElement = LookupElementBuilder.create(resolvedElement, lookupString)
-                    .withPresentableText(resolvedName)
-                    .withTypeText(resolvedType, true)
-                val lookupElementToUse = lookupElement.applyHandler(lookupElementHandler)
-                resultToUse.addElement(lookupElementToUse)
-                true
-            }
+            val lookupString = resolvedName.applyHandler(lookupStringHandler)
+            val lookupElement = LookupElementBuilder.create(resolvedElement, lookupString)
+                .withPresentableText(resolvedName)
+                .withTypeText(resolvedType, true)
+            val lookupElementToUse = lookupElement.applyHandler(lookupElementHandler)
+            resultToUse.addElement(lookupElementToUse)
+            true
         }
     }
 

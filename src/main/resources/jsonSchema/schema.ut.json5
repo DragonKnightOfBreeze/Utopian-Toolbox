@@ -1,0 +1,46 @@
+{
+  "definitions": {
+    "$languageSettings": {
+      "properties": {
+        "declarationType": {
+          "anyOf": [
+            {
+              "type": "string"
+            }, {
+              "type": "string",
+              "format": "jsonPointer"
+            }
+          ]
+        },
+        "hintForDeclarations": {
+          "type": "boolean",
+          "default": true
+        },
+        "references": {
+          "anyOf": [
+            {
+              "type": "string"
+            }, {
+              "items": {
+                "type": "string",
+                "format": "jsonPointer"
+              }
+            }
+          ]
+        },
+        "hintForReferences": {
+          "type": "boolean",
+          "default": true
+        },
+        "inspectionForReferences": {
+          "type": "boolean",
+          "default": true
+        },
+        "completionForReferences": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    }
+  }
+}

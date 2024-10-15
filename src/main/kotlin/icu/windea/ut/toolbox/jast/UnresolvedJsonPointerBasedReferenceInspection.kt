@@ -26,7 +26,7 @@ class UnresolvedJsonPointerBasedReferenceInspection : LocalInspectionTool() {
                 if (languageSettings.references.isEmpty()) return
                 if (!languageSettings.inspectionForReferences) return
 
-                val references = PsiReferenceService.getService().getContributedReferences(element) //TODO
+                val references = PsiReferenceService.getService().getContributedReferences(element)
                 for (reference in references) {
                     if (reference !is JsonPointerBasedReferenceProvider.Reference) continue
                     if (reference.multiResolve(false).isNotEmpty()) continue
