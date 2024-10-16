@@ -248,8 +248,10 @@
         },
         "declarationProperties": {
           "description": "text or json pointer (relative to current node's container)",
-          "additionalProperties": {
-            "type": "string"
+          "patternProperties": {
+            ".*": {
+              "type": "string"
+            }
           }
         },
         "hintForDeclarations": {
