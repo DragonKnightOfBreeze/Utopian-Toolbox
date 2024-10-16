@@ -25,7 +25,7 @@ class JsonSchemaJsonPointerBasedLanguageSettingsProvider : JsonPointerBasedLangu
     override fun getModificationTracker(element: PsiElement): ModificationTracker? {
         //NOTE IDE源码中要求jsonSchema文件是标准的json文件，否则这里不会正常更新状态
         //com.jetbrains.jsonSchema.JsonSchemaVfsListener.JsonSchemaUpdater.onFileChange
-        
+
         return element.project.service<JsonSchemaService>().castOrNull<ModificationTracker>()
     }
 
@@ -61,8 +61,24 @@ class JsonSchemaJsonPointerBasedLanguageSettingsProvider : JsonPointerBasedLangu
     }
 
     fun getLanguageSettings(schema: JsonSchemaObject): JsonPointerBasedLanguageSettings? {
-        val schemaNode = schema.castOrNull<JsonSchemaNodePointer<Any>>()?.rawSchemaNode?.castOrNull<ObjectNode>() ?: return null
-        val node = schemaNode.get("\$languageSettings") ?: return null
+        return doGetLanguageSettings(schema)
+    }
+
+    private fun doGetLanguageSettings(schema: JsonSchemaObject): JsonPointerBasedLanguageSettings? {
+        when (schema) {
+            is JsonSchemaNodePointer<*> -> {
+                doGetLanguageSettingsFromJackson(schema)?.let { return it }
+            }
+            is MergedJsonSchemaObject -> {
+                doGetLanguageSettings(schema.base)?.let { return it }
+                doGetLanguageSettings(schema.other)?.let { return it }
+            }
+        }
+        return null
+    }
+
+    private fun doGetLanguageSettingsFromJackson(schema: JsonSchemaObject): JsonPointerBasedLanguageSettings? {
+        val node = schema.castOrNull<JsonSchemaNodePointer<Any>>()?.rawSchemaNode?.castOrNull<ObjectNode>()?.get("\$languageSettings") ?: return null
         return JsonPointerBasedLanguageSettings(
             declarationType = node.get("declarationType")?.textValue().orEmpty(),
             declarationDescription = node.get("declarationDescription")?.textValue().orEmpty(),
