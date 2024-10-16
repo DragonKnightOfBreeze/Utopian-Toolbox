@@ -200,6 +200,7 @@ object JsonPointerManager {
             declarationId = list.firstNotNullOfOrNull { it.declarationId.orNull() }.orEmpty(),
             declarationType = list.firstNotNullOfOrNull { it.declarationType.orNull() }.orEmpty(),
             declarationDescription = list.firstNotNullOfOrNull { it.declarationDescription.orNull() }.orEmpty(),
+            declarationProperties = list.firstNotNullOfOrNull { it.declarationProperties.orNull() }.orEmpty(),
             hintForDeclarations = list.firstNotNullOfOrNull { it.hintForDeclarations } ?: false,
             references = list.flatMapTo(mutableSetOf()) { it.references },
             hintForReferences = list.any { it.hintForReferences },

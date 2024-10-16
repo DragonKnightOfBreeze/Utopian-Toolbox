@@ -83,6 +83,7 @@ class JsonSchemaJsonPointerBasedLanguageSettingsProvider : JsonPointerBasedLangu
             declarationId = node.get("declarationId")?.textValue().orEmpty(),
             declarationType = node.get("declarationType")?.textValue().orEmpty(),
             declarationDescription = node.get("declarationDescription")?.textValue().orEmpty(),
+            declarationProperties = node.get("declarationProperties")?.toStringValueMap().orEmpty(),
             hintForDeclarations = node.get("hintForDeclarations")?.booleanValue() ?: true,
             references = node.get("references")?.toStringOrStringSetValue().orEmpty(),
             hintForReferences = node.get("hintForReferences")?.booleanValue() ?: true,
@@ -96,5 +97,14 @@ class JsonSchemaJsonPointerBasedLanguageSettingsProvider : JsonPointerBasedLangu
             this.isArray -> this.elements()?.asSequence()?.mapNotNullTo(mutableSetOf()) { it.textValue() }
             else -> this.textValue()?.let { setOf(it) }
         }
+    }
+
+    private fun JsonNode.toStringValueMap(): Map<String, String> {
+        if (!this.isObject) return emptyMap()
+        val result = mutableMapOf<String, String>()
+        this.properties().forEach { (pk, pv) ->
+            pv.textValue()?.let { result[pk] = it }
+        }
+        return result
     }
 }
