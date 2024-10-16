@@ -23,25 +23,24 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
         if (name.isNullOrEmpty()) return PsiReference.EMPTY_ARRAY
 
         val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return PsiReference.EMPTY_ARRAY
-        if (languageSettings.declarationType.isNotEmpty()) {
+        if (languageSettings.declarationId.isNotEmpty()) {
             val range = jElement.getRangeInElement(name, textOffset)
-            val type = languageSettings.resolveDeclarationType(jElement)
-            val resolvedElement = Element(element, name, type, Access.Write)
-            return arrayOf(SelfReference(element, range, resolvedElement))
+            return arrayOf(SelfReference(element, range, name, jElement, languageSettings))
         } else if (languageSettings.references.isNotEmpty()) {
             val range = jElement.getRangeInElement(name, textOffset)
-            val reference = Reference(element, range, jElement, name, languageSettings)
+            val reference = Reference(element, range, name, jElement, languageSettings)
             return arrayOf(reference)
         }
         return PsiReference.EMPTY_ARRAY
     }
 
-    @Suppress("UnstableApiUsage")
-    class Element(
+    class ReferenceElement(
         parent: PsiElement,
+        private val range: TextRange,
         private val name: String,
         private val type: String,
-        val readWriteAccess: Access
+        val declarationId: String,
+        val readWriteAccess: Access,
     ) : RenameableFakePsiElement(parent), PsiNameIdentifierOwner, NavigatablePsiElement {
         override fun getIcon(): Icon? {
             return parent.getIcon(0)
@@ -55,47 +54,46 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
             return type
         }
 
+        override fun getTextOffset(): Int {
+            return parent.textRange.startOffset + range.startOffset 
+        }
+
+        override fun getTextLength(): Int {
+            return name.length
+        }
+        
         override fun getNameIdentifier(): PsiElement {
             return this
         }
 
-        override fun getTextRange(): TextRange? {
-            return null //return null to avoid incorrect highlight at file start
+        override fun getTextRange(): TextRange {
+            return TextRange.from(textOffset, textLength)
         }
-
-        override fun navigationRequest(): NavigationRequest? {
-            return null //click to show usages
-        }
-
-        override fun navigate(requestFocus: Boolean) {
-            //click to show usages
-        }
-
-        override fun canNavigate(): Boolean {
-            return false //click to show usages
-        }
-
+        
         override fun equals(other: Any?): Boolean {
             if (other == null) return false
             if (this === other) return true
-            return other is Element && name == other.name && type == other.type && project == other.project
+            return other is ReferenceElement && name == other.name && declarationId == other.declarationId && project == other.project
         }
 
         override fun hashCode(): Int {
-            return Objects.hash(name, type, project)
+            return Objects.hash(name, declarationId, project)
         }
     }
 
     class SelfReference(
         element: PsiElement,
         range: TextRange,
-        val resolvedElement: Element
+        val name: String,
+        val jElement: JElement,
+        val languageSettings: JsonPointerBasedLanguageSettings
     ) : PsiReferenceBase<PsiElement>(element, range) {
-        @Suppress("RedundantOverride")
-        override fun handleElementRename(newElementName: String): PsiElement {
-            return super.handleElementRename(newElementName) //delegate to ElementManipulators
+        val resolvedElement by lazy {
+            val type = languageSettings.resolveDeclarationType(jElement)
+            val declarationId = languageSettings.declarationId
+            ReferenceElement(element, range, name, type, declarationId, Access.Write)
         }
-
+        
         override fun resolve(): PsiElement {
             return resolvedElement
         }
@@ -104,16 +102,12 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
     class Reference(
         element: PsiElement,
         range: TextRange,
-        val jElement: JElement,
         val name: String,
+        val jElement: JElement,
         val languageSettings: JsonPointerBasedLanguageSettings
     ) : PsiPolyVariantReferenceBase<PsiElement>(element, range) {
         val project by lazy { element.project }
-
-        override fun handleElementRename(newElementName: String): PsiElement {
-            return super.handleElementRename(newElementName) //delegate to ElementManipulators
-        }
-
+        
         //cached
 
         private object MultiResolver : ResolveCache.PolyVariantResolver<Reference> {
@@ -130,10 +124,14 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
             val currentFile = element.containingFile ?: return ResolveResult.EMPTY_ARRAY
             val result = mutableSetOf<ResolveResult>()
             languageSettings.processReferences(currentFile) p@{ resolved ->
-                val resolvedName = resolved.getName()?.orNull() ?: return@p true
-                val resolvedLanguageSettings = JsonPointerManager.getLanguageSettings(resolved.psi) ?: return@p true
+                val (resolvedName, resolvedTextOffset) = resolved.getNameAndTextOffset()
+                if(resolvedName.isNullOrEmpty()) return@p true
                 if (name != resolvedName) return@p true
-                val resolvedElement = Element(resolved.psi, resolvedName, resolvedLanguageSettings.declarationType, Access.Read)
+                val resolvedRange = jElement.getRangeInElement(resolvedName, resolvedTextOffset)
+                val resolvedLanguageSettings = JsonPointerManager.getLanguageSettings(resolved.psi) ?: return@p true
+                val resolvedDeclarationId = resolvedLanguageSettings.declarationId
+                val resolvedType = resolvedLanguageSettings.resolveDeclarationType(resolved)
+                val resolvedElement = ReferenceElement(resolved.psi, resolvedRange, resolvedName, resolvedType, resolvedDeclarationId, Access.Read)
                 result += PsiElementResolveResult(resolvedElement)
                 true
             }
@@ -141,7 +139,7 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
         }
 
         fun getResolvedElements(): Collection<PsiElement> {
-            return multiResolve(false).mapNotNull { it.element?.castOrNull<Element>()?.parent }
+            return multiResolve(false).mapNotNull { it.element?.castOrNull<ReferenceElement>()?.parent }
         }
     }
 }

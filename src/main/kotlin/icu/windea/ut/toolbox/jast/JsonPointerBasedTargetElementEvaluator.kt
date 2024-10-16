@@ -26,7 +26,7 @@ class JsonPointerBasedTargetElementEvaluator : TargetElementEvaluatorEx2() {
     }
 
     override fun isAcceptableReferencedElement(element: PsiElement, referenceOrReferencedElement: PsiElement?): ThreeState {
-        if (referenceOrReferencedElement is JsonPointerBasedReferenceProvider.Element) return ThreeState.NO
+        if (referenceOrReferencedElement is JsonPointerBasedReferenceProvider.ReferenceElement) return ThreeState.NO
         return ThreeState.UNSURE
     }
 

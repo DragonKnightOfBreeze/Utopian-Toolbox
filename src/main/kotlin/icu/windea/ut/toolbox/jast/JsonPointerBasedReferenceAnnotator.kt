@@ -16,7 +16,7 @@ class JsonPointerBasedReferenceAnnotator : Annotator {
         if (jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return
 
         val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return
-        if (languageSettings.declarationType.isNotEmpty()) {
+        if (languageSettings.declarationId.isNotEmpty()) {
             if (!languageSettings.hintForDeclarations) return
 
             val (name, textOffset) = jElement.getNameAndTextOffset()

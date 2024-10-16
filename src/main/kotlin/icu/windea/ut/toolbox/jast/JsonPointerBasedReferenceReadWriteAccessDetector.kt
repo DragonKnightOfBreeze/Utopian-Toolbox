@@ -5,11 +5,11 @@ import com.intellij.psi.*
 
 class JsonPointerBasedReferenceReadWriteAccessDetector : ReadWriteAccessDetector() {
     override fun isReadWriteAccessible(element: PsiElement): Boolean {
-        return element is JsonPointerBasedReferenceProvider.Element
+        return element is JsonPointerBasedReferenceProvider.ReferenceElement
     }
 
     override fun isDeclarationWriteAccess(element: PsiElement): Boolean {
-        if (element is JsonPointerBasedReferenceProvider.Element) return element.readWriteAccess == Access.Write
+        if (element is JsonPointerBasedReferenceProvider.ReferenceElement) return element.readWriteAccess == Access.Write
         return true
     }
 

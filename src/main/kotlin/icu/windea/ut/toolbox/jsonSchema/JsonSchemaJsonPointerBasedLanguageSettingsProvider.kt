@@ -80,6 +80,7 @@ class JsonSchemaJsonPointerBasedLanguageSettingsProvider : JsonPointerBasedLangu
     private fun doGetLanguageSettingsFromJackson(schema: JsonSchemaObject): JsonPointerBasedLanguageSettings? {
         val node = schema.castOrNull<JsonSchemaNodePointer<Any>>()?.rawSchemaNode?.castOrNull<ObjectNode>()?.get("\$languageSettings") ?: return null
         return JsonPointerBasedLanguageSettings(
+            declarationId = node.get("declarationId")?.textValue().orEmpty(),
             declarationType = node.get("declarationType")?.textValue().orEmpty(),
             declarationDescription = node.get("declarationDescription")?.textValue().orEmpty(),
             hintForDeclarations = node.get("hintForDeclarations")?.booleanValue() ?: true,

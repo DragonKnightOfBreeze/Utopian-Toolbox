@@ -197,6 +197,7 @@ object JsonPointerManager {
         if (list.isEmpty()) return null
         if (list.size == 1) return list.single()
         return JsonPointerBasedLanguageSettings(
+            declarationId = list.firstNotNullOfOrNull { it.declarationId.orNull() }.orEmpty(),
             declarationType = list.firstNotNullOfOrNull { it.declarationType.orNull() }.orEmpty(),
             declarationDescription = list.firstNotNullOfOrNull { it.declarationDescription.orNull() }.orEmpty(),
             hintForDeclarations = list.firstNotNullOfOrNull { it.hintForDeclarations } ?: false,

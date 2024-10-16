@@ -235,6 +235,9 @@
     
     "$languageSettings": {
       "properties": {
+        "declarationId": {
+          "type": "string"
+        },
         "declarationType": {
           "description": "text or json pointer (relative to current node's container)",
           "type": "string"
@@ -253,6 +256,7 @@
           "type": "boolean",
           "default": true
         },
+        
         "references": {
           "description": "text or json pointer url (relative to current file)",
           "anyOf": [

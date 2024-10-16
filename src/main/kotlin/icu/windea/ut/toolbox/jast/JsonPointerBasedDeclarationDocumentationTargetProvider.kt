@@ -14,7 +14,7 @@ class JsonPointerBasedDeclarationDocumentationTargetProvider : PsiDocumentationT
     private fun documentationTarget(jElement: JElement): DocumentationTarget? {
         val element = jElement.psi
         val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return null
-        if (languageSettings.declarationType.isNotEmpty()) {
+        if (languageSettings.declarationId.isNotEmpty()) {
             //declaration
             val name = jElement.getName()
             if (name.isNullOrEmpty()) return null

@@ -19,7 +19,7 @@ class JsonPointerBasedDocumentationProvider : DocumentationProvider {
         if (jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return null
         val element = jElement.psi
         val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return null
-        if (languageSettings.declarationType.isEmpty() && languageSettings.references.isEmpty()) return null
+        if (languageSettings.declarationId.isEmpty() && languageSettings.references.isEmpty()) return null
         return element
     }
 }

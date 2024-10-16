@@ -6,6 +6,7 @@ import com.intellij.util.*
 
 /**
  * 基于JSON指针的扩展语言设置。
+ * @property declarationId 作为声明式的标识符。
  * @property declarationType 作为声明时的类型。以文本或者目标相对于当前父节点的JSON指针表示。
  * @property declarationDescription 作为声明时的描述。以文本或者目标相对于当前父节点的JSON指针表示。
  * @property declarationProperties 作为声明时的额外属性。以文本或者目标相对于当前父节点的JSON指针表示。
@@ -16,6 +17,7 @@ import com.intellij.util.*
  * @property completionForReferences 是否为引用提供代码补全。
  */
 data class JsonPointerBasedLanguageSettings(
+    val declarationId: String = "",
     val declarationType: String = "",
     val declarationDescription: String = "",
     val declarationProperties: Map<String, String> = emptyMap(),
