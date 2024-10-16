@@ -3,6 +3,10 @@
         <jElementProvider language="JSON" implementationClass="icu.windea.ut.toolbox.lang.json.JsonJElementProvider"/>
         <jsonPointerBasedLanguageSettingsProvider implementation="icu.windea.ut.toolbox.jsonSchema.JsonSchemaJsonPointerBasedLanguageSettingsProvider"/>
     </extensions>
+
+    <extensions defaultExtensionNs="JavaScript">
+        <JsonSchema.ProviderFactory implementation="icu.windea.ut.toolbox.jsonSchema.UtJsonSchemaProviderFactory"/>
+    </extensions>
     
     <extensions defaultExtensionNs="com.intellij">
         <psi.referenceContributor language="JSON" implementation="icu.windea.ut.toolbox.lang.json.JsonJsonPointerBasedReferenceContributor"/>

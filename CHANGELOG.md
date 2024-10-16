@@ -19,3 +19,5 @@
   * 参见：`icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceCompletionProvider`
   * 参见：`icu.windea.ut.toolbox.jast.JsonPointerBasedDeclarationDocumentationTargetProvider`
   * 参见：`icu.windea.ut.toolbox.jast.UnresolvedJsonPointerBasedReferenceInspection`
+* [X] 提供预定义的jsonSchema，用于兼容基于jsonSchema的（基于JSON指针的）语言设置
+  * 参见：`icu.windea.ut.toolbox.jsonSchema.UtJsonSchemaProviderFactory`

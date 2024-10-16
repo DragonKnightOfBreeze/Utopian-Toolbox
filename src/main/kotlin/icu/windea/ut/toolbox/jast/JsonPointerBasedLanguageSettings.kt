@@ -6,9 +6,9 @@ import com.intellij.util.*
 
 /**
  * 基于JSON指针的扩展语言设置。
- * @property declarationType 作为声明时的类型。作为声明时，可以在其他位置被引用。
- * @property declarationDescription 作为声明时的描述。作为声明时，可以在其他位置被引用。
- * @property declarationProperties 作为声明时的额外属性。作为声明时，可以在其他位置被引用。
+ * @property declarationType 作为声明时的类型。以文本或者目标相对于当前父节点的JSON指针表示。
+ * @property declarationDescription 作为声明时的描述。以文本或者目标相对于当前父节点的JSON指针表示。
+ * @property declarationProperties 作为声明时的额外属性。以文本或者目标相对于当前父节点的JSON指针表示。
  * @property hintForDeclarations 是否为声明提供代码高亮。
  * @property references 引用目标的JSON指针路径，可以有多个。
  * @property hintForReferences 是否为引用提供代码高亮。
