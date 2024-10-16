@@ -6,7 +6,6 @@ import com.intellij.openapi.components.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
 import com.intellij.psi.util.*
-import com.intellij.refactoring.suggested.*
 import com.jetbrains.jsonSchema.ide.*
 import com.jetbrains.jsonSchema.impl.*
 import com.jetbrains.jsonSchema.impl.light.*

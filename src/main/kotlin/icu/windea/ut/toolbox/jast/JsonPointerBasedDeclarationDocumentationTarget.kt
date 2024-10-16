@@ -7,7 +7,6 @@ import com.intellij.platform.backend.documentation.*
 import com.intellij.platform.backend.presentation.*
 import com.intellij.pom.*
 import com.intellij.psi.*
-import com.intellij.refactoring.suggested.*
 import icu.windea.ut.toolbox.core.documentation.*
 
 class JsonPointerBasedDeclarationDocumentationTarget(
