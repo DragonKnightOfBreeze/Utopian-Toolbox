@@ -64,11 +64,11 @@ private fun computeLocalDocumentation(element: PsiElement, quickNavigation: Bool
     if (name.isNullOrEmpty()) return null
     val type = languageSettings.resolveDeclarationType(jElement)
     val description = languageSettings.resolveDeclarationDescription(jElement)
-    val properties = languageSettings.resolveDeclarationProperties(jElement)
 
     return buildDocumentation {
         definition {
             append(name)
+            grayed { append(" (").append(type).append(")") }
         }
         if (description.isNotEmpty()) {
             content {
@@ -78,7 +78,7 @@ private fun computeLocalDocumentation(element: PsiElement, quickNavigation: Bool
         if (!quickNavigation) {
             initSections(1)
             getSections(SECTIONS_INFO)?.let { infoSections ->
-                infoSections["Type"] = type
+                val properties = languageSettings.resolveDeclarationProperties(jElement)
                 if (properties.isNotEmpty()) {
                     properties.forEach { (k, v) ->
                         if (k.isNotEmpty()) {
