@@ -1,8 +1,9 @@
 package icu.windea.ut.toolbox.jast
 
 import com.intellij.codeInsight.highlighting.ReadWriteAccessDetector.*
+import com.intellij.lang.*
+import com.intellij.openapi.project.*
 import com.intellij.openapi.util.*
-import com.intellij.platform.backend.navigation.*
 import com.intellij.psi.*
 import com.intellij.psi.impl.*
 import com.intellij.psi.impl.source.resolve.*
@@ -69,6 +70,18 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
         override fun getTextRange(): TextRange {
             return TextRange.from(textOffset, textLength)
         }
+
+        override fun getLanguage(): Language {
+            return parent.language
+        }
+
+        override fun getProject(): Project {
+            return parent.project
+        }
+        
+        override fun isValid(): Boolean {
+            return true
+        }
         
         override fun equals(other: Any?): Boolean {
             if (other == null) return false
@@ -95,7 +108,9 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
         }
         
         override fun resolve(): PsiElement {
-            return resolvedElement
+            val type = languageSettings.resolveDeclarationType(jElement)
+            val declarationId = languageSettings.declarationId
+            return ReferenceElement(element, rangeInElement, name, type, declarationId, Access.Write)
         }
     }
 
