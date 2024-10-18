@@ -1,4 +1,4 @@
-<idea-plugin url="https://github.com/DragonKnightOfBreeze/Utopian-Toolbox" xmlns:xi="http://www.w3.org/2001/XInclude">
+<idea-plugin url="https://github.com/DragonKnightOfBreeze/Utopian-Toolbox">
     <id>icu.windea.ut.toolbox</id>
     <name>Utopian Toolbox</name>
     <category>Languages</category>
@@ -14,6 +14,8 @@
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="icu.windea.ut.toolbox.settings.UtFoldingSettings"/>
         <codeFoldingOptionsProvider instance="icu.windea.ut.toolbox.settings.UtFoldingOptionsProvider"/>
+        
+        <iconMapper mappingFile="UtIconMappings.json"/>
     </extensions>
 
     <extensionPoints>

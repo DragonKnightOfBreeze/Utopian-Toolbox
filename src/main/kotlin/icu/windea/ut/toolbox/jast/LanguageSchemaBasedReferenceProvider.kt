@@ -8,6 +8,7 @@ import com.intellij.psi.*
 import com.intellij.psi.impl.*
 import com.intellij.psi.impl.source.resolve.*
 import com.intellij.util.*
+import icons.*
 import icu.windea.ut.toolbox.core.*
 import java.util.*
 import javax.swing.*
@@ -40,8 +41,8 @@ class LanguageSchemaBasedReferenceProvider : PsiReferenceProvider() {
         val declarationId: String,
         val readWriteAccess: Access,
     ) : RenameableFakePsiElement(parent), PsiNameIdentifierOwner, NavigatablePsiElement {
-        override fun getIcon(): Icon? {
-            return parent.getIcon(0)
+        override fun getIcon(): Icon {
+            return UtIcons.Nodes.JastDeclaration
         }
 
         override fun getName(): String {

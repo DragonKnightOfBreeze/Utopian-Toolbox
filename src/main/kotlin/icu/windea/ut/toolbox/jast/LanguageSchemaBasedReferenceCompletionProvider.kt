@@ -4,6 +4,7 @@ import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.lookup.*
 import com.intellij.refactoring.suggested.*
 import com.intellij.util.*
+import icons.*
 import icu.windea.ut.toolbox.core.*
 import icu.windea.ut.toolbox.core.util.*
 import icu.windea.ut.toolbox.lang.*
@@ -46,6 +47,7 @@ open class LanguageSchemaBasedReferenceCompletionProvider : CompletionProvider<C
 
                 val lookupString = resolvedName.applyHandler(lookupStringHandler)
                 val lookupElement = LookupElementBuilder.create(resolvedElement, lookupString)
+                    .withIcon(UtIcons.Nodes.JastDeclaration)
                     .withPresentableText(resolvedName)
                     .withTypeText(resolvedType, true)
                 val lookupElementToUse = lookupElement.applyHandler(lookupElementHandler)

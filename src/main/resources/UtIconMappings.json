@@ -1,0 +1,10 @@
+{
+  "icons": {
+    "expui": {
+      "nodes": {
+        "jastDeclaration.svg": "icons/nodes/jastDeclaration.svg",
+        "jastDeclarationContainer.svg": "icons/nodes/jastDeclarationContainer.svg"
+      }
+    }
+  }
+}
