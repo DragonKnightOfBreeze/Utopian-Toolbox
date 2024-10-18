@@ -23,7 +23,8 @@ open class LanguageSchemaBasedReferenceCompletionProvider : CompletionProvider<C
         val positionElement = parameters.position
         val keyword = positionElement.text.take(parameters.offset - positionElement.startOffset)
         val languageSchema = UtPsiManager.markIncompletePsi { JastManager.getLanguageSchema(positionElement) } ?: return
-        if (languageSchema.references.isEmpty()) return
+        if (languageSchema.reference.urls.isEmpty()) return
+        if (!languageSchema.reference.enableCompletion) return
 
         context.put(Keys.parameters, parameters)
         context.put(Keys.keyword, keyword)
@@ -35,20 +36,22 @@ open class LanguageSchemaBasedReferenceCompletionProvider : CompletionProvider<C
 
         val currentFile = parameters.originalFile
         val resultToUse = result.applyHandler(resultHandler)
-        languageSchema.processReferences(currentFile) p@{ resolved ->
-            val resolvedName = resolved.getName()?.orNull() ?: return@p true
-            val resolvedElement = resolved.psi
+        languageSchema.reference.urls.process { ref ->
+            JastManager.processElements(ref, currentFile, p@{ resolved ->
+                val resolvedName = resolved.getName()?.orNull() ?: return@p true
+                val resolvedElement = resolved.psi
 
-            val resolvedLanguageSchema = JastManager.getLanguageSchema(resolvedElement)
-            val resolvedType = resolvedLanguageSchema?.resolveDeclarationType(resolved)
+                val resolvedLanguageSchema = JastManager.getLanguageSchema(resolvedElement)
+                val resolvedType = resolvedLanguageSchema?.let { LanguageSchemaManager.resolveDeclarationType(it, resolved) }
 
-            val lookupString = resolvedName.applyHandler(lookupStringHandler)
-            val lookupElement = LookupElementBuilder.create(resolvedElement, lookupString)
-                .withPresentableText(resolvedName)
-                .withTypeText(resolvedType, true)
-            val lookupElementToUse = lookupElement.applyHandler(lookupElementHandler)
-            resultToUse.addElement(lookupElementToUse)
-            true
+                val lookupString = resolvedName.applyHandler(lookupStringHandler)
+                val lookupElement = LookupElementBuilder.create(resolvedElement, lookupString)
+                    .withPresentableText(resolvedName)
+                    .withTypeText(resolvedType, true)
+                val lookupElementToUse = lookupElement.applyHandler(lookupElementHandler)
+                resultToUse.addElement(lookupElementToUse)
+                true
+            })
         }
     }
 

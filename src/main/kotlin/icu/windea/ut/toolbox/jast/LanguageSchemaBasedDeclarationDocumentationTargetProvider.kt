@@ -14,12 +14,12 @@ class LanguageSchemaBasedDeclarationDocumentationTargetProvider : PsiDocumentati
     private fun documentationTarget(jElement: JElement): DocumentationTarget? {
         val element = jElement.psi
         val languageSchema = JastManager.getLanguageSchema(element) ?: return null
-        if (languageSchema.declarationId.isNotEmpty()) {
+        if (languageSchema.declaration.id.isNotEmpty()) {
             //declaration
             val name = jElement.getName()
             if (name.isNullOrEmpty()) return null
             return LanguageSchemaBasedDeclarationDocumentationTarget(element)
-        } else if (languageSchema.references.isNotEmpty()) {
+        } else if (languageSchema.reference.urls.isNotEmpty()) {
             //reference
             val references = PsiReferenceService.getService().getContributedReferences(element)
             for (reference in references) {

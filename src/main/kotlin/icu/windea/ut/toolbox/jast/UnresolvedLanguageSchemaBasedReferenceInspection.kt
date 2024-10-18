@@ -5,9 +5,6 @@ import com.intellij.psi.*
 import icu.windea.ut.toolbox.*
 import icu.windea.ut.toolbox.core.*
 
-/**
- * @see LanguageSchema.inspectionForReferences
- */
 class UnresolvedLanguageSchemaBasedReferenceInspection : LocalInspectionTool() {
     object Constants {
         const val URLS_LIMIT = 3
@@ -22,8 +19,8 @@ class UnresolvedLanguageSchemaBasedReferenceInspection : LocalInspectionTool() {
                 if(jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return
 
                 val languageSchema = JastManager.getLanguageSchema(element) ?: return
-                if (languageSchema.references.isEmpty()) return
-                if (!languageSchema.inspectionForReferences) return
+                if (languageSchema.reference.urls.isEmpty()) return
+                if (!languageSchema.reference.enableInspection) return
 
                 val references = PsiReferenceService.getService().getContributedReferences(element)
                 for (reference in references) {
@@ -31,7 +28,7 @@ class UnresolvedLanguageSchemaBasedReferenceInspection : LocalInspectionTool() {
                     if (reference.multiResolve(false).isNotEmpty()) continue
 
                     val name = reference.name
-                    val urls = reference.languageSchema.references.truncate(Constants.URLS_LIMIT).joinToString(", ")
+                    val urls = reference.languageSchema.reference.urls.truncate(Constants.URLS_LIMIT).joinToString(", ")
                     val message = UtBundle.message("inspection.unresolvedLanguageSchemaBasedReference.desc", name, urls)
                     holder.registerProblem(reference, message, ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
                 }

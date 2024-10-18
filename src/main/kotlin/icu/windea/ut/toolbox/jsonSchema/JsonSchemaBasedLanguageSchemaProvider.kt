@@ -1,7 +1,7 @@
 package icu.windea.ut.toolbox.jsonSchema
 
-import com.fasterxml.jackson.databind.*
 import com.fasterxml.jackson.databind.node.*
+import com.fasterxml.jackson.module.kotlin.*
 import com.intellij.openapi.components.*
 import com.intellij.openapi.util.*
 import com.intellij.psi.*
@@ -10,16 +10,16 @@ import com.jetbrains.jsonSchema.ide.*
 import com.jetbrains.jsonSchema.impl.*
 import com.jetbrains.jsonSchema.impl.light.*
 import icu.windea.ut.toolbox.core.*
+import icu.windea.ut.toolbox.core.data.*
 import icu.windea.ut.toolbox.jast.*
 import icu.windea.ut.toolbox.lang.*
 
 class JsonSchemaBasedLanguageSchemaProvider : LanguageSchemaProvider {
     override fun getLanguageSchema(element: PsiElement): LanguageSchema? {
         val schemas = getSchemas(element) ?: return null
-        val list = schemas.mapNotNull { schema -> getLanguageSchema(schema) }
-        if (list.isEmpty()) return null
-        val languageSchema = JastManager.mergeLanguageSchema(list)
-        return languageSchema
+        val languageSchemas = schemas.mapNotNull { schema -> getLanguageSchema(schema) }
+        val result = mergeLanguageSchema(languageSchemas)
+        return result
     }
 
     override fun getModificationTracker(element: PsiElement): ModificationTracker? {
@@ -78,33 +78,21 @@ class JsonSchemaBasedLanguageSchemaProvider : LanguageSchemaProvider {
     }
 
     private fun doGetLanguageSchemaFromJackson(schema: JsonSchemaObject): LanguageSchema? {
-        val node = schema.castOrNull<JsonSchemaNodePointer<Any>>()?.rawSchemaNode?.castOrNull<ObjectNode>()?.get("\$languageSchema") ?: return null
+        val node = schema.castOrNull<JsonSchemaNodePointer<Any>>()?.rawSchemaNode ?: return null
+        val languageSchemaNode = node.castOrNull<ObjectNode>()?.get("\$languageSchema") ?: return null
+        return jsonMapper.treeToValue<LanguageSchema>(languageSchemaNode)
+    }
+    
+    fun mergeLanguageSchema(languageSchemas: List<LanguageSchema>): LanguageSchema? {
+        if(languageSchemas.isEmpty()) return null
+        
+        val declarationSchema = languageSchemas.firstNotNullOfOrNull { s -> s.declaration.takeIf { it.id.isNotEmpty() } }
+        val declarationContainerSchema = languageSchemas.firstNotNullOfOrNull { s -> s.declarationContainer.takeIf { it.url.isNotEmpty() } }
+        val referenceSchema = languageSchemas.firstNotNullOfOrNull { s -> s.reference.takeIf { it.urls.isNotEmpty() } }
         return LanguageSchema(
-            declarationId = node.get("declarationId")?.textValue().orEmpty(),
-            declarationType = node.get("declarationType")?.textValue().orEmpty(),
-            declarationDescription = node.get("declarationDescription")?.textValue().orEmpty(),
-            declarationProperties = node.get("declarationProperties")?.toStringValueMap().orEmpty(),
-            hintForDeclarations = node.get("hintForDeclarations")?.booleanValue() ?: true,
-            references = node.get("references")?.toStringOrStringSetValue().orEmpty(),
-            hintForReferences = node.get("hintForReferences")?.booleanValue() ?: true,
-            inspectionForReferences = node.get("inspectionForReferences")?.booleanValue() ?: true,
-            completionForReferences = node.get("completionForReferences")?.booleanValue() ?: true,
+            declaration = declarationSchema ?: LanguageSchema.Declaration(),
+            declarationContainer = declarationContainerSchema ?: LanguageSchema.DeclarationContainer(),
+            reference = referenceSchema ?: LanguageSchema.Reference(),
         )
-    }
-
-    private fun JsonNode.toStringOrStringSetValue(): Set<String>? {
-        return when {
-            this.isArray -> this.elements()?.asSequence()?.mapNotNullTo(mutableSetOf()) { it.textValue() }
-            else -> this.textValue()?.let { setOf(it) }
-        }
-    }
-
-    private fun JsonNode.toStringValueMap(): Map<String, String> {
-        if (!this.isObject) return emptyMap()
-        val result = mutableMapOf<String, String>()
-        this.properties().forEach { (pk, pv) ->
-            pv.textValue()?.let { result[pk] = it }
-        }
-        return result
     }
 }

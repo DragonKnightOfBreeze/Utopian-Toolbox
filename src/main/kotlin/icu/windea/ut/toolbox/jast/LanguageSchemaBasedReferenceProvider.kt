@@ -12,9 +12,6 @@ import icu.windea.ut.toolbox.core.*
 import java.util.*
 import javax.swing.*
 
-/**
- * @see LanguageSchema.references
- */
 class LanguageSchemaBasedReferenceProvider : PsiReferenceProvider() {
     override fun getReferencesByElement(element: PsiElement, context: ProcessingContext): Array<PsiReference> {
         val jElement = element.toJElement()
@@ -24,10 +21,10 @@ class LanguageSchemaBasedReferenceProvider : PsiReferenceProvider() {
         if (name.isNullOrEmpty()) return PsiReference.EMPTY_ARRAY
 
         val languageSchema = JastManager.getLanguageSchema(element) ?: return PsiReference.EMPTY_ARRAY
-        if (languageSchema.declarationId.isNotEmpty()) {
+        if (languageSchema.declaration.id.isNotEmpty()) {
             val range = jElement.getRangeInElement(name, textOffset)
             return arrayOf(SelfReference(element, range, name, jElement, languageSchema))
-        } else if (languageSchema.references.isNotEmpty()) {
+        } else if (languageSchema.reference.urls.isNotEmpty()) {
             val range = jElement.getRangeInElement(name, textOffset)
             val reference = Reference(element, range, name, jElement, languageSchema)
             return arrayOf(reference)
@@ -102,14 +99,14 @@ class LanguageSchemaBasedReferenceProvider : PsiReferenceProvider() {
         val languageSchema: LanguageSchema
     ) : PsiReferenceBase<PsiElement>(element, range) {
         val resolvedElement by lazy {
-            val type = languageSchema.resolveDeclarationType(jElement)
-            val declarationId = languageSchema.declarationId
+            val type = LanguageSchemaManager.resolveDeclarationType(languageSchema, jElement)
+            val declarationId = languageSchema.declaration.id
             ReferenceElement(element, range, name, type, declarationId, Access.Write)
         }
-        
+
         override fun resolve(): PsiElement {
-            val type = languageSchema.resolveDeclarationType(jElement)
-            val declarationId = languageSchema.declarationId
+            val type = LanguageSchemaManager.resolveDeclarationType(languageSchema, jElement)
+            val declarationId = languageSchema.declaration.id
             return ReferenceElement(element, rangeInElement, name, type, declarationId, Access.Write)
         }
     }
@@ -122,7 +119,7 @@ class LanguageSchemaBasedReferenceProvider : PsiReferenceProvider() {
         val languageSchema: LanguageSchema
     ) : PsiPolyVariantReferenceBase<PsiElement>(element, range) {
         val project by lazy { element.project }
-        
+
         //cached
 
         private object MultiResolver : ResolveCache.PolyVariantResolver<Reference> {
@@ -138,17 +135,19 @@ class LanguageSchemaBasedReferenceProvider : PsiReferenceProvider() {
         private fun doMultiResolve(): Array<out ResolveResult> {
             val currentFile = element.containingFile ?: return ResolveResult.EMPTY_ARRAY
             val result = mutableSetOf<ResolveResult>()
-            languageSchema.processReferences(currentFile) p@{ resolved ->
-                val (resolvedName, resolvedTextOffset) = resolved.getNameAndTextOffset()
-                if(resolvedName.isNullOrEmpty()) return@p true
-                if (name != resolvedName) return@p true
-                val resolvedRange = jElement.getRangeInElement(resolvedName, resolvedTextOffset)
-                val resolvedLanguageSchema = JastManager.getLanguageSchema(resolved.psi) ?: return@p true
-                val resolvedDeclarationId = resolvedLanguageSchema.declarationId
-                val resolvedType = resolvedLanguageSchema.resolveDeclarationType(resolved)
-                val resolvedElement = ReferenceElement(resolved.psi, resolvedRange, resolvedName, resolvedType, resolvedDeclarationId, Access.Read)
-                result += PsiElementResolveResult(resolvedElement)
-                true
+            languageSchema.reference.urls.process { ref ->
+                JastManager.processElements(ref, currentFile, p@{ resolved ->
+                        val (resolvedName, resolvedTextOffset) = resolved.getNameAndTextOffset()
+                        if (resolvedName.isNullOrEmpty()) return@p true
+                        if (name != resolvedName) return@p true
+                        val resolvedRange = jElement.getRangeInElement(resolvedName, resolvedTextOffset)
+                        val resolvedLanguageSchema = JastManager.getLanguageSchema(resolved.psi) ?: return@p true
+                        val resolvedDeclarationId = resolvedLanguageSchema.declaration.id
+                        val resolvedType = LanguageSchemaManager.resolveDeclarationType(resolvedLanguageSchema, resolved)
+                        val resolvedElement = ReferenceElement(resolved.psi, resolvedRange, resolvedName, resolvedType, resolvedDeclarationId, Access.Read)
+                        result += PsiElementResolveResult(resolvedElement)
+                        true
+                    })
             }
             return result.toTypedArray()
         }

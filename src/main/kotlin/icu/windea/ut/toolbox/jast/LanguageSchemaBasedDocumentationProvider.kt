@@ -19,7 +19,7 @@ class LanguageSchemaBasedDocumentationProvider : DocumentationProvider {
         if (jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return null
         val element = jElement.psi
         val languageSchema = JastManager.getLanguageSchema(element) ?: return null
-        if (languageSchema.declarationId.isEmpty() && languageSchema.references.isEmpty()) return null
+        if (languageSchema.declaration.id.isEmpty() && languageSchema.reference.urls.isEmpty()) return null
         return element
     }
 }

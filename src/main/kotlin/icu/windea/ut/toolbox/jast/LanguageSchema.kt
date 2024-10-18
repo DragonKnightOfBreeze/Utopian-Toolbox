@@ -1,43 +1,46 @@
 package icu.windea.ut.toolbox.jast
 
-import com.intellij.psi.*
-import com.intellij.util.*
-
-/**
- * @property declarationId 作为声明时的标识符。
- * @property declarationType 作为声明时的类型。以文本或者目标相对于当前父节点的JSON指针表示。
- * @property declarationDescription 作为声明时的描述。以文本或者目标相对于当前父节点的JSON指针表示。
- * @property declarationProperties 作为声明时的额外属性。以文本或者目标相对于当前父节点的JSON指针表示。
- * @property hintForDeclarations 是否为声明提供代码高亮。
- * @property references 引用目标的JSON指针路径，可以有多个。
- * @property hintForReferences 是否为引用提供代码高亮。
- * @property inspectionForReferences 是否为引用提供代码检查。
- * @property completionForReferences 是否为引用提供代码补全。
- */
 data class LanguageSchema(
-    val declarationId: String = "",
-    val declarationType: String = "",
-    val declarationDescription: String = "",
-    val declarationProperties: Map<String, String> = emptyMap(),
-    val hintForDeclarations: Boolean = true,
-    val references: Set<String> = emptySet(),
-    val hintForReferences: Boolean = true,
-    val inspectionForReferences: Boolean = true,
-    val completionForReferences: Boolean = true,
+    val declaration: Declaration = Declaration(),
+    val declarationContainer: DeclarationContainer = DeclarationContainer(),
+    val reference: Reference = Reference(),
 ) {
-    fun resolveDeclarationType(position: JElement): String {
-        return LanguageSchemaManager.resolveDeclarationType(this, position)
-    }
+    /**
+     * @property id 作为声明时的标识符。
+     * @property type 作为声明时的类型。以文本或者目标相对于当前节点所在数组或对象节点的JSON指针表示。
+     * @property description 作为声明时的描述。以文本或者目标相对于当前节点所在数组或对象节点的JSON指针表示。
+     * @property extraProperties 作为声明时的额外属性。以文本或者目标相对于当前节点所在数组或对象节点的JSON指针表示。
+     * @property enableHint 是否为声明启用代码高亮。
+     */
+    data class Declaration(
+        val id: String = "",
+        val type: String = "",
+        val description: String = "",
+        val extraProperties: Map<String, String> = emptyMap(),
+        val enableHint: Boolean = true,
+    )
 
-    fun resolveDeclarationDescription(position: JElement): String {
-        return LanguageSchemaManager.resolveDeclarationDescription(this, position)
-    }
+    /**
+     * @property url 作为声明容器时，其中的声明的路径。以目标相对于当前节点的JSON指针表示。
+     * @property enableFolding 是否为声明容器启用特殊的代码折叠规则。
+     * @property enableStructureView 是否为声明容器扩展结构视图。
+     */
+    data class DeclarationContainer(
+        val url: String = "",
+        val enableFolding: Boolean = true,
+        val enableStructureView: Boolean = true,
+    )
 
-    fun resolveDeclarationProperties(position: JElement): Map<String, String> {
-        return LanguageSchemaManager.resolveDeclarationProperties(this, position)
-    }
-
-    fun processReferences(currentFile: PsiFile, processor: Processor<JElement>): Boolean {
-        return LanguageSchemaManager.processReferences(this, currentFile, processor)
-    }
+    /**
+     * @property urls 引用目标的路径。以目标相对于当前文件的JSON指针路径表示。
+     * @property enableHint 是否为引用启用代码高亮。
+     * @property enableCompletion 是否为引用启用代码补全。
+     * @property enableInspection 是否为引用启用相关的代码检查。
+     */
+    data class Reference(
+        val urls: Set<String> = emptySet(),
+        val enableHint: Boolean = true,
+        val enableCompletion: Boolean = true,
+        val enableInspection: Boolean = true,
+    )
 }

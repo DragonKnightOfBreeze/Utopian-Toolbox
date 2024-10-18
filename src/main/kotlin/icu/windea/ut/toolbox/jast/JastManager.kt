@@ -4,7 +4,6 @@ import com.intellij.openapi.application.*
 import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.*
 import com.intellij.openapi.roots.*
-import com.intellij.openapi.util.*
 import com.intellij.openapi.vfs.*
 import com.intellij.psi.*
 import com.intellij.psi.search.*
@@ -196,23 +195,7 @@ object JastManager {
         }
         return false
     }
-
-    fun mergeLanguageSchema(list: Collection<LanguageSchema>): LanguageSchema? {
-        if (list.isEmpty()) return null
-        if (list.size == 1) return list.single()
-        return LanguageSchema(
-            declarationId = list.firstNotNullOfOrNull { it.declarationId.orNull() }.orEmpty(),
-            declarationType = list.firstNotNullOfOrNull { it.declarationType.orNull() }.orEmpty(),
-            declarationDescription = list.firstNotNullOfOrNull { it.declarationDescription.orNull() }.orEmpty(),
-            declarationProperties = list.firstNotNullOfOrNull { it.declarationProperties.orNull() }.orEmpty(),
-            hintForDeclarations = list.firstNotNullOfOrNull { it.hintForDeclarations } ?: false,
-            references = list.flatMapTo(mutableSetOf()) { it.references },
-            hintForReferences = list.any { it.hintForReferences },
-            inspectionForReferences = list.any { it.inspectionForReferences },
-            completionForReferences = list.any { it.completionForReferences },
-        )
-    }
-
+    
     fun getLanguageSchema(element: PsiElement): LanguageSchema? {
         if (UtPsiManager.isIncompletePsi()) return doGetLanguageSchema(element)
         return doGetLanguageSchemaFromCache(element)
@@ -220,20 +203,21 @@ object JastManager {
 
     private fun doGetLanguageSchemaFromCache(element: PsiElement): LanguageSchema? {
         return CachedValuesManager.getCachedValue(element, Keys.languageSchema) {
-            val value = doGetLanguageSchema(element)
-            val trackers = doGetLanguageSchemaTrackers(element).toTypedArray()
-            CachedValueProvider.Result.create(value, element.containingFile ?: element, *trackers)
+            val providers = LanguageSchemaProvider.EP_NAME.extensionList
+            providers.firstNotNullOfOrNull p@{ provider ->
+                val value = provider.getLanguageSchema(element) ?: return@p null
+                val tracker = provider.getModificationTracker(element)
+                val trackers = buildList {
+                    add(element.containingFile ?: element)
+                    tracker?.let { add(it) }
+                }.toTypedArray()
+                CachedValueProvider.Result.create(value, *trackers)
+            }
         }
     }
 
     private fun doGetLanguageSchema(element: PsiElement): LanguageSchema? {
-        val list = LanguageSchemaProvider.EP_NAME.extensionList.mapNotNull { it.getLanguageSchema(element) }
-        val value = mergeLanguageSchema(list)
-        return value
-    }
-
-    private fun doGetLanguageSchemaTrackers(element: PsiElement): List<ModificationTracker> {
-        val trackers = LanguageSchemaProvider.EP_NAME.extensionList.mapNotNull { it.getModificationTracker(element) }
-        return trackers
+        val providers = LanguageSchemaProvider.EP_NAME.extensionList
+        return providers.firstNotNullOfOrNull { it.getLanguageSchema(element) }
     }
 }

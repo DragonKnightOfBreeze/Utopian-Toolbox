@@ -44,10 +44,10 @@ private fun computeLocalPresentation(element: PsiElement): TargetPresentation? {
     if (jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return null
 
     val languageSchema = JastManager.getLanguageSchema(element) ?: return null
-    if (languageSchema.declarationId.isEmpty()) return null
+    if (languageSchema.declaration.id.isEmpty()) return null
     val name = jElement.getName()
     if (name.isNullOrEmpty()) return null
-    val type = languageSchema.resolveDeclarationType(jElement)
+    val type = LanguageSchemaManager.resolveDeclarationType(languageSchema, jElement)
 
     return TargetPresentation.builder(name).containerText(type).presentation()
 }
@@ -59,11 +59,11 @@ private fun computeLocalDocumentation(element: PsiElement, quickNavigation: Bool
     if (jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return null
 
     val languageSchema = JastManager.getLanguageSchema(element) ?: return null
-    if (languageSchema.declarationId.isEmpty()) return null
+    if (languageSchema.declaration.id.isEmpty()) return null
     val name = jElement.getName()
     if (name.isNullOrEmpty()) return null
-    val type = languageSchema.resolveDeclarationType(jElement)
-    val description = languageSchema.resolveDeclarationDescription(jElement)
+    val type = LanguageSchemaManager.resolveDeclarationType(languageSchema, jElement)
+    val description = LanguageSchemaManager.resolveDeclarationDescription(languageSchema, jElement)
 
     return buildDocumentation {
         definition {
@@ -78,7 +78,7 @@ private fun computeLocalDocumentation(element: PsiElement, quickNavigation: Bool
         if (!quickNavigation) {
             initSections(1)
             getSections(SECTIONS_INFO)?.let { infoSections ->
-                val properties = languageSchema.resolveDeclarationProperties(jElement)
+                val properties = LanguageSchemaManager.resolveDeclarationExtraProperties(languageSchema, jElement)
                 if (properties.isNotEmpty()) {
                     properties.forEach { (k, v) ->
                         if (k.isNotEmpty()) {

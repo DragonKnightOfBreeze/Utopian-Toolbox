@@ -14,7 +14,7 @@ class LanguageSchemaBasedDeclarationUsagesSearcher : QueryExecutorBase<PsiRefere
         if (jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return
 
         val languageSchema = JastManager.getLanguageSchema(elementToSearch) ?: return
-        if (languageSchema.declarationId.isEmpty()) return
+        if (languageSchema.declaration.id.isEmpty()) return
         val name = jElement.getName()
         if (name.isNullOrEmpty()) return
 

@@ -7,18 +7,18 @@ import icu.windea.ut.toolbox.jast.JastManager.parseJsonPointer
 
 object LanguageSchemaManager {
     fun resolveDeclarationType(languageSchema: LanguageSchema, position: JElement): String {
-        val v = languageSchema.declarationType
+        val v = languageSchema.declaration.type
         return doResolveFromTextOrJsonPointer(v, position, "(unresolved)")
     }
 
     fun resolveDeclarationDescription(languageSchema: LanguageSchema, position: JElement): String {
-        val v = languageSchema.declarationDescription
+        val v = languageSchema.declaration.description
         return doResolveFromTextOrJsonPointer(v, position)
     }
 
-    fun resolveDeclarationProperties(languageSchema: LanguageSchema, position: JElement): Map<String, String> {
+    fun resolveDeclarationExtraProperties(languageSchema: LanguageSchema, position: JElement): Map<String, String> {
         val result = mutableMapOf<String, String>()
-        for ((k, v) in languageSchema.declarationProperties) {
+        for ((k, v) in languageSchema.declaration.extraProperties) {
             val r = doResolveFromTextOrJsonPointer(v, position)
             result[k] = r
         }
@@ -36,11 +36,5 @@ object LanguageSchemaManager {
             false
         }
         return r
-    }
-    
-    fun processReferences(languageSchema: LanguageSchema, currentFile: PsiFile, processor: Processor<JElement>): Boolean {
-        return languageSchema.references.process { ref ->
-            JastManager.processElements(ref, currentFile, processor)
-        }
     }
 }

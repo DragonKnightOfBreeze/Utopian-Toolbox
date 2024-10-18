@@ -235,53 +235,67 @@
     
     "$languageSchema": {
       "properties": {
-        "declarationId": {
-          "type": "string"
-        },
-        "declarationType": {
-          "description": "text or json pointer (relative to current node's container)",
-          "type": "string"
-        },
-        "declarationDescription": {
-          "description": "text or json pointer (relative to current node's container)",
-          "type": "string"
-        },
-        "declarationProperties": {
-          "description": "text or json pointer (relative to current node's container)",
-          "patternProperties": {
-            ".*": {
+        "declaration": {
+          "properties": {
+            "id": {
               "type": "string"
-            }
-          }
-        },
-        "hintForDeclarations": {
-          "type": "boolean",
-          "default": true
-        },
-        
-        "references": {
-          "description": "text or json pointer url (relative to current file)",
-          "anyOf": [
-            {
+            },
+            "type": {
+              "description": "text or json pointer (relative to current node's containing array or object node)",
               "type": "string"
-            }, {
-              "items": {
-                "type": "string"
+            },
+            "description": {
+              "description": "text or json pointer (relative to current node's containing array or object node)",
+              "type": "string"
+            },
+            "extraProperties": {
+              "patternProperties": {
+                ".*": {
+                  "description": "text or json pointer (relative to current node's containing array or object node)",
+                  "type": "string"
+                }
               }
             }
-          ]
+          },
+          "required": ["id"]
         },
-        "hintForReferences": {
-          "type": "boolean",
-          "default": true
+        "declarationContainer": {
+          "properties": {
+            "url": {
+              "description": "json pointer (relative to current node)",
+              "type": "string"
+            },
+            "enableFolding": {
+              "type": "boolean",
+              "default": true
+            },
+            "enableStructureView": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          "required": ["url"]
         },
-        "inspectionForReferences": {
-          "type": "boolean",
-          "default": true
-        },
-        "completionForReferences": {
-          "type": "boolean",
-          "default": true
+        "reference": {
+          "properties": {
+            "url": {
+              "description": "json pointer url (relative to current file)",
+              "type": "string"
+            },
+            "enableHint": {
+              "type": "boolean",
+              "default": true
+            },
+            "enableInspection": {
+              "type": "boolean",
+              "default": true
+            },
+            "enableCompletion": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          "required": ["url"]
         }
       }
     }
