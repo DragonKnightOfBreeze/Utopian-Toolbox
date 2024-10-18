@@ -1,12 +1,11 @@
 package icu.windea.ut.toolbox.jast
 
-import com.intellij.openapi.util.*
 import com.intellij.psi.*
 import com.intellij.util.*
 
 /**
  * 基于JSON指针的扩展语言设置。
- * @property declarationId 作为声明式的标识符。
+ * @property declarationId 作为声明时的标识符。
  * @property declarationType 作为声明时的类型。以文本或者目标相对于当前父节点的JSON指针表示。
  * @property declarationDescription 作为声明时的描述。以文本或者目标相对于当前父节点的JSON指针表示。
  * @property declarationProperties 作为声明时的额外属性。以文本或者目标相对于当前父节点的JSON指针表示。

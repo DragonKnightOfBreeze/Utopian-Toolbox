@@ -19,6 +19,9 @@ object JsonPointerManager {
         val languageSettings by createKeyDelegate<CachedValue<JsonPointerBasedLanguageSettings>>(Keys)
     }
 
+    /**
+     * @see jsonPointerUrl JSON指针路径，包含可选的文件路径（ANT路径表达式）与JSON指针两部分。
+     */
     fun parseJsonPointerUrl(jsonPointerUrl: String): Tuple2<String?, String> {
         if (jsonPointerUrl.isEmpty() || jsonPointerUrl == "#" || jsonPointerUrl == "#/") {
             return null to ""
@@ -36,7 +39,7 @@ object JsonPointerManager {
     }
 
     /**
-     * @see jsonPointer JSON指针。需要以"#/"开头。"*"用于匹配任意属性，"-"用于匹配数组中的任意值或者属性的值。
+     * @see jsonPointer JSON指针。需要以"#/"开头。"*"用于匹配任意属性，"-"用于匹配数组中的任意值或者属性的值，".."用于返回到父节点。
      */
     fun parseJsonPointer(jsonPointer: String): List<String>? {
         val s = jsonPointer.removePrefixOrNull("#/") ?: return null
@@ -110,9 +113,10 @@ object JsonPointerManager {
         if (topLevelValues.isEmpty()) return true
         if (location.isEmpty()) return topLevelValues.process(processor)
         return topLevelValues.process { element ->
-            doProcessElementsInFile(location, 0, element, processor)
+            doProcessElements(location, 0, element, processor)
         }
     }
+
     /**
      * @see jsonPointer JSON指针。需要以"#/"开头。相对于[position]的父节点。
      */
@@ -120,16 +124,16 @@ object JsonPointerManager {
         ProgressManager.checkCanceled()
         val location = parseJsonPointer(jsonPointer) ?: return true
         if (location.isEmpty()) return processor.process(position)
-        val parentElement = getParentElementWhenProcessing(position) ?: return true
-        return doProcessElementsInFile(location, 0, parentElement, processor)
+        val parentElement = doGetParentElementWhenProcessing(position) ?: return true
+        return doProcessElements(location, 0, parentElement, processor)
     }
 
-    private fun doProcessElementsInFile(location: List<String>, index: Int, element: JElement, processor: Processor<JElement>): Boolean {
+    private fun doProcessElements(location: List<String>, index: Int, element: JElement, processor: Processor<JElement>): Boolean {
         ProgressManager.checkCanceled()
         val step = location.getOrNull(index) ?: return true
         if (step == "..") {
-            val parentElement = getParentElementWhenProcessing(element) ?: return true
-            return doProcessElementsInFile(location, index + 1, parentElement, processor)
+            val parentElement = doGetParentElementWhenProcessing(element) ?: return true
+            return doProcessElements(location, index + 1, parentElement, processor)
         }
         val isLast = index == location.lastIndex
         if (isLast && step == "-" && element is JProperty) {
@@ -152,25 +156,25 @@ object JsonPointerManager {
             val r = if (isLast) {
                 processor.process(nextElement)
             } else {
-                doProcessElementsInFile(location, index + 1, nextElement, processor)
+                doProcessElements(location, index + 1, nextElement, processor)
             }
             if (!r) return false
         }
         return true
     }
 
-    private fun getParentElementWhenProcessing(element: JElement) : JElement? {
-        return runReadAction { 
-            when(element) {
+    private fun doGetParentElementWhenProcessing(element: JElement): JElement? {
+        return runReadAction {
+            when (element) {
                 is JProperty -> element.parent
                 is JPropertyKey -> element.parent?.parent
-                is JValue -> element.parent?.let { if(it is JProperty) it.parent else it }
+                is JValue -> element.parent?.let { if (it is JProperty) it.parent else it }
                 else -> null
             }
         }
     }
-    
-    private fun matchesElement(step: String, element: JElement): Boolean {
+
+    fun matchesElement(step: String, element: JElement): Boolean {
         when {
             element is JProperty -> {
                 if (step == "*") return true
