@@ -1,7 +1,5 @@
 package icu.windea.ut.toolbox.jast
 
-import com.intellij.psi.*
-import com.intellij.util.*
 import icu.windea.ut.toolbox.core.*
 import icu.windea.ut.toolbox.jast.JastManager.parseJsonPointer
 
@@ -30,7 +28,7 @@ object LanguageSchemaManager {
             return value
         }
         var r = defaultValue
-        JastManager.processElementsFromParent(value, position) p@{
+        JastManager.processElementsInContainer(value, position) p@{
             val name = it.getName()?.orNull() ?: return@p true
             r = name
             false

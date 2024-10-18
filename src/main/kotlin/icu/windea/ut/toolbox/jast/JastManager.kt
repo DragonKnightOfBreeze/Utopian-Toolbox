@@ -117,13 +117,13 @@ object JastManager {
     }
 
     /**
-     * @see jsonPointer JSON指针。需要以"#/"开头。相对于[position]的父节点。
+     * @see jsonPointer JSON指针。需要以"#/"开头。相对于[position]所属的数组或对象节点，包括自身。
      */
-    fun processElementsFromParent(jsonPointer: String, position: JElement, processor: Processor<JElement>): Boolean {
+    fun processElementsInContainer(jsonPointer: String, position: JElement, processor: Processor<JElement>): Boolean {
         ProgressManager.checkCanceled()
         val location = parseJsonPointer(jsonPointer) ?: return true
         if (location.isEmpty()) return processor.process(position)
-        val parentElement = doGetParentElementWhenProcessing(position) ?: return true
+        val parentElement = doGetContainerElement(position, withSelf = true) ?: return true
         return doProcessElements(location, 0, parentElement, processor)
     }
 
@@ -131,7 +131,7 @@ object JastManager {
         ProgressManager.checkCanceled()
         val step = location.getOrNull(index) ?: return true
         if (step == "..") {
-            val parentElement = doGetParentElementWhenProcessing(element) ?: return true
+            val parentElement = doGetContainerElement(element) ?: return true
             return doProcessElements(location, index + 1, parentElement, processor)
         }
         val isLast = index == location.lastIndex
@@ -162,7 +162,8 @@ object JastManager {
         return true
     }
 
-    private fun doGetParentElementWhenProcessing(element: JElement): JElement? {
+    private fun doGetContainerElement(element: JElement, withSelf: Boolean = false): JElement? {
+        if(withSelf && (element is JArray || element is JObject)) return element
         return runReadAction {
             when (element) {
                 is JProperty -> element.parent
