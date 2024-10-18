@@ -14,9 +14,9 @@ import icu.windea.ut.toolbox.core.*
 import icu.windea.ut.toolbox.core.util.*
 import icu.windea.ut.toolbox.lang.*
 
-object JsonPointerManager {
+object JastManager {
     object Keys : KeyRegistry() {
-        val languageSettings by createKeyDelegate<CachedValue<JsonPointerBasedLanguageSettings>>(Keys)
+        val languageSchema by createKeyDelegate<CachedValue<LanguageSchema>>(Keys)
     }
 
     /**
@@ -197,10 +197,10 @@ object JsonPointerManager {
         return false
     }
 
-    fun mergeLanguageSettings(list: Collection<JsonPointerBasedLanguageSettings>): JsonPointerBasedLanguageSettings? {
+    fun mergeLanguageSchema(list: Collection<LanguageSchema>): LanguageSchema? {
         if (list.isEmpty()) return null
         if (list.size == 1) return list.single()
-        return JsonPointerBasedLanguageSettings(
+        return LanguageSchema(
             declarationId = list.firstNotNullOfOrNull { it.declarationId.orNull() }.orEmpty(),
             declarationType = list.firstNotNullOfOrNull { it.declarationType.orNull() }.orEmpty(),
             declarationDescription = list.firstNotNullOfOrNull { it.declarationDescription.orNull() }.orEmpty(),
@@ -213,27 +213,27 @@ object JsonPointerManager {
         )
     }
 
-    fun getLanguageSettings(element: PsiElement): JsonPointerBasedLanguageSettings? {
-        if (UtPsiManager.isIncompletePsi()) return doGetLanguageSettings(element)
-        return doGetLanguageSettingsFromCache(element)
+    fun getLanguageSchema(element: PsiElement): LanguageSchema? {
+        if (UtPsiManager.isIncompletePsi()) return doGetLanguageSchema(element)
+        return doGetLanguageSchemaFromCache(element)
     }
 
-    private fun doGetLanguageSettingsFromCache(element: PsiElement): JsonPointerBasedLanguageSettings? {
-        return CachedValuesManager.getCachedValue(element, Keys.languageSettings) {
-            val value = doGetLanguageSettings(element)
-            val trackers = doGetLanguageSettingsTrackers(element).toTypedArray()
+    private fun doGetLanguageSchemaFromCache(element: PsiElement): LanguageSchema? {
+        return CachedValuesManager.getCachedValue(element, Keys.languageSchema) {
+            val value = doGetLanguageSchema(element)
+            val trackers = doGetLanguageSchemaTrackers(element).toTypedArray()
             CachedValueProvider.Result.create(value, element.containingFile ?: element, *trackers)
         }
     }
 
-    private fun doGetLanguageSettings(element: PsiElement): JsonPointerBasedLanguageSettings? {
-        val list = JsonPointerBasedLanguageSettingsProvider.EP_NAME.extensionList.mapNotNull { it.getLanguageSettings(element) }
-        val value = mergeLanguageSettings(list)
+    private fun doGetLanguageSchema(element: PsiElement): LanguageSchema? {
+        val list = LanguageSchemaProvider.EP_NAME.extensionList.mapNotNull { it.getLanguageSchema(element) }
+        val value = mergeLanguageSchema(list)
         return value
     }
 
-    private fun doGetLanguageSettingsTrackers(element: PsiElement): List<ModificationTracker> {
-        val trackers = JsonPointerBasedLanguageSettingsProvider.EP_NAME.extensionList.mapNotNull { it.getModificationTracker(element) }
+    private fun doGetLanguageSchemaTrackers(element: PsiElement): List<ModificationTracker> {
+        val trackers = LanguageSchemaProvider.EP_NAME.extensionList.mapNotNull { it.getModificationTracker(element) }
         return trackers
     }
 }

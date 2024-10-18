@@ -7,15 +7,15 @@ import com.intellij.util.*
 
 //NOTE 这个扩展同一语言只会选用一个
 
-class JsonPointerBasedTargetElementEvaluator : TargetElementEvaluatorEx2() {
+class LanguageSchemaBasedTargetElementEvaluator : TargetElementEvaluatorEx2() {
     override fun getNamedElement(element: PsiElement): PsiElement? {
         val jElement = element.parents(true).firstNotNullOfOrNull { it.toJElement() }
         if (jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return null
         val references = PsiReferenceService.getService().getContributedReferences(jElement.psi)
         for (reference in references) {
             when (reference) {
-                is JsonPointerBasedReferenceProvider.SelfReference -> return reference.resolve()
-                is JsonPointerBasedReferenceProvider.Reference -> return reference.multiResolve(false).firstOrNull()?.element
+                is LanguageSchemaBasedReferenceProvider.SelfReference -> return reference.resolve()
+                is LanguageSchemaBasedReferenceProvider.Reference -> return reference.multiResolve(false).firstOrNull()?.element
             }
         }
         return null
@@ -26,12 +26,12 @@ class JsonPointerBasedTargetElementEvaluator : TargetElementEvaluatorEx2() {
     }
 
     override fun isAcceptableReferencedElement(element: PsiElement, referenceOrReferencedElement: PsiElement?): ThreeState {
-        if (referenceOrReferencedElement is JsonPointerBasedReferenceProvider.ReferenceElement) return ThreeState.NO
+        if (referenceOrReferencedElement is LanguageSchemaBasedReferenceProvider.ReferenceElement) return ThreeState.NO
         return ThreeState.UNSURE
     }
 
     override fun getTargetCandidates(reference: PsiReference): Collection<PsiElement>? {
-        if (reference is JsonPointerBasedReferenceProvider.SelfReference) return emptySet()
+        if (reference is LanguageSchemaBasedReferenceProvider.SelfReference) return emptySet()
         return null
     }
 }

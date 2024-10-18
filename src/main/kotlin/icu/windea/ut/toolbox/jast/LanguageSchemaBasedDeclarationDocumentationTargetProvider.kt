@@ -4,7 +4,7 @@ import com.intellij.platform.backend.documentation.*
 import com.intellij.psi.*
 import com.intellij.psi.util.*
 
-class JsonPointerBasedDeclarationDocumentationTargetProvider : PsiDocumentationTargetProvider {
+class LanguageSchemaBasedDeclarationDocumentationTargetProvider : PsiDocumentationTargetProvider {
     override fun documentationTarget(element: PsiElement, originalElement: PsiElement?): DocumentationTarget? {
         val jElement = element.parents(true).firstNotNullOfOrNull { it.toJElement() } ?: return null
         if (jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return null
@@ -13,17 +13,17 @@ class JsonPointerBasedDeclarationDocumentationTargetProvider : PsiDocumentationT
 
     private fun documentationTarget(jElement: JElement): DocumentationTarget? {
         val element = jElement.psi
-        val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return null
-        if (languageSettings.declarationId.isNotEmpty()) {
+        val languageSchema = JastManager.getLanguageSchema(element) ?: return null
+        if (languageSchema.declarationId.isNotEmpty()) {
             //declaration
             val name = jElement.getName()
             if (name.isNullOrEmpty()) return null
-            return JsonPointerBasedDeclarationDocumentationTarget(element)
-        } else if (languageSettings.references.isNotEmpty()) {
+            return LanguageSchemaBasedDeclarationDocumentationTarget(element)
+        } else if (languageSchema.references.isNotEmpty()) {
             //reference
             val references = PsiReferenceService.getService().getContributedReferences(element)
             for (reference in references) {
-                if (reference !is JsonPointerBasedReferenceProvider.Reference) continue
+                if (reference !is LanguageSchemaBasedReferenceProvider.Reference) continue
                 val resolveElements = reference.getResolvedElements()
                 for (resolveElement in resolveElements) {
                     val resolvedJElement = resolveElement.toJElement() ?: continue

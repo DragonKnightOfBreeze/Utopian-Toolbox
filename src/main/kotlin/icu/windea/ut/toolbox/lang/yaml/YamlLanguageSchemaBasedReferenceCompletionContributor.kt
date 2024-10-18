@@ -12,7 +12,7 @@ import org.jetbrains.yaml.psi.*
 import org.jetbrains.yaml.psi.impl.*
 import java.util.function.*
 
-class YamlJsonPointerBasedReferenceCompletionContributor : CompletionContributor() {
+class YamlLanguageSchemaBasedReferenceCompletionContributor : CompletionContributor() {
     private val pattern = or(
         psiElement(YAMLTokenTypes.SCALAR_KEY),
         psiElement().withParent(YAMLPlainTextImpl::class.java),
@@ -28,7 +28,7 @@ class YamlJsonPointerBasedReferenceCompletionContributor : CompletionContributor
         super.fillCompletionVariants(parameters, result)
     }
 
-    class Provider : JsonPointerBasedReferenceCompletionProvider() {
+    class Provider : LanguageSchemaBasedReferenceCompletionProvider() {
         override fun getResultHandler(context: ProcessingContext): UnaryOperator<CompletionResultSet>? {
             val keyword = context.get(Keys.keyword) ?: return null
             val quoted = keyword.isLeftQuoted('"') || keyword.isLeftQuoted('"')

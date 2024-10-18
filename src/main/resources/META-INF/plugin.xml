@@ -20,20 +20,20 @@
         <extensionPoint name="jElementProvider" beanClass="com.intellij.lang.LanguageExtensionPoint" dynamic="true">
             <with attribute="implementationClass" implements="icu.windea.ut.toolbox.jast.JElementProvider"/>
         </extensionPoint>
-        <extensionPoint name="jsonPointerBasedLanguageSettingsProvider" interface="icu.windea.ut.toolbox.jast.JsonPointerBasedLanguageSettingsProvider" dynamic="true"/>
+        <extensionPoint name="languageSchemaProvider" interface="icu.windea.ut.toolbox.jast.LanguageSchemaProvider" dynamic="true"/>
     </extensionPoints>
     
     <extensions defaultExtensionNs="com.intellij">
-        <readWriteAccessDetector implementation="icu.windea.ut.toolbox.jast.JsonPointerBasedReferenceReadWriteAccessDetector"/>
-        <referencesSearch implementation="icu.windea.ut.toolbox.jast.JsonPointerBasedDeclarationUsagesSearcher"/>
+        <readWriteAccessDetector implementation="icu.windea.ut.toolbox.jast.LanguageSchemaBasedReferenceReadWriteAccessDetector"/>
+        <referencesSearch implementation="icu.windea.ut.toolbox.jast.LanguageSchemaBasedDeclarationUsagesSearcher"/>
         <!--suppress PluginXmlValidity -->
-        <documentationProvider implementation="icu.windea.ut.toolbox.jast.JsonPointerBasedDocumentationProvider"/>
-        <platform.backend.documentation.psiTargetProvider implementation="icu.windea.ut.toolbox.jast.JsonPointerBasedDeclarationDocumentationTargetProvider"/>
+        <documentationProvider implementation="icu.windea.ut.toolbox.jast.LanguageSchemaBasedDocumentationProvider"/>
+        <platform.backend.documentation.psiTargetProvider implementation="icu.windea.ut.toolbox.jast.LanguageSchemaBasedDeclarationDocumentationTargetProvider"/>
         
-        <localInspection language="" shortName="UtUnresolvedJsonPointerBasedReference"
+        <localInspection language="" shortName="UtUnresolvedLanguageSchemaBasedReference"
                          enabledByDefault="true" level="ERROR"
-                         bundle="messages.UtBundle" key="inspection.unresolvedJsonPointerBasedReference"
+                         bundle="messages.UtBundle" key="inspection.unresolvedLanguageSchemaBasedReference"
                          groupBundle="messages.UtBundle" groupKey="inspection.group"
-                         implementationClass="icu.windea.ut.toolbox.jast.UnresolvedJsonPointerBasedReferenceInspection"/>
+                         implementationClass="icu.windea.ut.toolbox.jast.UnresolvedLanguageSchemaBasedReferenceInspection"/>
     </extensions>
 </idea-plugin>

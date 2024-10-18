@@ -7,7 +7,7 @@ import org.jetbrains.yaml.*
 import org.jetbrains.yaml.psi.*
 import org.jetbrains.yaml.psi.impl.*
 
-class YamlJsonPointerBasedReferenceContributor : PsiReferenceContributor() {
+class YamlLanguageSchemaBasedReferenceContributor : PsiReferenceContributor() {
     private val pattern = or(
         psiElement(YAMLTokenTypes.SCALAR_KEY),
         psiElement(YAMLPlainTextImpl::class.java),
@@ -15,6 +15,6 @@ class YamlJsonPointerBasedReferenceContributor : PsiReferenceContributor() {
     )
 
     override fun registerReferenceProviders(registrar: PsiReferenceRegistrar) {
-        registrar.registerReferenceProvider(pattern, JsonPointerBasedReferenceProvider())
+        registrar.registerReferenceProvider(pattern, LanguageSchemaBasedReferenceProvider())
     }
 }

@@ -9,14 +9,14 @@ import com.intellij.pom.*
 import com.intellij.psi.*
 import icu.windea.ut.toolbox.core.documentation.*
 
-class JsonPointerBasedDeclarationDocumentationTarget(
+class LanguageSchemaBasedDeclarationDocumentationTarget(
     val element: PsiElement
 ) : DocumentationTarget {
     override fun createPointer(): Pointer<out DocumentationTarget> {
         val elementPtr = element.createSmartPointer()
         return Pointer {
             val element = elementPtr.dereference() ?: return@Pointer null
-            JsonPointerBasedDeclarationDocumentationTarget(element)
+            LanguageSchemaBasedDeclarationDocumentationTarget(element)
         }
     }
 
@@ -43,11 +43,11 @@ private fun computeLocalPresentation(element: PsiElement): TargetPresentation? {
     val jElement = element.toJElement()
     if (jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return null
 
-    val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return null
-    if (languageSettings.declarationId.isEmpty()) return null
+    val languageSchema = JastManager.getLanguageSchema(element) ?: return null
+    if (languageSchema.declarationId.isEmpty()) return null
     val name = jElement.getName()
     if (name.isNullOrEmpty()) return null
-    val type = languageSettings.resolveDeclarationType(jElement)
+    val type = languageSchema.resolveDeclarationType(jElement)
 
     return TargetPresentation.builder(name).containerText(type).presentation()
 }
@@ -58,12 +58,12 @@ private fun computeLocalDocumentation(element: PsiElement, quickNavigation: Bool
     val jElement = element.toJElement()
     if (jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return null
 
-    val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return null
-    if (languageSettings.declarationId.isEmpty()) return null
+    val languageSchema = JastManager.getLanguageSchema(element) ?: return null
+    if (languageSchema.declarationId.isEmpty()) return null
     val name = jElement.getName()
     if (name.isNullOrEmpty()) return null
-    val type = languageSettings.resolveDeclarationType(jElement)
-    val description = languageSettings.resolveDeclarationDescription(jElement)
+    val type = languageSchema.resolveDeclarationType(jElement)
+    val description = languageSchema.resolveDeclarationDescription(jElement)
 
     return buildDocumentation {
         definition {
@@ -78,7 +78,7 @@ private fun computeLocalDocumentation(element: PsiElement, quickNavigation: Bool
         if (!quickNavigation) {
             initSections(1)
             getSections(SECTIONS_INFO)?.let { infoSections ->
-                val properties = languageSettings.resolveDeclarationProperties(jElement)
+                val properties = languageSchema.resolveDeclarationProperties(jElement)
                 if (properties.isNotEmpty()) {
                     properties.forEach { (k, v) ->
                         if (k.isNotEmpty()) {

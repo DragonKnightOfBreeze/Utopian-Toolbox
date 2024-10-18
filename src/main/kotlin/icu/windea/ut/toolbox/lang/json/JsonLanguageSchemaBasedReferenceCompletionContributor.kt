@@ -11,7 +11,7 @@ import icu.windea.ut.toolbox.core.*
 import icu.windea.ut.toolbox.jast.*
 import java.util.function.*
 
-class JsonJsonPointerBasedReferenceCompletionContributor : CompletionContributor() {
+class JsonLanguageSchemaBasedReferenceCompletionContributor : CompletionContributor() {
     private val keyPattern = or(
         psiElement().afterLeaf("{", ",").withSuperParent(2, JsonProperty::class.java), //after comma or brace in property
     )
@@ -32,7 +32,7 @@ class JsonJsonPointerBasedReferenceCompletionContributor : CompletionContributor
 
     class Provider(
         private val isKey: Boolean
-    ) : JsonPointerBasedReferenceCompletionProvider() {
+    ) : LanguageSchemaBasedReferenceCompletionProvider() {
         override fun getResultHandler(context: ProcessingContext): UnaryOperator<CompletionResultSet>? {
             val keyword = context.get(Keys.keyword) ?: return null
             val shouldQuoted = shouldQuoted(context)

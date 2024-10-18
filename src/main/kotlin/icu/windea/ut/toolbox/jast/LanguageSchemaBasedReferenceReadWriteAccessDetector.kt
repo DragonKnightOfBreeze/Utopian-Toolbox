@@ -3,20 +3,20 @@ package icu.windea.ut.toolbox.jast
 import com.intellij.codeInsight.highlighting.*
 import com.intellij.psi.*
 
-class JsonPointerBasedReferenceReadWriteAccessDetector : ReadWriteAccessDetector() {
+class LanguageSchemaBasedReferenceReadWriteAccessDetector : ReadWriteAccessDetector() {
     override fun isReadWriteAccessible(element: PsiElement): Boolean {
-        return element is JsonPointerBasedReferenceProvider.ReferenceElement
+        return element is LanguageSchemaBasedReferenceProvider.ReferenceElement
     }
 
     override fun isDeclarationWriteAccess(element: PsiElement): Boolean {
-        if (element is JsonPointerBasedReferenceProvider.ReferenceElement) return element.readWriteAccess == Access.Write
+        if (element is LanguageSchemaBasedReferenceProvider.ReferenceElement) return element.readWriteAccess == Access.Write
         return true
     }
 
     override fun getReferenceAccess(referencedElement: PsiElement, reference: PsiReference): Access {
         return when (reference) {
-            is JsonPointerBasedReferenceProvider.SelfReference -> Access.Write
-            is JsonPointerBasedReferenceProvider.Reference -> Access.Read
+            is LanguageSchemaBasedReferenceProvider.SelfReference -> Access.Write
+            is LanguageSchemaBasedReferenceProvider.Reference -> Access.Read
             else -> Access.ReadWrite
         }
     }
@@ -24,8 +24,8 @@ class JsonPointerBasedReferenceReadWriteAccessDetector : ReadWriteAccessDetector
     override fun getExpressionAccess(expression: PsiElement): Access {
         val reference = expression.references.firstOrNull()
         return when (reference) {
-            is JsonPointerBasedReferenceProvider.SelfReference -> Access.Write
-            is JsonPointerBasedReferenceProvider.Reference -> Access.Read
+            is LanguageSchemaBasedReferenceProvider.SelfReference -> Access.Write
+            is LanguageSchemaBasedReferenceProvider.Reference -> Access.Read
             else -> Access.ReadWrite
         }
     }

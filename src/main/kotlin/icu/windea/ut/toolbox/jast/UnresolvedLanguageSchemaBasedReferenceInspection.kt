@@ -6,9 +6,9 @@ import icu.windea.ut.toolbox.*
 import icu.windea.ut.toolbox.core.*
 
 /**
- * @see JsonPointerBasedLanguageSettings.inspectionForReferences
+ * @see LanguageSchema.inspectionForReferences
  */
-class UnresolvedJsonPointerBasedReferenceInspection : LocalInspectionTool() {
+class UnresolvedLanguageSchemaBasedReferenceInspection : LocalInspectionTool() {
     object Constants {
         const val URLS_LIMIT = 3
     }
@@ -19,21 +19,20 @@ class UnresolvedJsonPointerBasedReferenceInspection : LocalInspectionTool() {
                 super.visitElement(element)
 
                 val jElement = element.toJElement()
-                //if(jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return
-                if (jElement !is JString) return
+                if(jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return
 
-                val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return
-                if (languageSettings.references.isEmpty()) return
-                if (!languageSettings.inspectionForReferences) return
+                val languageSchema = JastManager.getLanguageSchema(element) ?: return
+                if (languageSchema.references.isEmpty()) return
+                if (!languageSchema.inspectionForReferences) return
 
                 val references = PsiReferenceService.getService().getContributedReferences(element)
                 for (reference in references) {
-                    if (reference !is JsonPointerBasedReferenceProvider.Reference) continue
+                    if (reference !is LanguageSchemaBasedReferenceProvider.Reference) continue
                     if (reference.multiResolve(false).isNotEmpty()) continue
 
                     val name = reference.name
-                    val urls = reference.languageSettings.references.truncate(Constants.URLS_LIMIT).joinToString(", ")
-                    val message = UtBundle.message("inspection.unresolvedJsonPointerBasedReference.desc", name, urls)
+                    val urls = reference.languageSchema.references.truncate(Constants.URLS_LIMIT).joinToString(", ")
+                    val message = UtBundle.message("inspection.unresolvedLanguageSchemaBasedReference.desc", name, urls)
                     holder.registerProblem(reference, message, ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
                 }
             }

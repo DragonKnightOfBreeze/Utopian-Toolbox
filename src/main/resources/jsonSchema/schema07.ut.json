@@ -233,7 +233,7 @@
       "description": "If 'true', the enum options' order will be preserved in the completion"
     },
     
-    "$languageSettings": {
+    "$languageSchema": {
       "properties": {
         "declarationId": {
           "type": "string"

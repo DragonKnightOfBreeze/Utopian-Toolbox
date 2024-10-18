@@ -13,9 +13,9 @@ import java.util.*
 import javax.swing.*
 
 /**
- * @see JsonPointerBasedLanguageSettings.references
+ * @see LanguageSchema.references
  */
-class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
+class LanguageSchemaBasedReferenceProvider : PsiReferenceProvider() {
     override fun getReferencesByElement(element: PsiElement, context: ProcessingContext): Array<PsiReference> {
         val jElement = element.toJElement()
         if (jElement !is JProperty && jElement !is JPropertyKey && jElement !is JString) return PsiReference.EMPTY_ARRAY
@@ -23,13 +23,13 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
         val (name, textOffset) = jElement.getNameAndTextOffset()
         if (name.isNullOrEmpty()) return PsiReference.EMPTY_ARRAY
 
-        val languageSettings = JsonPointerManager.getLanguageSettings(element) ?: return PsiReference.EMPTY_ARRAY
-        if (languageSettings.declarationId.isNotEmpty()) {
+        val languageSchema = JastManager.getLanguageSchema(element) ?: return PsiReference.EMPTY_ARRAY
+        if (languageSchema.declarationId.isNotEmpty()) {
             val range = jElement.getRangeInElement(name, textOffset)
-            return arrayOf(SelfReference(element, range, name, jElement, languageSettings))
-        } else if (languageSettings.references.isNotEmpty()) {
+            return arrayOf(SelfReference(element, range, name, jElement, languageSchema))
+        } else if (languageSchema.references.isNotEmpty()) {
             val range = jElement.getRangeInElement(name, textOffset)
-            val reference = Reference(element, range, name, jElement, languageSettings)
+            val reference = Reference(element, range, name, jElement, languageSchema)
             return arrayOf(reference)
         }
         return PsiReference.EMPTY_ARRAY
@@ -99,17 +99,17 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
         range: TextRange,
         val name: String,
         val jElement: JElement,
-        val languageSettings: JsonPointerBasedLanguageSettings
+        val languageSchema: LanguageSchema
     ) : PsiReferenceBase<PsiElement>(element, range) {
         val resolvedElement by lazy {
-            val type = languageSettings.resolveDeclarationType(jElement)
-            val declarationId = languageSettings.declarationId
+            val type = languageSchema.resolveDeclarationType(jElement)
+            val declarationId = languageSchema.declarationId
             ReferenceElement(element, range, name, type, declarationId, Access.Write)
         }
         
         override fun resolve(): PsiElement {
-            val type = languageSettings.resolveDeclarationType(jElement)
-            val declarationId = languageSettings.declarationId
+            val type = languageSchema.resolveDeclarationType(jElement)
+            val declarationId = languageSchema.declarationId
             return ReferenceElement(element, rangeInElement, name, type, declarationId, Access.Write)
         }
     }
@@ -119,7 +119,7 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
         range: TextRange,
         val name: String,
         val jElement: JElement,
-        val languageSettings: JsonPointerBasedLanguageSettings
+        val languageSchema: LanguageSchema
     ) : PsiPolyVariantReferenceBase<PsiElement>(element, range) {
         val project by lazy { element.project }
         
@@ -138,14 +138,14 @@ class JsonPointerBasedReferenceProvider : PsiReferenceProvider() {
         private fun doMultiResolve(): Array<out ResolveResult> {
             val currentFile = element.containingFile ?: return ResolveResult.EMPTY_ARRAY
             val result = mutableSetOf<ResolveResult>()
-            languageSettings.processReferences(currentFile) p@{ resolved ->
+            languageSchema.processReferences(currentFile) p@{ resolved ->
                 val (resolvedName, resolvedTextOffset) = resolved.getNameAndTextOffset()
                 if(resolvedName.isNullOrEmpty()) return@p true
                 if (name != resolvedName) return@p true
                 val resolvedRange = jElement.getRangeInElement(resolvedName, resolvedTextOffset)
-                val resolvedLanguageSettings = JsonPointerManager.getLanguageSettings(resolved.psi) ?: return@p true
-                val resolvedDeclarationId = resolvedLanguageSettings.declarationId
-                val resolvedType = resolvedLanguageSettings.resolveDeclarationType(resolved)
+                val resolvedLanguageSchema = JastManager.getLanguageSchema(resolved.psi) ?: return@p true
+                val resolvedDeclarationId = resolvedLanguageSchema.declarationId
+                val resolvedType = resolvedLanguageSchema.resolveDeclarationType(resolved)
                 val resolvedElement = ReferenceElement(resolved.psi, resolvedRange, resolvedName, resolvedType, resolvedDeclarationId, Access.Read)
                 result += PsiElementResolveResult(resolvedElement)
                 true

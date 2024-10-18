@@ -13,13 +13,13 @@ import icu.windea.ut.toolbox.core.*
 import icu.windea.ut.toolbox.jast.*
 import icu.windea.ut.toolbox.lang.*
 
-class JsonSchemaJsonPointerBasedLanguageSettingsProvider : JsonPointerBasedLanguageSettingsProvider {
-    override fun getLanguageSettings(element: PsiElement): JsonPointerBasedLanguageSettings? {
+class JsonSchemaBasedLanguageSchemaProvider : LanguageSchemaProvider {
+    override fun getLanguageSchema(element: PsiElement): LanguageSchema? {
         val schemas = getSchemas(element) ?: return null
-        val list = schemas.mapNotNull { schema -> getLanguageSettings(schema) }
+        val list = schemas.mapNotNull { schema -> getLanguageSchema(schema) }
         if (list.isEmpty()) return null
-        val languageSettings = JsonPointerManager.mergeLanguageSettings(list)
-        return languageSettings
+        val languageSchema = JastManager.mergeLanguageSchema(list)
+        return languageSchema
     }
 
     override fun getModificationTracker(element: PsiElement): ModificationTracker? {
@@ -60,26 +60,26 @@ class JsonSchemaJsonPointerBasedLanguageSettingsProvider : JsonPointerBasedLangu
         return schemas
     }
 
-    fun getLanguageSettings(schema: JsonSchemaObject): JsonPointerBasedLanguageSettings? {
-        return doGetLanguageSettings(schema)
+    fun getLanguageSchema(schema: JsonSchemaObject): LanguageSchema? {
+        return doGetLanguageSchema(schema)
     }
 
-    private fun doGetLanguageSettings(schema: JsonSchemaObject): JsonPointerBasedLanguageSettings? {
+    private fun doGetLanguageSchema(schema: JsonSchemaObject): LanguageSchema? {
         when (schema) {
             is JsonSchemaNodePointer<*> -> {
-                doGetLanguageSettingsFromJackson(schema)?.let { return it }
+                doGetLanguageSchemaFromJackson(schema)?.let { return it }
             }
             is MergedJsonSchemaObject -> {
-                doGetLanguageSettings(schema.base)?.let { return it }
-                doGetLanguageSettings(schema.other)?.let { return it }
+                doGetLanguageSchema(schema.base)?.let { return it }
+                doGetLanguageSchema(schema.other)?.let { return it }
             }
         }
         return null
     }
 
-    private fun doGetLanguageSettingsFromJackson(schema: JsonSchemaObject): JsonPointerBasedLanguageSettings? {
-        val node = schema.castOrNull<JsonSchemaNodePointer<Any>>()?.rawSchemaNode?.castOrNull<ObjectNode>()?.get("\$languageSettings") ?: return null
-        return JsonPointerBasedLanguageSettings(
+    private fun doGetLanguageSchemaFromJackson(schema: JsonSchemaObject): LanguageSchema? {
+        val node = schema.castOrNull<JsonSchemaNodePointer<Any>>()?.rawSchemaNode?.castOrNull<ObjectNode>()?.get("\$languageSchema") ?: return null
+        return LanguageSchema(
             declarationId = node.get("declarationId")?.textValue().orEmpty(),
             declarationType = node.get("declarationType")?.textValue().orEmpty(),
             declarationDescription = node.get("declarationDescription")?.textValue().orEmpty(),
