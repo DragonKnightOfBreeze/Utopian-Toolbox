@@ -23,12 +23,10 @@ data class LanguageSchema(
     /**
      * @property url 作为声明容器时，其中的声明的路径。以目标相对于当前节点的JSON指针表示。
      * @property enableFolding 是否为声明容器启用特殊的代码折叠规则。
-     * @property enableStructureView 是否为声明容器扩展结构视图。
      */
     data class DeclarationContainer(
         val url: String = "",
-        val enableFolding: Boolean = true,
-        val enableStructureView: Boolean = true,
+        val enableFolding: Boolean = true
     )
 
     /**

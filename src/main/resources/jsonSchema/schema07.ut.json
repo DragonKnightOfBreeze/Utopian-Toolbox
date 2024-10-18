@@ -268,10 +268,6 @@
             "enableFolding": {
               "type": "boolean",
               "default": true
-            },
-            "enableStructureView": {
-              "type": "boolean",
-              "default": true
             }
           },
           "required": ["url"]

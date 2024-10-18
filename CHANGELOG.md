@@ -21,4 +21,3 @@
   * 参见：`icu.windea.ut.toolbox.jast.LanguageSchemaBasedDeclarationDocumentationTargetProvider`
   * 参见：`icu.windea.ut.toolbox.jast.UnresolvedLanguageSchemaBasedReferenceInspection`
 * [ ] 基于由JAST的languageSchema定义的声明/引用的位置，提供扩展的代码折叠规则
-* [ ] 基于由JAST的languageSchema定义的声明/引用的位置，扩展结构视图
