@@ -88,7 +88,7 @@ class JsonSchemaBasedLanguageSchemaProvider : LanguageSchemaProvider {
         
         val declarationSchema = languageSchemas.firstNotNullOfOrNull { s -> s.declaration.takeIf { it.id.isNotEmpty() } }
         val declarationContainerSchema = languageSchemas.firstNotNullOfOrNull { s -> s.declarationContainer.takeIf { it.url.isNotEmpty() } }
-        val referenceSchema = languageSchemas.firstNotNullOfOrNull { s -> s.reference.takeIf { it.urls.isNotEmpty() } }
+        val referenceSchema = languageSchemas.firstNotNullOfOrNull { s -> s.reference.takeIf { it.url.isNotEmpty() } }
         return LanguageSchema(
             declaration = declarationSchema ?: LanguageSchema.Declaration(),
             declarationContainer = declarationContainerSchema ?: LanguageSchema.DeclarationContainer(),

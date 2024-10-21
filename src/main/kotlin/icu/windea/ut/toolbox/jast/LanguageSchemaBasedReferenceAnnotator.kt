@@ -19,7 +19,7 @@ class LanguageSchemaBasedReferenceAnnotator : Annotator {
             if (name.isNullOrEmpty()) return
             val range = TextRange.from(textOffset, name.length).shiftRight(element.startOffset)
             holder.newSilentAnnotation(HighlightSeverity.INFORMATION).range(range).textAttributes(UtAttributesKeys.JSON_POINTER_BASED_DECLARATION).create()
-        } else if (languageSchema.reference.urls.isNotEmpty()) {
+        } else if (languageSchema.reference.url.isNotEmpty()) {
             if (!languageSchema.reference.enableHint) return
 
             val references = PsiReferenceService.getService().getContributedReferences(element)

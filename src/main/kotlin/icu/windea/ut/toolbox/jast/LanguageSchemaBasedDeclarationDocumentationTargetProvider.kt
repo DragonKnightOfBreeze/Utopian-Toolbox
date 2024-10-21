@@ -19,17 +19,15 @@ class LanguageSchemaBasedDeclarationDocumentationTargetProvider : PsiDocumentati
             val name = jElement.getName()
             if (name.isNullOrEmpty()) return null
             return LanguageSchemaBasedDeclarationDocumentationTarget(element)
-        } else if (languageSchema.reference.urls.isNotEmpty()) {
+        } else if (languageSchema.reference.url.isNotEmpty()) {
             //reference
             val references = PsiReferenceService.getService().getContributedReferences(element)
             for (reference in references) {
                 if (reference !is LanguageSchemaBasedReferenceProvider.Reference) continue
-                val resolveElements = reference.getResolvedElements()
-                for (resolveElement in resolveElements) {
-                    val resolvedJElement = resolveElement.toJElement() ?: continue
-                    val documentationTarget = documentationTarget(resolvedJElement)
-                    if (documentationTarget != null) return documentationTarget
-                }
+                val resolveElement = reference.resolve()
+                val resolvedJElement = resolveElement?.parent?.toJElement() ?: continue
+                val documentationTarget = documentationTarget(resolvedJElement)
+                if (documentationTarget != null) return documentationTarget
                 break
             }
         }

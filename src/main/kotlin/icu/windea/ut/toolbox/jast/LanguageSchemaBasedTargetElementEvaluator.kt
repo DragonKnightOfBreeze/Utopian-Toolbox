@@ -15,7 +15,7 @@ class LanguageSchemaBasedTargetElementEvaluator : TargetElementEvaluatorEx2() {
         for (reference in references) {
             when (reference) {
                 is LanguageSchemaBasedReferenceProvider.SelfReference -> return reference.resolve()
-                is LanguageSchemaBasedReferenceProvider.Reference -> return reference.multiResolve(false).firstOrNull()?.element
+                is LanguageSchemaBasedReferenceProvider.Reference -> return reference.resolve()
             }
         }
         return null

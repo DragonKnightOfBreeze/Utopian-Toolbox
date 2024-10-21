@@ -2,7 +2,7 @@ package icu.windea.ut.toolbox.jast
 
 import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.lookup.*
-import com.intellij.refactoring.suggested.*
+import com.intellij.psi.util.*
 import com.intellij.util.*
 import icons.*
 import icu.windea.ut.toolbox.core.*
@@ -24,7 +24,7 @@ open class LanguageSchemaBasedReferenceCompletionProvider : CompletionProvider<C
         val positionElement = parameters.position
         val keyword = positionElement.text.take(parameters.offset - positionElement.startOffset)
         val languageSchema = UtPsiManager.markIncompletePsi { JastManager.getLanguageSchema(positionElement) } ?: return
-        if (languageSchema.reference.urls.isEmpty()) return
+        if (languageSchema.reference.url.isEmpty()) return
         if (!languageSchema.reference.enableCompletion) return
 
         context.put(Keys.parameters, parameters)
@@ -37,23 +37,21 @@ open class LanguageSchemaBasedReferenceCompletionProvider : CompletionProvider<C
 
         val currentFile = parameters.originalFile
         val resultToUse = result.applyHandler(resultHandler)
-        languageSchema.reference.urls.process { ref ->
-            JastManager.processElements(ref, currentFile, p@{ resolved ->
-                val resolvedName = resolved.getName()?.orNull() ?: return@p true
-                val resolvedElement = resolved.psi
+        JastManager.processElements(languageSchema.reference.url, currentFile) p@{ resolved ->
+            val resolvedName = resolved.getName()?.orNull() ?: return@p true
+            val resolvedElement = resolved.psi
 
-                val resolvedLanguageSchema = JastManager.getLanguageSchema(resolvedElement)
-                val resolvedType = resolvedLanguageSchema?.let { LanguageSchemaManager.resolveDeclarationType(it, resolved) }
+            val resolvedLanguageSchema = JastManager.getLanguageSchema(resolvedElement)
+            val resolvedType = resolvedLanguageSchema?.let { LanguageSchemaManager.resolveDeclarationType(it, resolved) }
 
-                val lookupString = resolvedName.applyHandler(lookupStringHandler)
-                val lookupElement = LookupElementBuilder.create(resolvedElement, lookupString)
-                    .withIcon(UtIcons.Nodes.JastDeclaration)
-                    .withPresentableText(resolvedName)
-                    .withTypeText(resolvedType, true)
-                val lookupElementToUse = lookupElement.applyHandler(lookupElementHandler)
-                resultToUse.addElement(lookupElementToUse)
-                true
-            })
+            val lookupString = resolvedName.applyHandler(lookupStringHandler)
+            val lookupElement = LookupElementBuilder.create(resolvedElement, lookupString)
+                .withIcon(UtIcons.Nodes.JastDeclaration)
+                .withPresentableText(resolvedName)
+                .withTypeText(resolvedType, true)
+            val lookupElementToUse = lookupElement.applyHandler(lookupElementHandler)
+            resultToUse.addElement(lookupElementToUse)
+            true
         }
     }
 

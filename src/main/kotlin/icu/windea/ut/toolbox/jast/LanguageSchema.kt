@@ -30,13 +30,13 @@ data class LanguageSchema(
     )
 
     /**
-     * @property urls 引用目标的路径。以目标相对于当前文件的JSON指针路径表示。
+     * @property url 引用目标的路径。以目标相对于当前文件的JSON指针路径表示。
      * @property enableHint 是否为引用启用代码高亮。
      * @property enableCompletion 是否为引用启用代码补全。
      * @property enableInspection 是否为引用启用相关的代码检查。
      */
     data class Reference(
-        val urls: Set<String> = emptySet(),
+        val url: String = "",
         val enableHint: Boolean = true,
         val enableCompletion: Boolean = true,
         val enableInspection: Boolean = true,

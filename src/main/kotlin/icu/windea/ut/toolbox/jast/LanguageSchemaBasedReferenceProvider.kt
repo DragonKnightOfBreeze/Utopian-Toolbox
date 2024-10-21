@@ -25,7 +25,7 @@ class LanguageSchemaBasedReferenceProvider : PsiReferenceProvider() {
         if (languageSchema.declaration.id.isNotEmpty()) {
             val range = jElement.getRangeInElement(name, textOffset)
             return arrayOf(SelfReference(element, range, name, jElement, languageSchema))
-        } else if (languageSchema.reference.urls.isNotEmpty()) {
+        } else if (languageSchema.reference.url.isNotEmpty()) {
             val range = jElement.getRangeInElement(name, textOffset)
             val reference = Reference(element, range, name, jElement, languageSchema)
             return arrayOf(reference)
@@ -105,7 +105,7 @@ class LanguageSchemaBasedReferenceProvider : PsiReferenceProvider() {
             ReferenceElement(element, range, name, type, declarationId, Access.Write)
         }
 
-        override fun resolve(): PsiElement {
+        override fun resolve(): ReferenceElement {
             val type = LanguageSchemaManager.resolveDeclarationType(languageSchema, jElement)
             val declarationId = languageSchema.declaration.id
             return ReferenceElement(element, rangeInElement, name, type, declarationId, Access.Write)
@@ -118,43 +118,37 @@ class LanguageSchemaBasedReferenceProvider : PsiReferenceProvider() {
         val name: String,
         val jElement: JElement,
         val languageSchema: LanguageSchema
-    ) : PsiPolyVariantReferenceBase<PsiElement>(element, range) {
+    ) : PsiReferenceBase<PsiElement>(element, range) {
         val project by lazy { element.project }
 
         //cached
 
-        private object MultiResolver : ResolveCache.PolyVariantResolver<Reference> {
-            override fun resolve(ref: Reference, incompleteCode: Boolean): Array<out ResolveResult> {
-                return ref.doMultiResolve()
+        private object Resolver : ResolveCache.AbstractResolver<Reference, ReferenceElement> {
+            override fun resolve(ref: Reference, incompleteCode: Boolean): ReferenceElement? {
+                return ref.doResolve()
             }
         }
 
-        override fun multiResolve(incompleteCode: Boolean): Array<out ResolveResult> {
-            return ResolveCache.getInstance(project).resolveWithCaching(this, MultiResolver, false, false)
+        override fun resolve(): ReferenceElement? {
+            return ResolveCache.getInstance(project).resolveWithCaching(this, Resolver, false, false)
         }
 
-        private fun doMultiResolve(): Array<out ResolveResult> {
-            val currentFile = element.containingFile ?: return ResolveResult.EMPTY_ARRAY
-            val result = mutableSetOf<ResolveResult>()
-            languageSchema.reference.urls.process { ref ->
-                JastManager.processElements(ref, currentFile, p@{ resolved ->
-                        val (resolvedName, resolvedTextOffset) = resolved.getNameAndTextOffset()
-                        if (resolvedName.isNullOrEmpty()) return@p true
-                        if (name != resolvedName) return@p true
-                        val resolvedRange = jElement.getRangeInElement(resolvedName, resolvedTextOffset)
-                        val resolvedLanguageSchema = JastManager.getLanguageSchema(resolved.psi) ?: return@p true
-                        val resolvedDeclarationId = resolvedLanguageSchema.declaration.id
-                        val resolvedType = LanguageSchemaManager.resolveDeclarationType(resolvedLanguageSchema, resolved)
-                        val resolvedElement = ReferenceElement(resolved.psi, resolvedRange, resolvedName, resolvedType, resolvedDeclarationId, Access.Read)
-                        result += PsiElementResolveResult(resolvedElement)
-                        true
-                    })
-            }
-            return result.toTypedArray()
-        }
-
-        fun getResolvedElements(): Collection<PsiElement> {
-            return multiResolve(false).mapNotNull { it.element?.castOrNull<ReferenceElement>()?.parent }
+        private fun doResolve(): ReferenceElement? {
+            val currentFile = element.containingFile ?: return null
+            var result: ReferenceElement? = null
+            JastManager.processElements(languageSchema.reference.url, currentFile, p@{ resolved ->
+                val (resolvedName, resolvedTextOffset) = resolved.getNameAndTextOffset()
+                if (resolvedName.isNullOrEmpty()) return@p true
+                if (name != resolvedName) return@p true
+                val resolvedRange = jElement.getRangeInElement(resolvedName, resolvedTextOffset)
+                val resolvedLanguageSchema = JastManager.getLanguageSchema(resolved.psi) ?: return@p true
+                val resolvedDeclarationId = resolvedLanguageSchema.declaration.id
+                val resolvedType = LanguageSchemaManager.resolveDeclarationType(resolvedLanguageSchema, resolved)
+                val resolvedElement = ReferenceElement(resolved.psi, resolvedRange, resolvedName, resolvedType, resolvedDeclarationId, Access.Read)
+                result = resolvedElement
+                false
+            })
+            return result
         }
     }
 }
