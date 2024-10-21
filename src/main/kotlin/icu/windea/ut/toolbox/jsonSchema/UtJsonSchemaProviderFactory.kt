@@ -3,7 +3,6 @@ package icu.windea.ut.toolbox.jsonSchema
 import com.intellij.openapi.project.*
 import com.intellij.openapi.vfs.*
 import com.jetbrains.jsonSchema.extension.*
-import com.jetbrains.jsonSchema.ide.*
 import com.jetbrains.jsonSchema.impl.*
 import icu.windea.ut.toolbox.*
 import org.jetbrains.annotations.*
@@ -23,12 +22,7 @@ class UtJsonSchemaProviderFactory : JsonSchemaProviderFactory, DumbAware {
 
     class FileProvider(private val project: Project, private val bundledSchema: Info) : JsonSchemaFileProvider {
         override fun isAvailable(file: VirtualFile): Boolean {
-            if (project.isDisposed) return false
-            val service = JsonSchemaService.Impl.get(project)
-            if (!service.isApplicableToFile(file)) return false
-            val instanceSchemaVersion = service.getSchemaVersion(file)
-            if (instanceSchemaVersion == null) return false
-            return instanceSchemaVersion == bundledSchema.version
+            return false
         }
 
         override fun getSchemaVersion(): JsonSchemaVersion {
@@ -47,7 +41,7 @@ class UtJsonSchemaProviderFactory : JsonSchemaProviderFactory, DumbAware {
         }
 
         override fun getRemoteSource(): String? {
-            return "https://github.com/DragonKnightOfBreeze/Utopian-Toolbox/blob/master/src/main/resources/jsonSchema/" + bundledSchema.bundledResourceFileName
+            return null
         }
 
         override fun getPresentableName(): String {
