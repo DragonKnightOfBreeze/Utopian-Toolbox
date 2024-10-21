@@ -6,7 +6,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <psi.referenceContributor language="yaml" implementation="icu.windea.ut.toolbox.lang.yaml.YamlLanguageSchemaBasedReferenceContributor"/>
         <annotator language="yaml" implementationClass="icu.windea.ut.toolbox.jast.LanguageSchemaBasedReferenceAnnotator"/>
-        <lang.foldingBuilder language="yaml" implementationClass="icu.windea.ut.toolbox.jast.LanguageSchemaBasedFoldingBuilder"/>
+        <lang.foldingBuilder language="yaml" implementationClass="icu.windea.ut.toolbox.lang.yaml.YamlLanguageSchemaBasedFoldingBuilder" order="first"/>
         <targetElementEvaluator language="yaml" implementationClass="icu.windea.ut.toolbox.jast.LanguageSchemaBasedTargetElementEvaluator"/>
         <completion.contributor language="yaml" implementationClass="icu.windea.ut.toolbox.lang.yaml.YamlLanguageSchemaBasedReferenceCompletionContributor"/>
     </extensions>

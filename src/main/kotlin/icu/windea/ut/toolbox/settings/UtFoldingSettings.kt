@@ -6,9 +6,13 @@ import com.intellij.util.xmlb.*
 @State(name = "UtFoldingSettings", storages = [Storage("editor.xml")], category = SettingsCategory.CODE)
 class UtFoldingSettings : PersistentStateComponent<UtFoldingSettings> {
     /**
-     * @see icu.windea.ut.toolbox.md.EmptyMarkdownLinkFoldingBuilder
+     * @see icu.windea.ut.toolbox.lang.md.EmptyMarkdownLinkFoldingBuilder
      */
     var emptyMarkdownLink = true
+    /**
+     * @see icu.windea.ut.toolbox.jast.LanguageSchema.DeclarationContainer.enableFolding
+     */
+    var declarationContainer = false
 
     override fun getState() = this
 
