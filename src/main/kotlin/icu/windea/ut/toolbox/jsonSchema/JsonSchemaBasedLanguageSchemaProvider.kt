@@ -70,7 +70,7 @@ class JsonSchemaBasedLanguageSchemaProvider : LanguageSchemaProvider {
                 doGetLanguageSchemaFromJackson(schema)?.let { return it }
             }
             is MergedJsonSchemaObject -> {
-                doGetLanguageSchema(schema.base)?.let { return it }
+                if(!schema.isInherited) doGetLanguageSchema(schema.base)?.let { return it }
                 doGetLanguageSchema(schema.other)?.let { return it }
             }
         }

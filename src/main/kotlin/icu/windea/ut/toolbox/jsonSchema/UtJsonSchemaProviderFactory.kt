@@ -10,14 +10,15 @@ import org.jetbrains.annotations.*
 class UtJsonSchemaProviderFactory : JsonSchemaProviderFactory, DumbAware {
     override fun getProviders(project: Project): List<JsonSchemaFileProvider> {
         return listOf(
-            FileProvider(project, Info(JsonSchemaVersion.SCHEMA_7, "schema07.ut.json", "7"))
+            FileProvider(project, Info(JsonSchemaVersion.SCHEMA_7, "schema07.ut.json", "7", "http://json-schema.org/draft-07/schema"))
         )
     }
 
     data class Info(
         val version: JsonSchemaVersion,
         val bundledResourceFileName: String,
-        val presentableSchemaId: @Nls String
+        val presentableSchemaId: @Nls String,
+        val remoteSourceUrl: String
     )
 
     class FileProvider(private val project: Project, private val bundledSchema: Info) : JsonSchemaFileProvider {
@@ -40,8 +41,8 @@ class UtJsonSchemaProviderFactory : JsonSchemaProviderFactory, DumbAware {
             return SchemaType.schema
         }
 
-        override fun getRemoteSource(): String? {
-            return null
+        override fun getRemoteSource(): String {
+            return bundledSchema.remoteSourceUrl
         }
 
         override fun getPresentableName(): String {

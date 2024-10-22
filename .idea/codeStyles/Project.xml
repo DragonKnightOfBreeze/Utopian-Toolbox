@@ -38,6 +38,10 @@
       <option name="NAME_COUNT_TO_USE_STAR_IMPORT_FOR_MEMBERS" value="1" />
       <option name="BLANK_LINES_BEFORE_DECLARATION_WITH_COMMENT_OR_ANNOTATION_ON_SEPARATE_LINE" value="0" />
     </JetCodeStyleSettings>
+    <codeStyleSettings language="HTML">
+      <option name="LINE_COMMENT_AT_FIRST_COLUMN" value="false" />
+      <option name="BLOCK_COMMENT_AT_FIRST_COLUMN" value="false" />
+    </codeStyleSettings>
     <codeStyleSettings language="JAVA">
       <option name="RIGHT_MARGIN" value="1000" />
       <option name="LINE_COMMENT_AT_FIRST_COLUMN" value="false" />
@@ -62,6 +66,10 @@
       <option name="BLOCK_COMMENT_AT_FIRST_COLUMN" value="false" />
       <option name="LINE_COMMENT_ADD_SPACE" value="false" />
     </codeStyleSettings>
+    <codeStyleSettings language="XML">
+      <option name="LINE_COMMENT_AT_FIRST_COLUMN" value="false" />
+      <option name="BLOCK_COMMENT_AT_FIRST_COLUMN" value="false" />
+    </codeStyleSettings>
     <codeStyleSettings language="kotlin">
       <option name="RIGHT_MARGIN" value="1000" />
       <option name="LINE_COMMENT_AT_FIRST_COLUMN" value="false" />
@@ -69,6 +77,9 @@
       <indentOptions>
         <option name="CONTINUATION_INDENT_SIZE" value="4" />
       </indentOptions>
+    </codeStyleSettings>
+    <codeStyleSettings language="yaml">
+      <option name="LINE_COMMENT_AT_FIRST_COLUMN" value="false" />
     </codeStyleSettings>
   </code_scheme>
 </component>
