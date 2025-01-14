@@ -26,3 +26,7 @@ A toolbox plugin integrates various extensions, mainly focus on the enhancement 
   * See: `icu.windea.ut.toolbox.jast.UnresolvedLanguageSchemaBasedReferenceInspection`
 * [X] Provides extended code folding rules, based on the language schema for JAST, which defines the locations of declaration containers
   * See: `icu.windea.ut.toolbox.jast.LanguageSchemaBasedFoldingBuilder`
+* [X] For `.properties` files, do not indent when enter in i18n text (configurable, override IDE's default implementation)
+  * See: `icu.windea.ut.toolbox.lang.properties.EnterInPropertiesFileHandler`
+* [X] For `.properties` files, optimize the quick documentation for i18n properties, to show handled i18n text
+  * See: `icu.windea.ut.toolbox.lang.properties.PropertiesDocumentationProvider`

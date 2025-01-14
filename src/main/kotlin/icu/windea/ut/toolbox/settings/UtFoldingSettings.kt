@@ -3,6 +3,7 @@ package icu.windea.ut.toolbox.settings
 import com.intellij.openapi.components.*
 import com.intellij.util.xmlb.*
 
+@Service(Service.Level.APP)
 @State(name = "UtFoldingSettings", storages = [Storage("editor.xml")], category = SettingsCategory.CODE)
 class UtFoldingSettings : PersistentStateComponent<UtFoldingSettings> {
     /**

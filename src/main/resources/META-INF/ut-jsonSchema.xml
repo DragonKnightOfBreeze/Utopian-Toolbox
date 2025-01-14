@@ -1,0 +1,9 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="icu.windea.ut.toolbox">
+        <languageSchemaProvider implementation="icu.windea.ut.toolbox.jsonSchema.JsonSchemaBasedLanguageSchemaProvider"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="JavaScript">
+        <JsonSchema.ProviderFactory implementation="icu.windea.ut.toolbox.jsonSchema.UtJsonSchemaProviderFactory"/>
+    </extensions>
+</idea-plugin>

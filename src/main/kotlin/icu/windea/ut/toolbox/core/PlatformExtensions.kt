@@ -7,13 +7,13 @@ import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.progress.*
 import com.intellij.openapi.project.*
 import com.intellij.openapi.util.*
+import com.intellij.openapi.util.text.*
 import com.intellij.psi.*
 import com.intellij.psi.util.*
 import com.intellij.refactoring.actions.BaseRefactoringAction.*
 import com.intellij.util.*
 import icu.windea.ut.toolbox.core.util.*
 import java.util.concurrent.*
-import java.util.logging.*
 import kotlin.reflect.*
 
 //region Common Extensions
@@ -95,6 +95,8 @@ fun <T> T.withDependencyItems(vararg dependencyItems: Any): CachedValueProvider.
     if (dependencyItems.isEmpty()) return CachedValueProvider.Result.create(this, ModificationTracker.NEVER_CHANGED)
     return CachedValueProvider.Result.create(this, *dependencyItems)
 }
+
+fun String.escapeXml() = if(this.isEmpty()) "" else StringUtil.escapeXmlEntities(this)
 //endregion
 
 //region Key & DataKey Related Extensions

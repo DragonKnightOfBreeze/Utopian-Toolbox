@@ -1,0 +1,6 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <enterHandlerDelegate implementation="icu.windea.ut.toolbox.lang.properties.EnterInPropertiesFileHandler" order="first"/>
+        <lang.documentationProvider language="Properties" implementationClass="icu.windea.ut.toolbox.lang.properties.PropertiesDocumentationProvider"/>
+    </extensions>
+</idea-plugin>

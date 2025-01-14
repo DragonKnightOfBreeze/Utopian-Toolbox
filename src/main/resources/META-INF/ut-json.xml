@@ -1,13 +1,8 @@
 <idea-plugin>
     <extensions defaultExtensionNs="icu.windea.ut.toolbox">
         <jElementProvider language="JSON" implementationClass="icu.windea.ut.toolbox.lang.json.JsonJElementProvider"/>
-        <languageSchemaProvider implementation="icu.windea.ut.toolbox.jsonSchema.JsonSchemaBasedLanguageSchemaProvider"/>
     </extensions>
 
-    <extensions defaultExtensionNs="JavaScript">
-        <JsonSchema.ProviderFactory implementation="icu.windea.ut.toolbox.jsonSchema.UtJsonSchemaProviderFactory"/>
-    </extensions>
-    
     <extensions defaultExtensionNs="com.intellij">
         <psi.referenceContributor language="JSON" implementation="icu.windea.ut.toolbox.lang.json.JsonLanguageSchemaBasedReferenceContributor"/>
         <annotator language="JSON" implementationClass="icu.windea.ut.toolbox.jast.LanguageSchemaBasedReferenceAnnotator"/>

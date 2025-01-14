@@ -26,3 +26,7 @@
   * 参见：`icu.windea.ut.toolbox.jast.UnresolvedLanguageSchemaBasedReferenceInspection`
 * [X] 基于JAST的languageSchema指定的声明的容器的位置，提供扩展的代码折叠规则
   * 参见：`icu.windea.ut.toolbox.jast.LanguageSchemaBasedFoldingBuilder`
+* [X] 对于`.properties`文件，在本地化文本中换行时不自动缩进（可配置，覆盖IDE的默认实现）
+  * 参见：`icu.windea.ut.toolbox.lang.properties.EnterInPropertiesFileHandler`
+* [X] 对于`.properties`文件，优化本地化属性的快速文档，显示处理后的本地化文本
+  * 参见：`icu.windea.ut.toolbox.lang.properties.PropertiesDocumentationProvider`
