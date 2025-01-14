@@ -1,0 +1,17 @@
+units:
+- name: 环印骑士
+  weapons:
+  - 环印骑士直剑
+  - 环印骑士盾
+
+weapons:
+- name: 环印骑士直剑
+  type: 直剑
+  description: 环印骑士们使用的可以取消的直剑。
+- name: 环印骑士盾
+  type: 小型盾
+  description: 环印骑士们使用的可以喷火的小圆盾。
+
+weaponTypes:
+- name: 直剑
+- name: 小型盾

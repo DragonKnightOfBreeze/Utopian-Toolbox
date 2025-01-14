@@ -1,0 +1,88 @@
+{
+  "properties": {
+    "units": {
+      "items": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "$languageSchema": {
+              "declaration": {
+                "id": "Unit",
+                "type": "Unit",
+                "description": "#/description/-"
+              }
+            }
+          },
+          "weapons": {
+            "items": {
+              "type": "string",
+              "$languageSchema": {
+                "reference": {
+                  "url": "#/weapons/-/name/-"
+                }
+              }
+            }
+          }
+        },
+        "$languageSchema": {
+          "declarationContainer": {
+            "url": "#/name/-"
+          }
+        }
+      }
+    },
+    "weapons": {
+      "items": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "$languageSchema": {
+              "declaration": {
+                "id": "Weapon",
+                "type": "Weapon",
+                "description": "#/description/-",
+                "extraProperties": {
+                  "type": "#/type/-"
+                }
+              }
+            }
+          },
+          "type": {
+            "type": "string",
+            "$languageSchema": {
+              "reference": {
+                "url": "#/weaponTypes/-/name/-"
+              }
+            }
+          }
+        },
+        "$languageSchema": {
+          "declarationContainer": {
+            "url": "#/name/-"
+          }
+        }
+      }
+    },
+    "weaponTypes": {
+      "items": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "$languageSchema": {
+              "declaration": {
+                "id": "WeaponType",
+                "type": "WeaponType",
+                "description": "#/description/-"
+              }
+            }
+          }
+        },
+        "$languageSchema": {
+          "declarationContainer": {
+            "url": "#/name/-"
+          }
+        }
+      }
+    }
+  }
+}
