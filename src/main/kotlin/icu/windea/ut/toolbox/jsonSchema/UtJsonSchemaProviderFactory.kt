@@ -17,7 +17,7 @@ class UtJsonSchemaProviderFactory : JsonSchemaProviderFactory, DumbAware {
     data class Info(
         val version: JsonSchemaVersion,
         val bundledResourceFileName: String,
-        val presentableSchemaId: @Nls String,
+        @Nls val presentableSchemaId: String,
         val remoteSourceUrl: String
     )
 

@@ -61,17 +61,6 @@ inline fun <T, R> T.runCatchingCancelable(block: T.() -> R): Result<R> {
     return runCatching(block).onFailure { if (it is ProcessCanceledException) throw it }
 }
 
-inline fun <R> disableLogger(block: () -> R): R {
-    val globalLogger = Logger.getLogger("") //DO NOT use Logger.getGlobalLogger(), it's incorrect
-    val loggerLevel = globalLogger.level
-    try {
-        globalLogger.level = Level.OFF
-        return block()
-    } finally {
-        globalLogger.level = loggerLevel
-    }
-}
-
 //com.intellij.refactoring.actions.BaseRefactoringAction.findRefactoringTargetInEditor
 fun DataContext.findElement(): PsiElement? {
     var element = this.getData(CommonDataKeys.PSI_ELEMENT)
@@ -158,17 +147,11 @@ inline operator fun <T> Key<T>.getValue(thisRef: UserDataHolder, property: KProp
 inline operator fun <T> Key<T>.getValue(thisRef: ProcessingContext, property: KProperty<*>): T? =
     thisRef.getOrDefault(this)
 
-inline operator fun <T, THIS : UserDataHolder> KeyWithFactory<T, THIS>.getValue(
-    thisRef: THIS,
-    property: KProperty<*>
-): T {
+inline operator fun <T, THIS : UserDataHolder> KeyWithFactory<T, THIS>.getValue(thisRef: THIS, property: KProperty<*>): T {
     return thisRef.getUserData(this) ?: factory(thisRef).also { thisRef.putUserData(this, it) }
 }
 
-inline operator fun <T> KeyWithFactory<T, ProcessingContext>.getValue(
-    thisRef: ProcessingContext,
-    property: KProperty<*>
-): T {
+inline operator fun <T> KeyWithFactory<T, ProcessingContext>.getValue(thisRef: ProcessingContext, property: KProperty<*>): T {
     return thisRef.get(this) ?: factory(thisRef).also { thisRef.put(this, it) }
 }
 
@@ -178,7 +161,8 @@ inline operator fun <T> Key<T>.setValue(thisRef: UserDataHolder, property: KProp
 inline operator fun <T> Key<T>.setValue(thisRef: ProcessingContext, property: KProperty<*>, value: T?) =
     thisRef.put(this, value)
 
-inline operator fun <T> DataKey<T>.getValue(thisRef: DataContext, property: KProperty<*>): T? = thisRef.getData(this)
+inline operator fun <T> DataKey<T>.getValue(thisRef: DataContext, property: KProperty<*>): T? =
+    thisRef.getData(this)
 
 inline operator fun <T> DataKey<T>.getValue(thisRef: AnActionEvent, property: KProperty<*>): T? =
     thisRef.dataContext.getData(this)
